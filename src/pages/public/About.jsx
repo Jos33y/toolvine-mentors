@@ -210,17 +210,23 @@ function VineCover({ issue, featured }) {
   )
 }
 
-/* ============ Portrait (founder only) ============ */
+/* ============ Portrait (founder): photo-led, no chrome, amber rule under ============ */
 
 function Portrait({ person }) {
   return (
-    <div className="about__portrait" role="img" aria-label={`Portrait of ${person.name}`}>
-      <div className="about__portrait-light" aria-hidden="true" />
-      <div className="about__portrait-img-wrap">
-        <img src={person.photo} alt="" className="about__portrait-img" />
-        <div className="about__portrait-img-overlay" aria-hidden="true" />
+    <figure className="about__portrait">
+      <div className="about__portrait-photo">
+        <div className="about__portrait-light" aria-hidden="true" />
+        <div className="about__portrait-img-wrap">
+          <img src={person.photo} alt="" className="about__portrait-img" />
+          <div className="about__portrait-img-overlay" aria-hidden="true" />
+        </div>
       </div>
-    </div>
+      <figcaption className="about__portrait-caption">
+        <p className="about__portrait-role">{person.role}</p>
+        <h2 className="about__portrait-name">{person.name}</h2>
+      </figcaption>
+    </figure>
   )
 }
 
@@ -321,9 +327,6 @@ export function About() {
 
           <div className="about__founder-content">
             <RevealOnScroll threshold={0.2} delay={120}>
-              <p className="about__founder-role">{FOUNDER.role}</p>
-              <h2 className="about__founder-name">{FOUNDER.name}</h2>
-
               <div className="about__founder-prose">
                 {FOUNDER.paragraphs.map((p, i) => (
                   <p key={i}>{p}</p>

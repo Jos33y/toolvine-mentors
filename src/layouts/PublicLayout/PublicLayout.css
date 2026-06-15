@@ -136,6 +136,16 @@
     color        var(--tv-duration) var(--tv-ease);
 }
 
+/* Force the icon size at the CSS layer. Inline-SVG width/height attributes
+   can be shrunk by base.css's `svg { display:block; max-width:100% }` on
+   iOS Safari inside flex containers. Belt and suspenders. */
+.public-menu-btn svg {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  display: block;
+}
+
 .public-menu-btn:hover {
   border-color: var(--tv-primary);
   color: var(--tv-primary);

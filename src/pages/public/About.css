@@ -271,17 +271,24 @@
   margin-top: var(--tv-space-1);
 }
 
-/* ============ Portrait (founder) ============ */
+/* ============ Portrait (founder): photo-led, no chrome ============ */
 
 .about__portrait {
   position: relative;
-  background: var(--tv-surface);
-  border: 1px solid var(--tv-border-strong);
-  border-radius: var(--tv-radius-sm);
-  overflow: hidden;
-  width: 100%; max-width: 360px;
-  aspect-ratio: 4 / 5;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 480px;
+  margin: 0;
   user-select: none;
+}
+
+.about__portrait-photo {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--tv-surface);
 }
 
 .about__portrait-light {
@@ -304,6 +311,34 @@
   position: absolute; inset: 0;
   background: linear-gradient(180deg, rgba(217, 119, 6, 0.05), rgba(15, 118, 110, 0.04));
   mix-blend-mode: multiply; pointer-events: none;
+}
+
+/* Caption sits below the photo, anchored by an amber left rule.
+   Same device the founder pullquote uses, so the section gains a recurring mark. */
+.about__portrait-caption {
+  margin-top: var(--tv-space-5);
+  padding: var(--tv-space-2) 0 var(--tv-space-2) var(--tv-space-5);
+  border-left: 2px solid var(--tv-accent);
+}
+
+.about__portrait-role {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wider);
+  text-transform: uppercase;
+  color: var(--tv-accent-text);
+  margin: 0 0 var(--tv-space-3);
+}
+
+.about__portrait-name {
+  font-family: var(--tv-font-serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(1.5rem, 2.8vw, 2.25rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--tv-text);
+  margin: 0;
 }
 
 /* ============ Founder ============ */
@@ -329,24 +364,6 @@
 }
 
 .about__founder-content { max-width: 60ch; }
-
-.about__founder-role {
-  font-family: var(--tv-font-mono);
-  font-size: var(--tv-fs-xs);
-  letter-spacing: var(--tv-tracking-wider);
-  text-transform: uppercase;
-  color: var(--tv-accent-text);
-  margin: 0 0 var(--tv-space-3);
-}
-
-.about__founder-name {
-  font-family: var(--tv-font-serif);
-  font-style: italic; font-weight: 500;
-  font-size: clamp(1.75rem, 3.4vw, 2.75rem);
-  line-height: 1.1; letter-spacing: -0.02em;
-  color: var(--tv-text);
-  margin: 0 0 clamp(var(--tv-space-6), 3vw, var(--tv-space-8));
-}
 
 .about__founder-prose {
   display: flex; flex-direction: column;

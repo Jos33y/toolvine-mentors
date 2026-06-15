@@ -68,7 +68,7 @@ export function PublicLayout() {
             aria-label={open ? 'Close menu' : 'Open menu'}
             aria-expanded={open}
           >
-            <Icon name={open ? 'close' : 'menu'} size={26} strokeWidth={2} />
+            <Icon name={open ? 'closeBold' : 'menu'} size={28} strokeWidth={2.25} />
           </button>
         </div>
       </header>

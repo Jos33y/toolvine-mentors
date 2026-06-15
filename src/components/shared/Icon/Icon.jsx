@@ -12,8 +12,11 @@ const PATHS = {
   resources:   <><path d="M4 5a2 2 0 0 1 2-2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><path d="M14 3v6h6"/></>,
   settings:    <><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.7l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.7-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.7.3l-.1.1A2 2 0 1 1 4.6 17l.1-.1a1.6 1.6 0 0 0 .3-1.7 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.7l-.1-.1A2 2 0 1 1 7 4.6l.1.1a1.6 1.6 0 0 0 1.7.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.7-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.7V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1Z"/></>,
   logout:      <><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></>,
-  menu:        <path d="M4 6h16M4 12h16M4 18h16"/>,
+  // menu: tightened to span x=3..21 (was x=4..20) so the glyph fills 75% of the viewBox instead of 67%.
+  menu:        <path d="M3 6h18M3 12h18M3 18h18"/>,
   close:       <path d="M18 6 6 18M6 6l12 12"/>,
+  // closeBold: bigger X for the hamburger toggle. Spans x=5..19 (14 units) vs close's 6..18 (12 units).
+  closeBold:   <path d="M19 5 5 19M5 5l14 14"/>,
   check:       <path d="m5 12 5 5L20 7"/>,
   chevronRight:<path d="m9 6 6 6-6 6"/>,
   chevronDown: <path d="m6 9 6 6 6-6"/>,
