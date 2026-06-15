@@ -1,5 +1,5 @@
 /* Contact. Begin a conversation.
-   Editorial colophon direction: vesica watermark + hairline divider.
+   Vesica watermark + hairline divider on the hero.
    Floating-label form, magnetic send, ceremonial centered success state. */
 
 .contact {
@@ -117,7 +117,7 @@
 }
 
 .contact__intro {
-  margin: clamp(var(--tv-space-7), 3.5vw, var(--tv-space-10)) 0 0;
+  margin: clamp(var(--tv-space-8), 3.5vw, var(--tv-space-10)) 0 0;
   font-family: var(--tv-font-body);
   font-size: clamp(1rem, 1.4vw, 1.125rem);
   line-height: 1.65;
@@ -450,8 +450,6 @@
 }
 
 /* ============ Success takeover: ceremonial centered moment ============ */
-/* Replaces the entire page composition: no hero, no divider, no channels.
-   Centered around a vesica seal that sits behind the title like an emboss. */
 
 .contact__sent {
   position: relative;
@@ -470,7 +468,6 @@
   justify-content: center;
 }
 
-/* Vesica seal: faded brand mark centered behind the type. */
 .contact__sent-seal {
   position: absolute;
   top: 50%;
@@ -490,7 +487,6 @@
   display: block;
 }
 
-/* Text content sits above the seal. */
 .contact__sent-asterism,
 .contact__sent-eyebrow,
 .contact__sent-line,
@@ -500,7 +496,6 @@
   z-index: 1;
 }
 
-/* Sequenced reveal */
 .contact__sent-asterism,
 .contact__sent-eyebrow,
 .contact__sent-line,
@@ -629,37 +624,88 @@
   color: var(--tv-primary);
 }
 
-/* ============ Channels column ============ */
+/* ============ Right rail: unified channels + socials ============ */
 
-.contact__channels {
+.contact__rail {
   display: flex;
   flex-direction: column;
-  gap: var(--tv-space-8);
 }
 
 @media (min-width: 960px) {
-  .contact__channels {
+  .contact__rail {
     padding-left: clamp(var(--tv-space-6), 3vw, var(--tv-space-10));
     border-left: 1px solid var(--tv-border);
   }
 }
 
-.contact__channels-eyebrow {
+.contact__rail-eyebrow {
   font-family: var(--tv-font-mono);
   font-size: var(--tv-fs-xs);
   letter-spacing: var(--tv-tracking-wider);
   text-transform: uppercase;
   color: var(--tv-accent-text);
-  margin: 0 0 calc(-1 * var(--tv-space-4));
+  margin: 0 0 var(--tv-space-5);
 }
 
-.contact__channel {
+.contact__entries {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--tv-space-2);
+  gap: var(--tv-space-6);
 }
 
-.contact__channel-label {
+.contact__entries--social {
+  gap: var(--tv-space-3);
+}
+
+.contact__entry {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--tv-space-4);
+  margin: 0;
+}
+
+/* Icon container: hairline ring + amber dot at top-right. */
+.contact__entry-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid var(--tv-border-strong);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--tv-text-2);
+  transition:
+    border-color var(--tv-duration) var(--tv-ease),
+    background   var(--tv-duration) var(--tv-ease),
+    color        var(--tv-duration) var(--tv-ease);
+}
+
+.contact__entry-icon::after {
+  content: '';
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--tv-accent);
+}
+
+.contact__entry-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-1);
+}
+
+.contact__entry-label {
   font-family: var(--tv-font-mono);
   font-size: var(--tv-fs-xs);
   letter-spacing: var(--tv-tracking-wider);
@@ -668,7 +714,7 @@
   margin: 0;
 }
 
-.contact__channel-email {
+.contact__entry-primary {
   font-family: var(--tv-font-body);
   font-weight: var(--tv-fw-medium);
   font-size: 1.0625rem;
@@ -676,50 +722,78 @@
   color: var(--tv-text);
   text-decoration: none;
   word-break: break-word;
+  margin: 0;
   transition: color var(--tv-duration) var(--tv-ease);
 }
 
-.contact__channel-email:hover {
+a.contact__entry-primary:hover {
   color: var(--tv-primary);
 }
 
-.contact__channel-desc {
+.contact__entry-desc {
+  font-family: var(--tv-font-body);
   font-size: var(--tv-fs-sm);
   line-height: 1.55;
   color: var(--tv-text-2);
-  max-width: 36ch;
-  margin: 0;
+  max-width: 38ch;
+  margin: var(--tv-space-1) 0 0;
 }
 
-.contact__elsewhere {
+/* Social entry: whole row is the link. Hover lights the ring. */
+.contact__entry-link {
   display: flex;
-  flex-direction: column;
-  gap: var(--tv-space-2);
-  padding-top: var(--tv-space-6);
-  border-top: 1px solid var(--tv-border);
-}
-
-.contact__elsewhere-label {
-  font-family: var(--tv-font-mono);
-  font-size: var(--tv-fs-xs);
-  letter-spacing: var(--tv-tracking-wider);
-  text-transform: uppercase;
-  color: var(--tv-text-muted);
-  margin: 0 0 var(--tv-space-1);
-}
-
-.contact__social {
-  font-family: var(--tv-font-mono);
-  font-size: var(--tv-fs-sm);
-  letter-spacing: 0.02em;
-  color: var(--tv-text-2);
+  align-items: center;
+  gap: var(--tv-space-4);
   text-decoration: none;
-  padding: 4px 0;
-  transition: color var(--tv-duration) var(--tv-ease);
+  color: inherit;
+  width: 100%;
+  padding: var(--tv-space-2) 0;
+  border-radius: var(--tv-radius-md);
+  transition: background var(--tv-duration) var(--tv-ease);
 }
 
-.contact__social:hover {
+.contact__entry-link .contact__entry-body {
+  gap: 2px;
+}
+
+.contact__entry-link:hover .contact__entry-icon,
+.contact__entry-link:focus-visible .contact__entry-icon {
+  border-color: var(--tv-primary);
+  background: var(--tv-primary-soft);
   color: var(--tv-primary);
+}
+
+.contact__entry-link:hover .contact__entry-primary,
+.contact__entry-link:focus-visible .contact__entry-primary {
+  color: var(--tv-primary);
+}
+
+.contact__entry-link:focus-visible {
+  outline: 2px solid var(--tv-primary);
+  outline-offset: 2px;
+}
+
+/* Asterism divider between channel section and social section. */
+.contact__rail-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-4);
+  padding: var(--tv-space-8) 0 var(--tv-space-6);
+}
+
+.contact__rail-divider-rule {
+  flex: 1;
+  height: 1px;
+  background: var(--tv-border);
+}
+
+.contact__rail-divider-mark {
+  font-family: var(--tv-font-serif);
+  font-size: 1.125rem;
+  color: var(--tv-text-muted);
+  white-space: nowrap;
+  user-select: none;
+  line-height: 1;
 }
 
 /* ============ Mobile ============ */
@@ -757,6 +831,14 @@
     width: 100%;
     max-width: 320px;
   }
+
+  .contact__entry-primary {
+    font-size: 1rem;
+  }
+
+  .contact__rail-divider {
+    padding: var(--tv-space-6) 0 var(--tv-space-5);
+  }
 }
 
 /* ============ Reduced motion ============ */
@@ -770,7 +852,10 @@
   .contact__label,
   .contact__send-arrow,
   .contact__sent-back,
-  .contact__sent-primary {
+  .contact__sent-primary,
+  .contact__entry-icon,
+  .contact__entry-primary,
+  .contact__entry-link {
     transition: none;
   }
   .contact__sent-asterism,

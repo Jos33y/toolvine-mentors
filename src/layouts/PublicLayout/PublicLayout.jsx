@@ -63,12 +63,12 @@ export function PublicLayout() {
           </div>
 
           <button
-            className="public-menu-btn"
+            className={`public-menu-btn${open ? ' is-open' : ''}`}
             onClick={() => setOpen((v) => !v)}
             aria-label={open ? 'Close menu' : 'Open menu'}
             aria-expanded={open}
           >
-            <Icon name={open ? 'close' : 'menu'} size={22} />
+            <Icon name={open ? 'close' : 'menu'} size={26} strokeWidth={2} />
           </button>
         </div>
       </header>

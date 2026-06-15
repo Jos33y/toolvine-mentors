@@ -72,7 +72,6 @@ export function SignUp() {
       <header className="auth__panel-head">
         <span className="auth__eyebrow">Get started</span>
         <h1 className="auth__title">Create your account</h1>
-        <p className="auth__lede">Join the community. A mentor follows after.</p>
       </header>
 
       {authError      && <div className="auth__alert auth__alert--error"   role="alert">{authError}</div>}

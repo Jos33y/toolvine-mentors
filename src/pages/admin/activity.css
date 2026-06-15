@@ -1,0 +1,221 @@
+/* Activity page.
+   Chronological audit log on the cool app surface. Each row reads as a
+   sentence: actor + verb + target + time. Bolder weight on the actor and
+   target names lets the eye anchor on the who/what; connective tissue stays
+   plain. No expand/collapse — these rows are read-only history. */
+
+.act {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-5);
+  max-width: var(--tv-content-max, 1200px);
+}
+
+/* ============ Head ============ */
+
+.act__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--tv-space-4);
+  flex-wrap: wrap;
+}
+
+.act__title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-2xl);
+  color: var(--tv-text);
+  margin: 0;
+  letter-spacing: var(--tv-tracking-tight);
+}
+
+.act__head-meta {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+  letter-spacing: var(--tv-tracking-wider);
+}
+
+/* ============ List + rows ============ */
+
+.act__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background: var(--tv-surface);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  overflow: hidden;
+}
+
+.act__row {
+  padding: var(--tv-space-3) var(--tv-space-4);
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  gap: var(--tv-space-3);
+  align-items: center;
+}
+
+.act__row + .act__row {
+  border-top: 1px solid var(--tv-border);
+}
+
+/* ============ Avatar ============ */
+
+.act__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--tv-canvas-app);
+  color: var(--tv-text-2);
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: 0.02em;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.act__avatar--initials {
+  background: var(--tv-primary-soft);
+  color: var(--tv-primary);
+}
+
+.act__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Universal portrait grade: warm-skin-tone-preserving desaturation. */
+  filter: saturate(0.55) contrast(1.02);
+}
+
+/* ============ Sentence ============ */
+
+.act__sentence {
+  margin: 0;
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-2);
+  line-height: var(--tv-lh-snug, 1.45);
+  min-width: 0;
+}
+
+.act__actor,
+.act__target {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  color: var(--tv-text);
+}
+
+/* ============ Time ============ */
+
+.act__time {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+/* ============ Panels (empty / loading / error) ============ */
+
+.act__panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--tv-space-3);
+  padding: var(--tv-space-12) var(--tv-space-5);
+  background: var(--tv-surface);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  text-align: center;
+}
+
+.act__panel-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--tv-canvas-app);
+  color: var(--tv-text-muted);
+}
+
+.act__panel-text {
+  margin: 0;
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-2);
+  max-width: 360px;
+}
+
+.act__panel--error .act__panel-icon {
+  background: var(--tv-accent-soft);
+  color: var(--tv-accent-text);
+}
+
+/* ============ Pagination ============ */
+
+.act__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--tv-space-4);
+  padding: var(--tv-space-3) 0;
+}
+
+.act__page-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  padding: var(--tv-space-2) var(--tv-space-3);
+  background: var(--tv-surface);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-medium);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text);
+  cursor: pointer;
+  transition: background var(--tv-duration-fast) var(--tv-ease),
+              border-color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.act__page-btn:hover:not(:disabled) {
+  background: var(--tv-canvas-app);
+  border-color: var(--tv-text-2);
+}
+
+.act__page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.act__page-info {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+  letter-spacing: var(--tv-tracking-wider);
+}
+
+/* ============ Responsive ============ */
+
+@media (max-width: 760px) {
+  .act__row {
+    grid-template-columns: 32px 1fr;
+    grid-template-areas:
+      "avatar sentence"
+      ".      time";
+    row-gap: 4px;
+  }
+
+  .act__avatar   { grid-area: avatar; }
+  .act__sentence { grid-area: sentence; }
+  .act__time     { grid-area: time; }
+}

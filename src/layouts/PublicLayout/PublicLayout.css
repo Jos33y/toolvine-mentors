@@ -115,19 +115,42 @@
   color: var(--tv-text-inverse);
 }
 
+/* ============ Mobile menu button: hairline-bordered control ============ */
+
 .public-menu-btn {
   margin-left: auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  background: transparent;
+  border: 1px solid var(--tv-border-strong);
   border-radius: var(--tv-radius-md);
   color: var(--tv-text);
+  transition:
+    border-color var(--tv-duration) var(--tv-ease),
+    background   var(--tv-duration) var(--tv-ease),
+    color        var(--tv-duration) var(--tv-ease);
 }
 
 .public-menu-btn:hover {
+  border-color: var(--tv-primary);
+  color: var(--tv-primary);
   background: rgba(15, 118, 110, 0.06);
+}
+
+.public-menu-btn.is-open {
+  border-color: var(--tv-primary);
+  background: rgba(15, 118, 110, 0.08);
+  color: var(--tv-primary);
+}
+
+.public-menu-btn:focus-visible {
+  outline: 2px solid var(--tv-primary);
+  outline-offset: 2px;
 }
 
 .public-nav-mobile {

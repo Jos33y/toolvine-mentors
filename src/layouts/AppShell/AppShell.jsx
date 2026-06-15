@@ -8,24 +8,39 @@ import { OnboardingBanner } from '@/components/shared/OnboardingBanner/Onboardin
 import { VerifyEmailBanner } from '@/components/shared/VerifyEmailBanner/VerifyEmailBanner'
 import './AppShell.css'
 
-// One declarative list. Order matters: items higher in the array land in the
-// mobile bottom tab bar first. Admin tools sit at the end so they spill into
-// the More sheet for users who hold many roles.
+// Order is deliberate per role. Items higher in this array fill the mobile
+// bottom tab bar first; items past MOBILE_TAB_LIMIT spill into the More
+// sheet. The shape produces these resolved orderings:
+//
+//   Admin:  Dashboard · Mentees · Meetings · Pairings ·
+//           [Users · Submissions · Activity · Insights · Profile in More]
+//   Mentor: Dashboard · Mentees · Meetings · Profile
+//   Mentee: Dashboard · My Mentor · Meetings · Profile
+//
+// Profile sits at the end across all roles — it's a settings-tier surface,
+// not a daily destination. Admins reach it from the More sheet on mobile and
+// from the sidebar foot on desktop. Mentors and mentees see it as their
+// fourth tab because they have no admin tools competing for the slot.
 const NAV_ITEMS = [
   { to: '/dashboard', label: 'Dashboard', icon: 'dashboard', allow: null, end: true },
 
-  // Role-primary daily action (only one of these shows per single-role user).
+  // Role-primary daily action (one shows per single-role user).
   { to: '/mentees',   label: 'Mentees',   icon: 'users',     allow: [ROLES.ADMIN, ROLES.MENTOR] },
   { to: '/mentor',    label: 'My Mentor', icon: 'user',      allow: [ROLES.MENTEE] },
 
   // Shared by every signed-in user.
   { to: '/meetings',  label: 'Meetings',  icon: 'meetings',  allow: null },
-  { to: '/profile',   label: 'Profile',   icon: 'user',      allow: null },
 
-  // Admin tools sit last so they spill to the More sheet on mobile when the
-  // user holds many roles.
-  { to: '/pairings',  label: 'Pairings',  icon: 'pairings',  allow: [ROLES.ADMIN] },
-  { to: '/users',     label: 'Users',     icon: 'users',     allow: [ROLES.ADMIN] }
+  // Admin tools fill the slots between Meetings and Profile so admin's
+  // mobile tab bar carries platform-running shortcuts, not settings.
+  { to: '/pairings',           label: 'Pairings',    icon: 'pairings', allow: [ROLES.ADMIN] },
+  { to: '/users',              label: 'Users',       icon: 'users',    allow: [ROLES.ADMIN] },
+  { to: '/admin/submissions',  label: 'Submissions', icon: 'mail',     allow: [ROLES.ADMIN] },
+  { to: '/admin/activity',     label: 'Activity',    icon: 'clock',    allow: [ROLES.ADMIN] },
+  { to: '/admin/insights',     label: 'Insights',    icon: 'eye',      allow: [ROLES.ADMIN] },
+
+  // Profile last — low-frequency, settings-tier.
+  { to: '/profile',   label: 'Profile',   icon: 'user',      allow: null }
 ]
 
 // Mobile bottom tab bar capacity. Items beyond this index move to the More

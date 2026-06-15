@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Logo } from '@/components/shared/Logo/Logo'
 import { Icon } from '@/components/shared/Icon/Icon'
+import { SOCIALS } from '@/lib/socials'
 import './PublicFooter.css'
 
 /* ============ Per-page content ============ */
@@ -25,14 +26,6 @@ const SIGNALS = [
   'Vinethoughts Issue 06 \u00b7 Summer 2026',
   'Reading from Proverbs this season',
   '1,840 meetings logged in 2025',
-]
-
-const SOCIALS = [
-  { label: 'Instagram',  icon: 'instagram', url: 'https://www.instagram.com/toolvine_mentors_initiative' },
-  { label: 'Facebook',   icon: 'facebook',  url: 'https://www.facebook.com/Toolvinementors' },
-  { label: 'YouTube',    icon: 'youtube',   url: 'https://www.youtube.com/@ToolvineMentors' },
-  { label: 'TikTok',     icon: 'tiktok',    url: 'https://www.tiktok.com/@toolvine_mentors' },
-  { label: 'X',          icon: 'x',         url: 'https://x.com/toolvinementors' },
 ]
 
 /* ============ Drift particle factory ============ */
@@ -245,7 +238,7 @@ export function PublicFooter() {
         <div className="pf__socials">
           {SOCIALS.map((s) => (
             <a
-              key={s.label}
+              key={s.platform}
               href={s.url}
               target="_blank"
               rel="noopener noreferrer"

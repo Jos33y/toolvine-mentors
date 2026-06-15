@@ -86,7 +86,6 @@ export function SignIn() {
       <header className="auth__panel-head">
         <span className="auth__eyebrow">Sign in</span>
         <h1 className="auth__title">Welcome back</h1>
-        <p className="auth__lede">Continue where you left off.</p>
       </header>
 
       {notice && (

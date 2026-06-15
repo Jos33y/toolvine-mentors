@@ -576,3 +576,16 @@
   }
   .admin-users__row { padding: var(--tv-space-4); }
 }
+
+.admin-users__person--clickable {
+  cursor: pointer;
+  border-radius: var(--tv-radius-md);
+  transition: background var(--tv-duration-fast) var(--tv-ease);
+}
+.admin-users__person--clickable:hover {
+  background: var(--tv-canvas-app);
+}
+.admin-users__person--clickable:focus-visible {
+  outline: 2px solid var(--tv-primary-light);
+  outline-offset: 2px;
+}

@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { contactSchema, submitContactForm } from '@/lib/contact'
+import { SOCIALS } from '@/lib/socials'
 import { Logo } from '@/components/shared/Logo/Logo'
+import { Icon } from '@/components/shared/Icon/Icon'
 import './Contact.css'
 
 /* ============ Config ============ */
@@ -18,23 +20,21 @@ const CHANNELS = [
   {
     label: 'General questions',
     email: 'hello@toolvinementors.com',
-    description: 'Our team reads everything sent here.'
+    description: 'Our team reads everything sent here.',
+    icon: 'mail'
   },
   {
     label: 'Privacy and data',
     email: 'privacy@toolvinementors.com',
-    description: 'For data requests, or questions about how we hold your information.'
+    description: 'For data requests, or questions about how we hold your information.',
+    icon: 'lock'
   },
   {
     label: 'Safeguarding',
     email: 'safeguarding@toolvinementors.com',
-    description: 'Concerns about conduct on or off the platform. Reaches the admin team directly.'
+    description: 'Concerns about conduct on or off the platform. Reaches the admin team directly.',
+    icon: 'shieldCheck'
   }
-]
-
-const SOCIALS = [
-  { handle: '@toolvine_mentors',            url: 'https://instagram.com/toolvine_mentors' },
-  { handle: '@toolvine_mentors_initiative', url: 'https://instagram.com/toolvine_mentors_initiative' }
 ]
 
 /* Minimum elapsed ms between form mount and submit. Anything faster is a bot. */
@@ -310,34 +310,55 @@ export function Contact() {
           </form>
         </div>
 
-        {/* Channels column */}
-        <aside className="contact__channels" aria-label="Other ways to reach us">
-          <p className="contact__channels-eyebrow">DIRECT LINES</p>
+        {/* Right rail: unified channels + socials */}
+        <aside className="contact__rail" aria-label="Other ways to reach us">
+          <p className="contact__rail-eyebrow">DIRECT LINES</p>
 
-          {CHANNELS.map((c) => (
-            <div className="contact__channel" key={c.email}>
-              <p className="contact__channel-label">{c.label}</p>
-              <a className="contact__channel-email" href={`mailto:${c.email}`}>
-                {c.email}
-              </a>
-              <p className="contact__channel-desc">{c.description}</p>
-            </div>
-          ))}
-
-          <div className="contact__elsewhere">
-            <p className="contact__elsewhere-label">Find us elsewhere</p>
-            {SOCIALS.map((s) => (
-              <a
-                key={s.handle}
-                href={s.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="contact__social"
-              >
-                {s.handle}
-              </a>
+          <ul className="contact__entries">
+            {CHANNELS.map((c) => (
+              <li className="contact__entry" key={c.email}>
+                <span className="contact__entry-icon" aria-hidden="true">
+                  <Icon name={c.icon} size={18} strokeWidth={1.5} />
+                </span>
+                <div className="contact__entry-body">
+                  <p className="contact__entry-label">{c.label}</p>
+                  <a className="contact__entry-primary" href={`mailto:${c.email}`}>
+                    {c.email}
+                  </a>
+                  <p className="contact__entry-desc">{c.description}</p>
+                </div>
+              </li>
             ))}
+          </ul>
+
+          <div className="contact__rail-divider" aria-hidden="true">
+            <span className="contact__rail-divider-rule" />
+            <span className="contact__rail-divider-mark">⁂</span>
+            <span className="contact__rail-divider-rule" />
           </div>
+
+          <p className="contact__rail-eyebrow">FIND US ELSEWHERE</p>
+
+          <ul className="contact__entries contact__entries--social">
+            {SOCIALS.map((s) => (
+              <li className="contact__entry" key={s.platform}>
+                <a
+                  href={s.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="contact__entry-link"
+                >
+                  <span className="contact__entry-icon" aria-hidden="true">
+                    <Icon name={s.icon} size={18} strokeWidth={1.5} />
+                  </span>
+                  <div className="contact__entry-body">
+                    <p className="contact__entry-label">{s.label}</p>
+                    <p className="contact__entry-primary">{s.handle}</p>
+                  </div>
+                </a>
+              </li>
+            ))}
+          </ul>
         </aside>
       </section>
     </div>

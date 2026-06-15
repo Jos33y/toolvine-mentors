@@ -1,0 +1,416 @@
+/* Submissions page.
+   Working surface for triaging contact form messages. Cool app canvas,
+   linear-style underline tabs for status filtering, hairline-divided
+   row list, click-to-expand body with action buttons. No warm cream
+   here — this is admin work, not marketing. */
+
+.subs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-5);
+  max-width: var(--tv-content-max, 1200px);
+}
+
+/* ============ Head ============ */
+
+.subs__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--tv-space-4);
+  flex-wrap: wrap;
+}
+
+.subs__title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-2xl);
+  color: var(--tv-text);
+  margin: 0;
+  letter-spacing: var(--tv-tracking-tight);
+}
+
+.subs__head-meta {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+  letter-spacing: var(--tv-tracking-wider);
+}
+
+/* ============ Filter tabs ============ */
+
+.subs__filters {
+  display: flex;
+  gap: var(--tv-space-2);
+  border-bottom: 1px solid var(--tv-border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.subs__filters::-webkit-scrollbar {
+  display: none;
+}
+
+.subs__filter {
+  background: transparent;
+  border: none;
+  padding: var(--tv-space-2) var(--tv-space-3);
+  margin-bottom: -1px;
+  border-bottom: 2px solid transparent;
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-medium);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-2);
+  cursor: pointer;
+  white-space: nowrap;
+  letter-spacing: var(--tv-tracking-tight);
+  transition: color var(--tv-duration-fast) var(--tv-ease),
+              border-color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.subs__filter:hover {
+  color: var(--tv-text);
+}
+
+.subs__filter.is-active {
+  color: var(--tv-primary);
+  border-bottom-color: var(--tv-primary);
+  font-weight: var(--tv-fw-semibold);
+}
+
+.subs__filter:focus-visible {
+  outline: 2px solid var(--tv-primary-light);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+/* ============ List + rows ============ */
+
+.subs__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background: var(--tv-surface);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  overflow: hidden;
+}
+
+.subs__row + .subs__row {
+  border-top: 1px solid var(--tv-border);
+}
+
+.subs__row-head {
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: var(--tv-space-3) var(--tv-space-4);
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) minmax(180px, 1.5fr) auto auto 16px;
+  gap: var(--tv-space-3);
+  align-items: center;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: background var(--tv-duration-fast) var(--tv-ease);
+}
+
+.subs__row-head:hover {
+  background: var(--tv-canvas-app);
+}
+
+.subs__row.is-expanded .subs__row-head {
+  background: var(--tv-canvas-app);
+}
+
+.subs__row-head:focus-visible {
+  outline: 2px solid var(--tv-primary-light);
+  outline-offset: -2px;
+}
+
+.subs__row-name {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.subs__row-email {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.subs__row-time {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+  white-space: nowrap;
+}
+
+.subs__row-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tv-text-muted);
+  transition: transform var(--tv-duration-fast) var(--tv-ease);
+}
+
+.subs__row.is-expanded .subs__row-chevron {
+  transform: rotate(180deg);
+}
+
+.subs__row-preview {
+  padding: 0 var(--tv-space-4) var(--tv-space-3);
+  margin: 0;
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-2);
+  line-height: var(--tv-lh-snug, 1.45);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
+
+/* ============ Expanded body ============ */
+
+.subs__row-body {
+  padding: 0 var(--tv-space-4) var(--tv-space-4);
+  background: var(--tv-canvas-app);
+  border-top: 1px solid var(--tv-border);
+}
+
+/* pre-line collapses runs of whitespace (strips form-generated indentation
+   from wrapped lines) while preserving the submitter's real line breaks
+   when they typed any. pre-wrap was preserving everything including the
+   unwanted indents. */
+.subs__row-message {
+  padding: var(--tv-space-4) 0;
+  margin: 0;
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-base);
+  color: var(--tv-text);
+  line-height: 1.55;
+  max-width: var(--tv-prose-max, 680px);
+  white-space: pre-line;
+  word-wrap: break-word;
+}
+
+.subs__row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tv-space-2);
+  padding-top: var(--tv-space-3);
+  border-top: 1px solid var(--tv-border);
+}
+
+.subs__action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  padding: var(--tv-space-2) var(--tv-space-3);
+  background: var(--tv-surface);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-medium);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text);
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background var(--tv-duration-fast) var(--tv-ease),
+              border-color var(--tv-duration-fast) var(--tv-ease),
+              color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.subs__action:hover {
+  background: var(--tv-canvas-app);
+  border-color: var(--tv-text-2);
+}
+
+.subs__action:focus-visible {
+  outline: 2px solid var(--tv-primary-light);
+  outline-offset: 2px;
+}
+
+.subs__action--primary {
+  background: var(--tv-primary);
+  border-color: var(--tv-primary);
+  color: var(--tv-primary-text, #ffffff);
+}
+
+.subs__action--primary:hover {
+  background: var(--tv-text);
+  border-color: var(--tv-text);
+  color: var(--tv-primary-text, #ffffff);
+}
+
+/* ============ Status pills ============ */
+
+.subs__pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px var(--tv-space-2);
+  border-radius: var(--tv-radius-sm);
+  font-family: var(--tv-font-mono);
+  font-size: 0.6875rem;
+  font-weight: var(--tv-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tv-tracking-wider);
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.subs__pill--new {
+  background: var(--tv-accent-soft);
+  color: var(--tv-accent-text);
+}
+
+.subs__pill--read {
+  background: var(--tv-primary-soft);
+  color: var(--tv-primary);
+}
+
+.subs__pill--replied {
+  background: var(--tv-success-soft, #D1FAE5);
+  color: var(--tv-success-text, #047857);
+}
+
+.subs__pill--archived {
+  background: transparent;
+  border: 1px solid var(--tv-border);
+  color: var(--tv-text-muted);
+  padding: 2px calc(var(--tv-space-2) - 1px);
+}
+
+/* ============ Empty / loading / error ============ */
+
+.subs__panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--tv-space-3);
+  padding: var(--tv-space-12) var(--tv-space-5);
+  background: var(--tv-surface);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  text-align: center;
+}
+
+.subs__panel-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--tv-canvas-app);
+  color: var(--tv-text-muted);
+}
+
+.subs__panel-text {
+  margin: 0;
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-2);
+  max-width: 360px;
+}
+
+.subs__panel--error .subs__panel-icon {
+  background: var(--tv-accent-soft);
+  color: var(--tv-accent-text);
+}
+
+/* ============ Pagination ============ */
+
+.subs__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--tv-space-4);
+  padding: var(--tv-space-3) 0;
+}
+
+.subs__page-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  padding: var(--tv-space-2) var(--tv-space-3);
+  background: var(--tv-surface);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-medium);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text);
+  cursor: pointer;
+  transition: background var(--tv-duration-fast) var(--tv-ease),
+              border-color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.subs__page-btn:hover:not(:disabled) {
+  background: var(--tv-canvas-app);
+  border-color: var(--tv-text-2);
+}
+
+.subs__page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.subs__page-info {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+  letter-spacing: var(--tv-tracking-wider);
+}
+
+/* ============ Responsive ============ */
+
+@media (max-width: 760px) {
+  .subs__row-head {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "name    chevron"
+      "email   email"
+      "status  time";
+    gap: 4px var(--tv-space-3);
+    padding: var(--tv-space-3);
+  }
+
+  .subs__row-name    { grid-area: name; }
+  .subs__row-email   { grid-area: email; }
+  .subs__row-time    { grid-area: time; justify-self: end; }
+  .subs__row-chevron { grid-area: chevron; }
+
+  .subs__row-head > .subs__pill {
+    grid-area: status;
+    justify-self: start;
+  }
+
+  .subs__row-preview {
+    padding-left: var(--tv-space-3);
+    padding-right: var(--tv-space-3);
+  }
+
+  .subs__row-body {
+    padding-left: var(--tv-space-3);
+    padding-right: var(--tv-space-3);
+  }
+
+  .subs__action {
+    flex: 1 1 calc(50% - var(--tv-space-2));
+    justify-content: center;
+  }
+}

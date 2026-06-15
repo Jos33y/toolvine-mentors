@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { createBrowserRouter, Navigate, Outlet, RouterProvider } from 'react-router-dom'
 import { useAuth } from '@/stores/useAuth'
 import { ROLES, homeFor, hasAnyRole } from '@/lib/roles'
+import { useRouteAnalytics } from '@/hooks/useRouteAnalytics'
 
 import { Splash } from '@/components/shared/Splash/Splash'
 import { ScrollToTop } from '@/components/shared/ScrollToTop/ScrollToTop'
@@ -36,14 +37,21 @@ import { VerifyEmail }  from '@/pages/auth/VerifyEmail'
 import { Onboarding } from '@/pages/onboarding/Onboarding'
 
 // AppShell and signed-in pages lazy-load. A marketing visitor never pays for them.
-const AppShell  = lazy(() => import('@/layouts/AppShell/AppShell').then((m) => ({ default: m.AppShell })))
-const Dashboard = lazy(() => import('@/pages/dashboard/Dashboard').then((m) => ({ default: m.Dashboard })))
-const Profile   = lazy(() => import('@/pages/profile/Profile').then((m) => ({ default: m.Profile })))
-const Users     = lazy(() => import('@/pages/admin/Users').then((m) => ({ default: m.Users })))
+const AppShell    = lazy(() => import('@/layouts/AppShell/AppShell').then((m) => ({ default: m.AppShell })))
+const Dashboard   = lazy(() => import('@/pages/dashboard/Dashboard').then((m) => ({ default: m.Dashboard })))
+const Profile     = lazy(() => import('@/pages/profile/Profile').then((m) => ({ default: m.Profile })))
+const Users       = lazy(() => import('@/pages/admin/Users').then((m) => ({ default: m.Users })))
+const Submissions = lazy(() => import('@/pages/admin/Submissions').then((m) => ({ default: m.Submissions })))
+const Activity    = lazy(() => import('@/pages/admin/Activity').then((m) => ({ default: m.Activity })))
+const Insights    = lazy(() => import('@/pages/admin/Insights').then((m) => ({ default: m.Insights })))
 
-/* ============ Root ============ */
+/* ============ Root ============
+   useRouteAnalytics mounts here because it depends on useLocation, which
+   only works inside the RouterProvider tree. App.jsx sits outside the
+   provider, so the tracker had to live here instead. */
 
 function Root() {
+  useRouteAnalytics()
   return (
     <>
       <ScrollToTop />
@@ -154,7 +162,7 @@ const router = createBrowserRouter([
                 />
               },
 
-              /* Admin only */
+              /* Admin only — core entities at root paths. */
               {
                 path: '/users',
                 element: (
@@ -174,6 +182,17 @@ const router = createBrowserRouter([
                     />
                   </RequireRole>
                 )
+              },
+
+              /* Admin tools group. One guard, many children. */
+              {
+                path: '/admin',
+                element: <RequireRole allow={[ROLES.ADMIN]} />,
+                children: [
+                  { path: 'submissions', element: <LazyRoute><Submissions /></LazyRoute> },
+                  { path: 'activity',    element: <LazyRoute><Activity    /></LazyRoute> },
+                  { path: 'insights',    element: <LazyRoute><Insights    /></LazyRoute> }
+                ]
               },
 
               /* Mentor and admin both need this view; the page itself adapts. */

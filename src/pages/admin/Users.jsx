@@ -1,28 +1,59 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/stores/useAuth'
 import { useAdminUsers } from '@/hooks/useAdminUsers'
 import { applyRoleDecision, sendRoleDecisionEmail, setUserActive, bucketFor } from '@/lib/adminUsers'
+import { UserDetailDrawer } from '@/components/admin/UserDetailDrawer/UserDetailDrawer'
 import './users.css'
 
+// Role buckets group users by primary state. Attention filters cut across
+// buckets with their own predicates and match the slugs PendingActionsCard
+// uses on the dashboard.
 const FILTERS = [
-  { key: 'all',         label: 'All' },
-  { key: 'pending',     label: 'Pending review' },
-  { key: 'mentor',      label: 'Mentors' },
-  { key: 'mentee',      label: 'Mentees' },
-  { key: 'admin',       label: 'Admins' },
-  { key: 'deactivated', label: 'Deactivated' }
+  { key: 'all',                label: 'All' },
+  { key: 'pending',            label: 'Pending review' },
+  { key: 'mentor',             label: 'Mentors' },
+  { key: 'mentee',             label: 'Mentees' },
+  { key: 'admin',              label: 'Admins' },
+  { key: 'deactivated',        label: 'Deactivated' },
+  { key: 'onboarding_stalled', label: 'Stalled onboarding' },
+  { key: 'unverified',         label: 'Unverified email' },
+  { key: 'unpaired',           label: 'Unpaired (30d+)' }
 ]
+
+const DEFAULT_FILTER = 'pending'
 
 export function Users() {
   const me = useAuth((s) => s.profile)
   const { users, loading, error, patchUser } = useAdminUsers()
 
-  const [filter, setFilter] = useState('pending')
+  // Filter lives in the URL so dashboard links land directly on the right
+  // subset. Search stays in component state to avoid history churn.
+  const [searchParams, setSearchParams] = useSearchParams()
+  const rawFilter = searchParams.get('filter')
+  const filter = FILTERS.some((f) => f.key === rawFilter) ? rawFilter : DEFAULT_FILTER
+
+  const setFilter = (next) => {
+    const params = new URLSearchParams(searchParams)
+    if (next === DEFAULT_FILTER) params.delete('filter')
+    else params.set('filter', next)
+    setSearchParams(params, { replace: true })
+  }
+
   const [query, setQuery]   = useState('')
-  const [pending, setPending] = useState(null)        // currently confirming action
+  const [pending, setPending] = useState(null)
   const [busyId, setBusyId]   = useState(null)
   const [rowError, setRowError] = useState({ id: null, message: '' })
   const [rowNotice, setRowNotice] = useState({ id: null, message: '', tone: 'info' })
+
+  // Selected user for the side drawer. We track ID rather than the whole
+  // object so patchUser updates flow through to the drawer header without
+  // a stale reference.
+  const [selectedUserId, setSelectedUserId] = useState(null)
+  const selectedUser = useMemo(
+    () => users.find((u) => u.id === selectedUserId) ?? null,
+    [users, selectedUserId]
+  )
 
   // Auto-dismiss the row notice after 6 seconds so the success strip does not linger.
   useEffect(() => {
@@ -51,7 +82,6 @@ export function Users() {
           is_active:      next.is_active
         })
       }
-      // Best-effort notification. Never blocks or reverses the decision.
       const result = await sendRoleDecisionEmail(user.id, decision)
       setRowNotice({
         id:      user.id,
@@ -143,6 +173,7 @@ export function Users() {
               busy={busyId === u.id}
               rowError={rowError.id === u.id ? rowError.message : ''}
               rowNotice={rowNotice.id === u.id ? rowNotice : null}
+              onSelect={() => setSelectedUserId(u.id)}
               onAsk={(decision, label) => setPending({ user: u, decision, label })}
               onToggleActive={() => setPending({ user: u, decision: 'toggle_active', label: u.is_active ? 'Deactivate user' : 'Reactivate user' })}
             />
@@ -162,22 +193,46 @@ export function Users() {
           }
         />
       )}
+
+      {selectedUser && (
+        <UserDetailDrawer
+          user={selectedUser}
+          onClose={() => setSelectedUserId(null)}
+        />
+      )}
     </section>
   )
 }
 
 /* ============ Row ============ */
 
-function UserRow({ user, isSelf, busy, rowError, rowNotice, onAsk, onToggleActive }) {
+function UserRow({ user, isSelf, busy, rowError, rowNotice, onSelect, onAsk, onToggleActive }) {
   const bucket = bucketFor(user)
   const initials = computeInitials(user.full_name)
   const joined = formatJoined(user.created_at)
 
   const actions = applicableActions(user, bucket, isSelf)
 
+  // Person area is keyboard-accessible: Enter or Space opens the drawer.
+  // Kept as a div with role=button so the existing CSS layout does not
+  // collide with native button styling.
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      onSelect()
+    }
+  }
+
   return (
     <li className={'admin-users__row' + (user.is_active ? '' : ' admin-users__row--inactive')}>
-      <div className="admin-users__person">
+      <div
+        className="admin-users__person admin-users__person--clickable"
+        role="button"
+        tabIndex={0}
+        onClick={onSelect}
+        onKeyDown={handleKeyDown}
+        aria-label={`View details for ${user.full_name || user.email}`}
+      >
         <div className="admin-users__avatar" aria-hidden="true">
           {user.photo_url
             ? <img src={user.photo_url} alt="" className="admin-users__avatar-img" />
@@ -308,21 +363,65 @@ function EmptyState({ filter, query }) {
 
 /* ============ Helpers ============ */
 
+const DAY_MS = 24 * 60 * 60 * 1000
+
 function countByBucket(users) {
-  const c = { all: users.length, pending: 0, mentor: 0, mentee: 0, admin: 0, deactivated: 0 }
-  for (const u of users) c[bucketFor(u)] = (c[bucketFor(u)] || 0) + 1
+  const c = {
+    all: users.length,
+    pending: 0, mentor: 0, mentee: 0, admin: 0, deactivated: 0,
+    onboarding_stalled: 0,
+    unverified: 0,
+    unpaired: 0
+  }
+
+  const now = Date.now()
+  for (const u of users) {
+    const b = bucketFor(u)
+    c[b] = (c[b] || 0) + 1
+
+    if (!u.is_active) continue
+    const ageMs = u.created_at ? (now - new Date(u.created_at).getTime()) : 0
+
+    if (!u.onboarded                    && ageMs > 2  * DAY_MS) c.onboarding_stalled++
+    if (u.email_verified === false      && ageMs > 3  * DAY_MS) c.unverified++
+    if (b === 'mentee' && u.onboarded   && ageMs > 30 * DAY_MS) c.unpaired++
+  }
   return c
 }
 
 function filterUsers(users, filter, query) {
   const q = query.trim().toLowerCase()
   let list = users
-  if (filter !== 'all') list = list.filter((u) => bucketFor(u) === filter)
+
+  if (filter !== 'all') list = list.filter((u) => matchesFilter(u, filter))
+
   if (q) list = list.filter((u) =>
     (u.full_name || '').toLowerCase().includes(q) ||
     (u.email || '').toLowerCase().includes(q)
   )
   return list
+}
+
+// Note: `unpaired` is approximate because useAdminUsers does not yet expose
+// active-pairing membership. Tighten when the hook joins pairing data.
+function matchesFilter(user, filter) {
+  if (['pending', 'mentor', 'mentee', 'admin', 'deactivated'].includes(filter)) {
+    return bucketFor(user) === filter
+  }
+
+  if (!user.is_active) return false
+  const ageMs = user.created_at ? (Date.now() - new Date(user.created_at).getTime()) : 0
+
+  switch (filter) {
+    case 'onboarding_stalled':
+      return !user.onboarded && ageMs > 2 * DAY_MS
+    case 'unverified':
+      return user.email_verified === false && ageMs > 3 * DAY_MS
+    case 'unpaired':
+      return bucketFor(user) === 'mentee' && user.onboarded && ageMs > 30 * DAY_MS
+    default:
+      return false
+  }
 }
 
 function applicableActions(user, bucket, isSelf) {
@@ -336,11 +435,9 @@ function applicableActions(user, bucket, isSelf) {
 
   if (bucket === 'pending') {
     if (user.role_intent === 'mentor') {
-      // Real mentor request: approve or override to mentee
       actions.push({ decision: 'approve_mentor', label: 'Approve as mentor', tone: 'primary' })
       actions.push({ decision: 'confirm_mentee', label: 'Make mentee instead', tone: 'secondary' })
     } else {
-      // Undecided: admin chooses, both equal weight
       actions.push({ decision: 'approve_mentor', label: 'Make mentor', tone: 'secondary' })
       actions.push({ decision: 'confirm_mentee', label: 'Make mentee', tone: 'secondary' })
     }

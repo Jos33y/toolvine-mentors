@@ -1,0 +1,486 @@
+/* UserDetailDrawer.
+   Side drawer on desktop (slides from right), bottom sheet on mobile (slides
+   from bottom). Holds the user header, role pills, and the AdminNoteEditor.
+   Working surface aesthetic — cool app canvas, hairlines, no warm cream. */
+
+.udd__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  z-index: 100;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 240ms var(--tv-ease);
+}
+
+.udd__backdrop--open {
+  opacity: 1;
+}
+
+.udd {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(480px, 100vw);
+  z-index: 110;
+  background: var(--tv-surface);
+  border-left: 1px solid var(--tv-border);
+  box-shadow: -10px 0 28px rgba(15, 23, 42, 0.08);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  transform: translateX(100%);
+  transition: transform 240ms var(--tv-ease);
+}
+
+.udd--open {
+  transform: translateX(0);
+}
+
+/* ============ Head ============ */
+
+.udd__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--tv-space-3);
+  padding: var(--tv-space-5);
+  border-bottom: 1px solid var(--tv-border);
+  position: sticky;
+  top: 0;
+  background: var(--tv-surface);
+  z-index: 1;
+}
+
+.udd__person {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-3);
+  min-width: 0;
+  flex: 1;
+}
+
+.udd__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--tv-primary-soft);
+  color: var(--tv-primary);
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-sm);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.udd__avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.55) contrast(1.02);
+}
+
+.udd__avatar-initials {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.udd__id {
+  min-width: 0;
+  flex: 1;
+}
+
+.udd__name {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-lg);
+  color: var(--tv-text);
+  margin: 0;
+  letter-spacing: var(--tv-tracking-tight);
+  line-height: var(--tv-lh-tight);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.udd__email {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-2);
+  margin: 4px 0 0 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.udd__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--tv-radius-md);
+  background: transparent;
+  border: none;
+  color: var(--tv-text-2);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background var(--tv-duration-fast) var(--tv-ease),
+              color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.udd__close:hover {
+  background: var(--tv-canvas-app);
+  color: var(--tv-text);
+}
+
+.udd__close:focus-visible {
+  outline: 2px solid var(--tv-primary-light);
+  outline-offset: 2px;
+}
+
+/* ============ Role pills ============ */
+
+.udd__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tv-space-2);
+  padding: var(--tv-space-4) var(--tv-space-5);
+  border-bottom: 1px solid var(--tv-border);
+}
+
+.udd__pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px var(--tv-space-2);
+  border-radius: var(--tv-radius-sm);
+  font-family: var(--tv-font-mono);
+  font-size: 0.6875rem;
+  font-weight: var(--tv-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tv-tracking-wider);
+  line-height: 1;
+}
+
+.udd__pill--admin {
+  background: var(--tv-accent-soft);
+  color: var(--tv-accent-text);
+}
+
+.udd__pill--mentor {
+  background: var(--tv-primary-soft);
+  color: var(--tv-primary);
+}
+
+.udd__pill--mentee {
+  background: var(--tv-canvas-app);
+  color: var(--tv-text-2);
+  border: 1px solid var(--tv-border);
+  padding: 2px calc(var(--tv-space-2) - 1px);
+}
+
+.udd__pill--soft {
+  background: transparent;
+  color: var(--tv-text-muted);
+  border: 1px solid var(--tv-border);
+  padding: 2px calc(var(--tv-space-2) - 1px);
+}
+
+.udd__pill--off {
+  background: var(--tv-canvas-app);
+  color: var(--tv-text-muted);
+  border: 1px solid var(--tv-border);
+  padding: 2px calc(var(--tv-space-2) - 1px);
+}
+
+/* ============ Notes section ============ */
+
+.udd__notes {
+  padding: var(--tv-space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-4);
+}
+
+.udd__notes-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-1);
+}
+
+.udd__notes-eyebrow {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tv-tracking-wider);
+  color: var(--tv-accent-text);
+  margin: 0;
+}
+
+.udd__notes-title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-base);
+  color: var(--tv-text);
+  margin: 0;
+  letter-spacing: var(--tv-tracking-tight);
+  line-height: var(--tv-lh-tight);
+}
+
+.udd__notes-helper {
+  margin: 4px 0 0 0;
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+  line-height: 1.5;
+}
+
+/* ============ New-note input ============ */
+
+.udd__notes-new {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-2);
+}
+
+.udd__notes-textarea {
+  width: 100%;
+  padding: var(--tv-space-3);
+  background: var(--tv-canvas-app);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text);
+  line-height: 1.55;
+  resize: vertical;
+  min-height: 80px;
+  transition: border-color var(--tv-duration-fast) var(--tv-ease),
+              background var(--tv-duration-fast) var(--tv-ease);
+}
+
+.udd__notes-textarea:focus {
+  outline: none;
+  border-color: var(--tv-primary);
+  background: var(--tv-surface);
+  box-shadow: var(--tv-shadow-focus, 0 0 0 3px var(--tv-primary-soft));
+}
+
+.udd__notes-textarea::placeholder {
+  color: var(--tv-text-muted);
+}
+
+.udd__notes-textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.udd__notes-new-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--tv-space-2);
+}
+
+.udd__notes-error {
+  margin: 0;
+  padding: var(--tv-space-3);
+  background: var(--tv-accent-soft);
+  color: var(--tv-accent-text);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+}
+
+.udd__notes-empty {
+  margin: 0;
+  padding: var(--tv-space-5);
+  background: var(--tv-canvas-app);
+  border: 1px dashed var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-muted);
+  text-align: center;
+}
+
+/* ============ Notes list + card ============ */
+
+.udd__notes-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-3);
+}
+
+.udd__note {
+  padding: var(--tv-space-4);
+  background: var(--tv-canvas-app);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-3);
+}
+
+.udd__note-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--tv-space-3);
+}
+
+.udd__note-author {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.udd__note-time {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+  white-space: nowrap;
+}
+
+.udd__note-edited {
+  color: var(--tv-text-muted);
+  font-style: italic;
+}
+
+.udd__note-body {
+  margin: 0;
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text);
+  line-height: 1.55;
+  white-space: pre-line;
+  word-wrap: break-word;
+}
+
+.udd__note-actions {
+  display: flex;
+  gap: var(--tv-space-2);
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+/* ============ Buttons ============ */
+
+.udd__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--tv-space-2) var(--tv-space-3);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-medium);
+  font-size: var(--tv-fs-sm);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background var(--tv-duration-fast) var(--tv-ease),
+              border-color var(--tv-duration-fast) var(--tv-ease),
+              color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.udd__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.udd__btn:focus-visible {
+  outline: 2px solid var(--tv-primary-light);
+  outline-offset: 2px;
+}
+
+.udd__btn--primary {
+  background: var(--tv-primary);
+  border-color: var(--tv-primary);
+  color: var(--tv-primary-text, #ffffff);
+}
+
+.udd__btn--primary:hover:not(:disabled) {
+  background: var(--tv-text);
+  border-color: var(--tv-text);
+}
+
+.udd__btn--ghost {
+  background: transparent;
+  border-color: var(--tv-border);
+  color: var(--tv-text);
+}
+
+.udd__btn--ghost:hover:not(:disabled) {
+  background: var(--tv-canvas-app);
+  border-color: var(--tv-text-2);
+}
+
+.udd__btn--ghost-danger {
+  background: transparent;
+  border-color: var(--tv-border);
+  color: var(--tv-error, #EF4444);
+}
+
+.udd__btn--ghost-danger:hover:not(:disabled) {
+  background: var(--tv-canvas-app);
+  border-color: var(--tv-error, #EF4444);
+}
+
+.udd__btn--danger {
+  background: var(--tv-error, #EF4444);
+  border-color: var(--tv-error, #EF4444);
+  color: #ffffff;
+}
+
+.udd__btn--danger:hover:not(:disabled) {
+  background: #dc2626;
+  border-color: #dc2626;
+}
+
+/* ============ Mobile (bottom sheet) ============ */
+
+@media (max-width: 760px) {
+  .udd {
+    width: 100vw;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    height: 90dvh;
+    border-left: none;
+    border-top: 1px solid var(--tv-border);
+    border-radius: var(--tv-radius-lg) var(--tv-radius-lg) 0 0;
+    box-shadow: 0 -10px 28px rgba(15, 23, 42, 0.12);
+    transform: translateY(100%);
+  }
+
+  .udd--open {
+    transform: translateY(0);
+  }
+
+  .udd__head {
+    padding: var(--tv-space-4);
+  }
+
+  .udd__pills {
+    padding: var(--tv-space-3) var(--tv-space-4);
+  }
+
+  .udd__notes {
+    padding: var(--tv-space-4);
+  }
+}
