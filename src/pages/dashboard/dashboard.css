@@ -1,0 +1,115 @@
+/* ============ Page shell ============
+   Dashboard sits on --tv-canvas-app (cool light). Widget cards use the
+   warm cream --tv-canvas-brand to match the Profile family. */
+
+.dash {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: var(--tv-space-6) var(--tv-space-4) var(--tv-space-20);
+  animation: dash-rise 320ms var(--tv-ease) 60ms both;
+}
+
+/* ============ Role group ============ */
+
+.dash__group {
+  margin-top: var(--tv-space-6);
+}
+
+.dash__group + .dash__group {
+  margin-top: var(--tv-space-10);
+  padding-top: var(--tv-space-8);
+  border-top: 1px solid var(--tv-border);
+}
+
+.dash__group-label {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tv-tracking-wider);
+  color: var(--tv-text-muted);
+  margin: 0 0 var(--tv-space-4);
+}
+
+.dash__error {
+  margin: 0 0 var(--tv-space-4);
+  padding: var(--tv-space-3) var(--tv-space-4);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-error-text);
+  background: var(--tv-error-bg);
+  border-radius: var(--tv-radius-md);
+}
+
+/* ============ Two-column grid (admin + mentee) ============
+   Asymmetric 1.4fr / 1fr keeps the main widget weighted while still leaving
+   room for the side rail. Used by admin and mentee branches. */
+
+.dash__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--tv-space-5);
+  align-items: start;
+}
+
+@media (min-width: 960px) {
+  .dash__grid {
+    grid-template-columns: 1.4fr 1fr;
+    gap: var(--tv-space-6);
+  }
+}
+
+.dash__col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-5);
+  min-width: 0;
+}
+
+/* ============ Mentor stack ============
+   Vertical sequence of bands inside the mentor group. Each band is either
+   a full-width card or a 50/50 pair. Order reads: where I am, what's next,
+   who I serve plus what I owe, library. */
+
+.dash__stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-5);
+}
+
+.dash__pair {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--tv-space-5);
+  align-items: start;
+}
+
+@media (min-width: 960px) {
+  .dash__pair {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--tv-space-5);
+  }
+}
+
+/* ============ Motion ============ */
+
+@keyframes dash-rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash { animation: none; }
+}
+
+/* ============ Small-screen ============ */
+
+@media (max-width: 640px) {
+  .dash {
+    padding: var(--tv-space-5) var(--tv-space-3) var(--tv-space-16);
+  }
+  .dash__group + .dash__group {
+    margin-top: var(--tv-space-8);
+    padding-top: var(--tv-space-6);
+  }
+}

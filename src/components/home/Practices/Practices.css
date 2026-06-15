@@ -1,0 +1,323 @@
+/* Section 3: Practices. The feature page — dark teal break in the page rhythm.
+   Atmospheric: radial washes + hairline grid + faded ampersand watermark
+   + woven texture + ambient pulse + data counters + hover expansion. */
+
+.practices {
+  background: var(--tv-primary);
+  padding: 56px 24px 88px;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* ============ Atmospheric layers ============ */
+
+.practices::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 900px 700px at 8% 12%, rgba(255, 255, 255, 0.08), transparent 60%),
+    radial-gradient(ellipse 800px 600px at 95% 92%, rgba(0, 0, 0, 0.22), transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.practices::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse 1300px 900px at 50% 35%, black 20%, transparent 80%);
+  mask-image: radial-gradient(ellipse 1300px 900px at 50% 35%, black 20%, transparent 80%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ============ Woven texture ============ */
+
+.practices__weave {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.02) 0px,
+      rgba(255, 255, 255, 0.02) 1px,
+      transparent 1px,
+      transparent 4px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.02) 0px,
+      rgba(255, 255, 255, 0.02) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+  opacity: 0.6;
+}
+
+/* ============ Ambient pulse ============ */
+
+.practices__pulse {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.03);
+  opacity: 0;
+  animation: practices-breathe 8s ease-in-out infinite;
+}
+
+@keyframes practices-breathe {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+/* ============ Watermark ============ */
+
+.practices__watermark {
+  position: absolute;
+  right: -3vw;
+  bottom: -6vw;
+  font-family: var(--tv-font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(280px, 40vw, 460px);
+  line-height: 0.8;
+  color: rgba(255, 255, 255, 0.04);
+  letter-spacing: -0.05em;
+  pointer-events: none;
+  user-select: none;
+  z-index: 1;
+}
+
+.practices__inner {
+  position: relative;
+  z-index: 2;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+/* ============ Section header ============ */
+
+.practices__head {
+  margin-bottom: 40px;
+}
+
+.practices__eyebrow {
+  font-family: var(--tv-font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  margin: 0 0 16px;
+}
+
+.practices__title {
+  font-family: var(--tv-font-display);
+  font-weight: 600;
+  font-size: clamp(26px, 2.8vw, 36px);
+  line-height: 1.2;
+  color: #FFFFFF;
+  letter-spacing: -0.018em;
+  margin: 0;
+  max-width: 720px;
+}
+
+/* ============ Architectural divider ============ */
+
+.practices__divider {
+  display: block;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    var(--tv-accent-light) 0%,
+    rgba(252, 211, 77, 0.2) 35%,
+    transparent 100%
+  );
+  margin: 0 0 48px;
+}
+
+/* ============ Grid ============ */
+
+.practices__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+}
+
+.practice {
+  display: flex;
+  flex-direction: column;
+  transition: transform 320ms var(--tv-ease);
+}
+
+.practice__head {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.practice__numeral {
+  flex: 0 0 auto;
+  font-family: var(--tv-font-serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(52px, 6.5vw, 80px);
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.95);
+  letter-spacing: -0.02em;
+  text-shadow: 0 4px 28px rgba(0, 0, 0, 0.18);
+  transition: color 320ms var(--tv-ease),
+              transform 320ms var(--tv-ease);
+}
+
+.practice__rule {
+  flex: 1 1 auto;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    var(--tv-accent-light) 0%,
+    rgba(252, 211, 77, 0.4) 50%,
+    transparent 100%
+  );
+  align-self: center;
+  margin-top: 12px;
+}
+
+.practice__headline {
+  font-family: var(--tv-font-display);
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 1.25;
+  color: #FFFFFF;
+  letter-spacing: -0.01em;
+  margin: 0 0 12px;
+}
+
+.practice__body {
+  font-family: var(--tv-font-body);
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--tv-canvas-brand);
+  margin: 0;
+}
+
+/* ============ Hover expansion text ============ */
+
+.practice__expanded {
+  font-family: var(--tv-font-body);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--tv-primary-softer);
+  margin: 0;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 320ms var(--tv-ease),
+              opacity 320ms var(--tv-ease),
+              margin 320ms var(--tv-ease);
+}
+
+/* ============ Data counter ============ */
+
+.practice__stat {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.practice__stat-value {
+  font-family: var(--tv-font-mono);
+  font-size: clamp(20px, 2.5vw, 28px);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--tv-accent-light);
+  line-height: 1;
+}
+
+.practice__stat-label {
+  font-family: var(--tv-font-mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: var(--tv-tracking-wide);
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.3;
+}
+
+/* ============ Desktop ============ */
+
+@media (min-width: 760px) {
+  .practices {
+    padding: 80px 32px 104px;
+  }
+
+  .practices__head {
+    margin-bottom: 56px;
+  }
+
+  .practices__divider {
+    margin-bottom: 64px;
+  }
+
+  .practices__grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 56px;
+  }
+
+  .practice__body {
+    font-size: 16px;
+  }
+
+  .practice:hover {
+    transform: translateY(-4px);
+  }
+
+  .practice:hover .practice__numeral {
+    color: #FFFFFF;
+    transform: scale(1.05);
+    text-shadow: 0 6px 32px rgba(0, 0, 0, 0.28);
+  }
+
+  .practice:hover .practice__expanded {
+    max-height: 60px;
+    opacity: 1;
+    margin-top: 10px;
+  }
+}
+
+/* ============ Reduced motion ============ */
+
+@media (prefers-reduced-motion: reduce) {
+  .practice__numeral {
+    transition: none;
+  }
+
+  .practice {
+    transition: none;
+  }
+
+  .practice:hover .practice__numeral {
+    transform: none;
+  }
+
+  .practice:hover {
+    transform: none;
+  }
+
+  .practices__pulse {
+    animation: none;
+    display: none;
+  }
+}

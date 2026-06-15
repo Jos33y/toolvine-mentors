@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Authenticated areas are not for crawling.
+Disallow: /admin/
+Disallow: /mentor/
+Disallow: /mentee/
+Disallow: /auth/
+
+# Public marketing pages are indexable by default.

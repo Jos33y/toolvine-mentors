@@ -1,0 +1,154 @@
+.actions-card {
+  background: var(--tv-canvas-brand);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-lg);
+  padding: var(--tv-space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-5);
+}
+
+/* ============ Header ============ */
+
+.actions-card__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-1);
+}
+
+.actions-card__eyebrow {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tv-tracking-wider);
+  color: var(--tv-accent-text);
+  margin: 0;
+}
+
+.actions-card__title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-lg);
+  line-height: var(--tv-lh-tight);
+  letter-spacing: var(--tv-tracking-tight);
+  color: var(--tv-text);
+  margin: 0;
+}
+
+.actions-card__count {
+  color: var(--tv-text-muted);
+  font-weight: var(--tv-fw-regular);
+}
+
+.actions-card__copy {
+  margin: 0;
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  max-width: 520px;
+}
+
+/* ============ List ============ */
+
+.actions-card__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-4);
+}
+
+.actions-card__item {
+  padding-bottom: var(--tv-space-4);
+  border-bottom: 1px solid var(--tv-border);
+}
+
+.actions-card__item:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.actions-card__overflow {
+  margin: 0;
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tv-tracking-wide);
+  color: var(--tv-text-muted);
+}
+
+/* ============ Row ============ */
+
+.action-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--tv-space-3);
+}
+
+/* Open-status bullet. Hollow circle, brand teal stroke. Forward-compatible:
+   when the mentee can mark done in a later block, this becomes a filled
+   check at the same position. */
+.action-row__bullet {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  margin-top: 5px;
+  border: 1.5px solid var(--tv-primary);
+  border-radius: 50%;
+  background: transparent;
+}
+
+.action-row__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.action-row__text {
+  margin: 0 0 var(--tv-space-1);
+  font-size: var(--tv-fs-base);
+  line-height: var(--tv-lh-snug);
+  color: var(--tv-text);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.action-row__meta {
+  margin: 0;
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-muted);
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  flex-wrap: wrap;
+}
+
+.action-row__sep {
+  color: var(--tv-text-muted);
+}
+
+.action-row__due {
+  color: var(--tv-text-muted);
+}
+
+.action-row__due--over {
+  color: var(--tv-warning-text);
+  font-weight: var(--tv-fw-semibold);
+}
+
+/* ============ Loading ============ */
+
+.actions-card__skeleton {
+  height: 180px;
+  background: var(--tv-canvas-app);
+  border-radius: var(--tv-radius-md);
+}
+
+/* ============ Responsive ============ */
+
+@media (max-width: 640px) {
+  .actions-card { padding: var(--tv-space-5); }
+}

@@ -1,0 +1,83 @@
+/* Section 2: Conviction. Editorial declarative moment with scripture. */
+
+.conviction {
+  background: var(--tv-canvas-brand);
+  padding: 48px 24px 64px;
+}
+
+.conviction__inner {
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+/* ============ Lead block ============ */
+
+.conviction__eyebrow {
+  font-family: var(--tv-font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--tv-accent-text);
+  margin: 0 0 16px;
+}
+
+.conviction__lead {
+  font-family: var(--tv-font-display);
+  font-weight: 600;
+  font-size: clamp(30px, 4vw, 48px);
+  line-height: 1.15;
+  color: var(--tv-text);
+  letter-spacing: -0.022em;
+  margin: 0 0 28px;
+}
+
+.conviction__body {
+  font-family: var(--tv-font-body);
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--tv-text-2);
+  margin: 0 0 36px;
+}
+
+/* ============ Close ============ */
+
+.conviction__close {
+  text-align: center;
+  margin: 48px auto 0;
+}
+
+.conviction__close-rule {
+  display: block;
+  height: 1px;
+  width: 32px;
+  background: var(--tv-accent);
+  margin: 0 auto 20px;
+}
+
+.conviction__close-line {
+  font-family: var(--tv-font-display);
+  font-weight: 500;
+  font-size: clamp(16px, 1.5vw, 18px);
+  line-height: 1.5;
+  color: var(--tv-primary);
+  letter-spacing: 0.01em;
+  margin: 0;
+}
+
+/* ============ Desktop ============ */
+
+@media (min-width: 760px) {
+  .conviction {
+    padding: 56px 32px 72px;
+  }
+
+  .conviction__body {
+    font-size: 17px;
+    margin-bottom: 40px;
+  }
+
+  .conviction__close {
+    margin-top: 56px;
+  }
+}

@@ -1,0 +1,46 @@
+.next-meet {
+  background: var(--tv-canvas-brand);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-lg);
+  padding: var(--tv-space-5) var(--tv-space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-3);
+}
+
+.next-meet__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-1);
+}
+
+.next-meet__eyebrow {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tv-tracking-wider);
+  color: var(--tv-accent-text);
+  margin: 0;
+}
+
+.next-meet__title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-md);
+  line-height: var(--tv-lh-tight);
+  color: var(--tv-text);
+  margin: 0;
+}
+
+.next-meet__copy {
+  margin: 0;
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  max-width: 480px;
+}
+
+@media (max-width: 640px) {
+  .next-meet { padding: var(--tv-space-5); }
+}

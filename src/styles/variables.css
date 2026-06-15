@@ -1,0 +1,175 @@
+/* =========================================================================
+   ToolVine Design Tokens
+   Single source of truth. Every component reads from here.
+   See toolvine-brand-guide.md for the rules behind each value.
+   Accessibility ratios verified in docs/accessibility-audit.md (WCAG 2.1 AA).
+   ========================================================================= */
+
+:root {
+  /* -----------------------------------------------------------------------
+     COLOUR — Primary (Deep Teal scale)
+     ----------------------------------------------------------------------- */
+  --tv-primary:           #0F766E;   /* Deep Teal · primary, CTAs, mentor leaf, stem · 5.2:1+ on canvases */
+  --tv-primary-hover:     #0D655E;   /* Deep Teal hover */
+  --tv-primary-light:     #14B8A6;   /* Teal · mentee leaf, active nav · DECORATIVE ONLY, never as text or button fill on light */
+  --tv-primary-softer:    #5EEAD4;   /* Soft Mint · taglines on dark backgrounds only */
+  --tv-primary-soft:      #CCFBF1;   /* Pale Mint · pill bg, stat-icon bg */
+
+  /* COLOUR — Accent (Amber, sparingly) */
+  --tv-accent:            #D97706;   /* Warm Amber · fills, dividers, decorative highlights · 3:1 (UI/large only) */
+  --tv-accent-text:       #B45309;   /* Darker amber · use when amber is TEXT on light surfaces · 4.8:1+ */
+  --tv-accent-light:      #FCD34D;   /* DECORATIVE ONLY */
+  --tv-accent-soft:       #FEF3C7;
+
+  /* COLOUR — Neutrals */
+  --tv-text:              #0F172A;   /* Dark Slate · primary text, sidebar · 17:1+ */
+  --tv-text-2:            #475569;   /* Slate · secondary text · 7.2:1+ */
+  --tv-text-muted:        #64748B;   /* Cool Gray · meta, captions, supporting copy · 4.5:1+ (borderline; prefer text-2 for body) */
+  --tv-text-inverse:      #FFFFFF;
+  --tv-border:            #E2E8F0;   /* Decorative dividers, card outlines · no contrast bar */
+  --tv-border-strong:     #CBD5E1;   /* Emphasized dividers · no contrast bar */
+  --tv-border-input:      #64748B;   /* Form controls, button outlines · 4.5:1+ on canvases (passes UI 3:1) */
+
+  /* COLOUR — Status (fills/icons use base; text use *-text variants) */
+  --tv-success:           #10B981;   /* Fills, icons, status dots */
+  --tv-success-text:      #047857;   /* TEXT in success contexts · 5.4:1 on white, 4.8:1 on bg */
+  --tv-success-bg:        #D1FAE5;
+
+  --tv-warning:           #F59E0B;   /* Fills, icons */
+  --tv-warning-text:      #B45309;   /* TEXT in warning contexts · 5.0:1 on white, 4.5:1 on bg */
+  --tv-warning-bg:        #FEF3C7;
+
+  --tv-error:             #EF4444;   /* Fills, icons */
+  --tv-error-text:        #B91C1C;   /* TEXT in error contexts · 6.5:1 on white, 5.3:1 on bg */
+  --tv-error-bg:          #FEE2E2;
+
+  --tv-info:              #3B82F6;   /* Fills, icons */
+  --tv-info-text:         #1D4ED8;   /* TEXT in info contexts · 6.7:1 on white, 5.5:1 on bg */
+  --tv-info-bg:           #DBEAFE;
+
+  /* CANVAS — Two-canvas system. Do not collapse. */
+  --tv-canvas-app:        #F8FAFC;   /* Cool light · dashboards, forms, working surfaces */
+  --tv-canvas-brand:      #FAFAF9;   /* Warm cream · marketing, OG cards, brand pages */
+  --tv-surface:           #FFFFFF;   /* Cards, panels, modals */
+  --tv-surface-raised:    #FFFFFF;   /* Reserved for elevated surfaces (currently same) */
+
+  /* SIDEBAR (dark by design) */
+  --tv-sidebar-bg:        #0F172A;
+  --tv-sidebar-text:      #CBD5E1;   /* 12:1 on sidebar bg */
+  --tv-sidebar-text-active: #FFFFFF; /* 17.8:1 on sidebar bg */
+  --tv-sidebar-item-hover: rgba(255, 255, 255, 0.06);
+  --tv-sidebar-item-active: rgba(20, 184, 166, 0.16);
+  --tv-sidebar-border:    rgba(255, 255, 255, 0.08);
+
+  /* -----------------------------------------------------------------------
+     TYPE
+     ----------------------------------------------------------------------- */
+  --tv-font-display: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --tv-font-body:    'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --tv-font-mono:    'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --tv-font-serif: 'EB Garamond', Georgia, 'Times New Roman', serif;
+
+  --tv-fw-regular:   400;
+  --tv-fw-medium:    500;
+  --tv-fw-semibold:  600;
+  --tv-fw-bold:      700;
+
+  /* Scale (mobile-first; tightened display via letter-spacing on h1/h2) */
+  --tv-fs-xs:        0.75rem;   /* 12px · meta, captions */
+  --tv-fs-sm:        0.875rem;  /* 14px · labels, secondary */
+  --tv-fs-base:      1rem;      /* 16px · body */
+  --tv-fs-md:        1.125rem;  /* 18px · large body, card titles */
+  --tv-fs-lg:        1.25rem;   /* 20px · section heads */
+  --tv-fs-xl:        1.5rem;    /* 24px · page titles (mobile) */
+  --tv-fs-2xl:       1.875rem;  /* 30px · page titles (desktop) */
+  --tv-fs-3xl:       2.25rem;   /* 36px · hero (mobile) */
+  --tv-fs-4xl:       3rem;      /* 48px · hero (desktop) */
+
+  --tv-lh-tight:     1.2;
+  --tv-lh-snug:      1.35;
+  --tv-lh-base:      1.55;
+  --tv-lh-relaxed:   1.7;
+
+  --tv-tracking-tight:  -0.02em;
+  --tv-tracking-normal:  0;
+  --tv-tracking-wide:    0.04em;
+  --tv-tracking-wider:   0.08em;
+
+  /* -----------------------------------------------------------------------
+     SPACING (4px scale)
+     ----------------------------------------------------------------------- */
+  --tv-space-1:      0.25rem;   /* 4 */
+  --tv-space-2:      0.5rem;    /* 8 */
+  --tv-space-3:      0.75rem;   /* 12 */
+  --tv-space-4:      1rem;      /* 16 */
+  --tv-space-5:      1.25rem;   /* 20 */
+  --tv-space-6:      1.5rem;    /* 24 */
+  --tv-space-8:      2rem;      /* 32 */
+  --tv-space-10:     2.5rem;    /* 40 */
+  --tv-space-12:     3rem;      /* 48 */
+  --tv-space-16:     4rem;      /* 64 */
+  --tv-space-20:     5rem;      /* 80 */
+  --tv-space-24:     6rem;      /* 96 */
+
+  /* -----------------------------------------------------------------------
+     RADIUS — moderate; no oversized rounding
+     ----------------------------------------------------------------------- */
+  --tv-radius-sm:    6px;
+  --tv-radius-md:    8px;
+  --tv-radius-lg:    12px;
+  --tv-radius-pill:  999px;
+
+  /* -----------------------------------------------------------------------
+     BORDERS
+     ----------------------------------------------------------------------- */
+  --tv-border-width: 1px;
+
+  /* -----------------------------------------------------------------------
+     SHADOWS — subtle; calm utility
+     ----------------------------------------------------------------------- */
+  --tv-shadow-sm:    0 1px 2px rgba(15, 23, 42, 0.04);
+  --tv-shadow-md:    0 4px 12px rgba(15, 23, 42, 0.06);
+  --tv-shadow-lg:    0 10px 28px rgba(15, 23, 42, 0.08);
+  --tv-shadow-focus: 0 0 0 3px rgba(15, 118, 110, 0.25);
+
+  /* -----------------------------------------------------------------------
+     MOTION — respect prefers-reduced-motion in components
+     ----------------------------------------------------------------------- */
+  --tv-ease:         cubic-bezier(0.2, 0.8, 0.2, 1);
+  --tv-duration-fast: 120ms;
+  --tv-duration:      180ms;
+  --tv-duration-slow: 260ms;
+
+  /* -----------------------------------------------------------------------
+     LAYOUT
+     ----------------------------------------------------------------------- */
+  --tv-shell-sidebar:    260px;
+  --tv-shell-sidebar-collapsed: 72px;
+  --tv-shell-topbar:     64px;
+  --tv-content-max:      1200px;
+  --tv-prose-max:        680px;
+
+  /* -----------------------------------------------------------------------
+     Z-INDEX
+     ----------------------------------------------------------------------- */
+  --tv-z-base:       1;
+  --tv-z-sticky:     10;
+  --tv-z-overlay:    100;
+  --tv-z-modal:      200;
+  --tv-z-toast:      300;
+}
+
+/* Touch-target floor (UX principles: 44x44) */
+@media (pointer: coarse) {
+  :root {
+    --tv-touch-min: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --tv-duration-fast: 0ms;
+    --tv-duration: 0ms;
+    --tv-duration-slow: 0ms;
+  }
+}

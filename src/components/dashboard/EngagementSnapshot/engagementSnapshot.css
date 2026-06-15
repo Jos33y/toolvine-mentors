@@ -1,0 +1,119 @@
+/* ============ Engagement snapshot ============ */
+
+.admin-engage {
+  background: var(--tv-canvas-brand);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  padding: var(--tv-space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-5);
+}
+
+.admin-engage__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-2);
+}
+
+.admin-engage__eyebrow {
+  font-family: var(--tv-font-mono);
+  font-size: 0.6875rem;
+  font-weight: var(--tv-fw-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--tv-tracking-wider);
+  color: var(--tv-accent-text);
+  margin: 0;
+}
+
+.admin-engage__title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-xl);
+  line-height: var(--tv-lh-tight);
+  letter-spacing: var(--tv-tracking-tight);
+  color: var(--tv-text);
+  margin: 0;
+}
+
+/* ============ Panels ============ */
+
+.admin-engage__panels {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+}
+
+.admin-engage__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-2);
+  padding: var(--tv-space-3) var(--tv-space-5);
+}
+
+.admin-engage__panel:first-child { padding-left: 0; }
+.admin-engage__panel:last-child  { padding-right: 0; }
+
+.admin-engage__panel + .admin-engage__panel {
+  border-left: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+/* Label now an inline-flex row so the leading icon sits cleanly before the
+   mono-uppercase text. Icon size stays small (12px) so it identifies without
+   overpowering the label. */
+.admin-engage__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  font-family: var(--tv-font-mono);
+  font-size: 0.6875rem;
+  font-weight: var(--tv-fw-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--tv-tracking-wider);
+  color: var(--tv-text-muted);
+}
+
+.admin-engage__label svg {
+  color: var(--tv-text-2);
+  flex-shrink: 0;
+}
+
+.admin-engage__value {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: clamp(2rem, 1.4rem + 2vw, 2.5rem);
+  line-height: 1;
+  letter-spacing: var(--tv-tracking-tight);
+  color: var(--tv-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-engage__delta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-1);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-engage__delta--up    { color: var(--tv-success-text); }
+.admin-engage__delta--down  { color: var(--tv-text-2); }
+.admin-engage__delta--flat  { color: var(--tv-text-muted); }
+
+/* ============ Responsive ============ */
+
+@media (max-width: 900px) {
+  .admin-engage__panels {
+    grid-template-columns: 1fr;
+  }
+  .admin-engage__panel {
+    padding: var(--tv-space-4) 0;
+  }
+  .admin-engage__panel + .admin-engage__panel {
+    border-left: 0;
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
+  }
+  .admin-engage__panel:first-child { padding-top: 0; }
+  .admin-engage__panel:last-child  { padding-bottom: 0; }
+}

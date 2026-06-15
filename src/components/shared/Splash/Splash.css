@@ -1,0 +1,42 @@
+.tv-splash {
+  display: grid;
+  place-items: center;
+  min-height: 60vh;
+  background: var(--tv-canvas-brand);
+}
+
+.tv-splash--fullscreen {
+  position: fixed;
+  inset: 0;
+  min-height: 100dvh;
+  z-index: var(--tv-z-modal);
+}
+
+.tv-splash__mark {
+  width: 72px;
+  height: 72px;
+  animation: tv-splash-grow 1200ms var(--tv-ease) both;
+}
+
+@keyframes tv-splash-grow {
+  0%   { transform: scale(0.75); opacity: 0; }
+  60%  { opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tv-splash__mark { animation: none; }
+}
+
+/* Screen-reader-only text: announces "Loading" without visual presence. */
+.tv-splash__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

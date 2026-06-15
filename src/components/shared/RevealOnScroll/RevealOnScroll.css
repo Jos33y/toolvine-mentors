@@ -1,0 +1,22 @@
+/* Reveal-on-scroll: fade and rise when entering viewport. */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 900ms var(--tv-ease),
+    transform 900ms var(--tv-ease);
+}
+
+.reveal.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

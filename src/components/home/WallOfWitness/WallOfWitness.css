@@ -1,0 +1,380 @@
+/* WallOfWitness. Drifting testimony columns + organic vine spine.
+   Stripped to essentials: text, spine, motion. No decorative layers. */
+
+.witness {
+  background: var(--tv-canvas-brand);
+  padding: 80px 24px 56px;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* ============ Atmospheric wash (single, restrained) ============ */
+
+.witness::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 1000px 600px at 50% 40%,
+    rgba(217, 119, 6, 0.05),
+    transparent 60%
+  );
+}
+
+.witness__header,
+.witness__columns,
+.witness__footer {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============ Header ============ */
+
+.witness__header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.witness__eyebrow {
+  font-family: var(--tv-font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--tv-accent-text);
+  margin: 0 0 14px;
+}
+
+.witness__heading {
+  font-family: var(--tv-font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(26px, 3vw, 38px);
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  color: var(--tv-text);
+  margin: 0;
+}
+
+/* ============ Columns ============ */
+
+.witness__columns {
+  position: relative;
+  display: flex;
+  gap: 0;
+  max-width: 1040px;
+  margin: 0 auto;
+  height: clamp(440px, 58vh, 600px);
+}
+
+/* ============ Vine Spine ============ */
+
+.witness__spine {
+  flex: 0 0 100px;
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.spine {
+  display: block;
+  width: 100%;
+  height: 100%;
+  color: var(--tv-accent);
+  opacity: 0.30;
+}
+
+.spine__trunk,
+.spine__branch {
+  opacity: 0;
+}
+
+.spine__trunk {
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+}
+
+.spine__branch {
+  stroke-dasharray: 80;
+  stroke-dashoffset: 80;
+}
+
+.spine__node {
+  opacity: 0;
+  transform-origin: center;
+  transform: scale(0);
+}
+
+.spine--visible .spine__trunk {
+  opacity: 1;
+  animation: spine-stroke 600ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.spine--visible .spine__branch {
+  opacity: 1;
+  animation: spine-stroke 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.spine--visible .spine__node {
+  opacity: 1;
+  animation: spine-node 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards,
+             spine-pulse 8s ease-in-out var(--pulse-delay, 0s) infinite 2s;
+}
+
+@keyframes spine-stroke {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes spine-node {
+  to { transform: scale(1); }
+}
+
+@keyframes spine-pulse {
+  0%, 100% { opacity: 0.30; }
+  12% { opacity: 0.70; }
+  24% { opacity: 0.30; }
+}
+
+/* ============ Column ============ */
+
+.witness-col {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  min-width: 0;
+}
+
+.witness-col::before,
+.witness-col::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 80px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.witness-col::before {
+  top: 0;
+  background: linear-gradient(to bottom, var(--tv-canvas-brand), transparent);
+}
+
+.witness-col::after {
+  bottom: 0;
+  background: linear-gradient(to top, var(--tv-canvas-brand), transparent);
+}
+
+/* ============ Track ============ */
+
+.witness-col__track {
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+}
+
+.witness-col[data-direction="up"] .witness-col__track {
+  animation: witness-drift-up 55s linear infinite;
+}
+
+.witness-col[data-direction="down"] .witness-col__track {
+  animation: witness-drift-down 60s linear infinite;
+}
+
+@keyframes witness-drift-up {
+  from { transform: translateY(0); }
+  to { transform: translateY(-50%); }
+}
+
+@keyframes witness-drift-down {
+  from { transform: translateY(-50%); }
+  to { transform: translateY(0); }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .witness-col:hover .witness-col__track {
+    animation-play-state: paused;
+  }
+}
+
+/* ============ Card (naked — no background, no border) ============ */
+
+.witness-card {
+  padding: 18px 24px 20px;
+}
+
+.witness-card__text {
+  font-family: var(--tv-font-body);
+  font-weight: 400;
+  font-size: clamp(14px, 1.4vw, 15.5px);
+  line-height: 1.6;
+  color: var(--tv-text-2);
+  margin: 0 0 10px;
+}
+
+.witness-card__rule {
+  display: block;
+  width: 28px;
+  height: 1px;
+  background: var(--tv-accent);
+  opacity: 0.55;
+  margin-bottom: 10px;
+}
+
+.witness-card__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+}
+
+.witness-card__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-family: var(--tv-font-display);
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 0;
+  background: var(--tv-accent-soft);
+  color: var(--tv-accent-text);
+  flex-shrink: 0;
+}
+
+.witness-card__avatar--mentor {
+  background: var(--tv-primary-soft);
+  color: var(--tv-primary);
+}
+
+.witness-card__attr {
+  font-family: var(--tv-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+  margin: 0;
+}
+
+/* ============ Featured card (one per column, the anchor voice) ============ */
+
+.witness-card--featured .witness-card__text {
+  font-family: var(--tv-font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(19px, 2vw, 24px);
+  line-height: 1.4;
+  color: var(--tv-text);
+}
+
+/* ============ Right column: attr mirrors ============ */
+
+.witness-col[data-direction="down"] .witness-card__meta {
+  flex-direction: row-reverse;
+}
+
+.witness-col[data-direction="down"] .witness-card__rule {
+  margin-left: auto;
+}
+
+/* ============ Footer (caption + CTA) ============ */
+
+.witness__footer {
+  text-align: center;
+  margin-top: 40px;
+}
+
+.witness__caption {
+  font-family: var(--tv-font-body);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 13px;
+  color: var(--tv-text-muted);
+  margin: 0 0 20px;
+}
+
+.witness__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--tv-font-display);
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--tv-primary);
+  text-decoration: none;
+  padding: 8px 4px;
+  transition: gap 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.witness__cta:hover {
+  color: var(--tv-primary-hover);
+  gap: 14px;
+}
+
+.witness__cta-arrow {
+  font-size: 18px;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.witness__cta:hover .witness__cta-arrow {
+  transform: translateX(3px);
+}
+
+/* ============ Mobile ============ */
+
+@media (max-width: 759px) {
+  .witness { padding: 64px 20px 48px; }
+
+  .witness__columns {
+    height: clamp(380px, 52vh, 500px);
+  }
+
+  .witness-col[data-direction="down"],
+  .witness__spine {
+    display: none;
+  }
+
+  .witness-card { padding: 14px 8px 16px; }
+}
+
+/* ============ Tablet ============ */
+
+@media (min-width: 760px) and (max-width: 1024px) {
+  .witness__columns { max-width: 760px; }
+  .witness__spine { flex: 0 0 72px; }
+}
+
+/* ============ Desktop ============ */
+
+@media (min-width: 1025px) {
+  .witness { padding: 96px 32px 64px; }
+  .witness__header { margin-bottom: 56px; }
+}
+
+/* ============ Reduced motion ============ */
+
+.witness--static .witness-col__track { animation: none !important; }
+.witness-col--static { overflow: visible; }
+.witness--static .witness-col::before,
+.witness--static .witness-col::after { display: none; }
+.witness--static .witness__columns { height: auto; }
+
+.witness--static .spine__trunk,
+.witness--static .spine__branch {
+  opacity: 1; stroke-dashoffset: 0; animation: none !important;
+}
+
+.witness--static .spine__node {
+  opacity: 0.5; transform: scale(1); animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .witness-col__track { animation: none !important; }
+}

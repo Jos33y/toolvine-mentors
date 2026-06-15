@@ -1,0 +1,356 @@
+/* HeroStack: Vinethoughts editorial covers. Featured cover carries a real feature index.
+   Cursor-aware 3D tilt + ambient breath at rest. */
+
+.hero-stack {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 300px;
+  aspect-ratio: 3 / 4;
+  margin: 0 auto;
+  text-decoration: none;
+  outline-offset: 8px;
+  /* 3D tilt via CSS custom properties set by JS */
+  transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+  transform-style: preserve-3d;
+  transition: transform 400ms var(--tv-ease);
+  /* Ambient breath at rest */
+  animation: hero-stack-breath 6s ease-in-out infinite;
+}
+
+.hero-stack:focus-visible {
+  outline: 2px solid var(--tv-primary);
+}
+
+/* ============ Volume base ============ */
+
+.hero-stack__volume {
+  position: absolute;
+  inset: 0;
+  padding: 22px 22px 20px;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  overflow: hidden;
+  box-shadow:
+    0 4px 16px rgba(15, 23, 42, 0.06),
+    0 1px 3px rgba(15, 23, 42, 0.04);
+  animation: hero-stack-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+/* ============ Stack positions ============ */
+
+.hero-stack__volume--back {
+  z-index: 1;
+  transform: translate(36px, -28px) rotate(-2deg);
+  animation-delay: 1.6s;
+}
+
+.hero-stack__volume--mid {
+  z-index: 2;
+  transform: translate(18px, -14px) rotate(1.4deg);
+  animation-delay: 1.8s;
+}
+
+.hero-stack__volume--featured {
+  z-index: 3;
+  transform: translate(0, 0) rotate(0);
+  animation-delay: 2s;
+}
+
+/* Hover: stack fans open, featured lifts. */
+.hero-stack:hover .hero-stack__volume--featured,
+.hero-stack:focus-visible .hero-stack__volume--featured {
+  transform: translate(-6px, -4px) rotate(-0.4deg);
+  box-shadow:
+    0 18px 36px rgba(15, 23, 42, 0.10),
+    0 4px 8px rgba(15, 23, 42, 0.05);
+}
+
+.hero-stack:hover .hero-stack__volume--mid,
+.hero-stack:focus-visible .hero-stack__volume--mid {
+  transform: translate(24px, -20px) rotate(2.4deg);
+}
+
+.hero-stack:hover .hero-stack__volume--back,
+.hero-stack:focus-visible .hero-stack__volume--back {
+  transform: translate(46px, -38px) rotate(-3deg);
+}
+
+/* ============ Cover color treatments ============ */
+
+/* Featured (Issue 06): cream + teal accents. */
+.hero-stack__volume--featured {
+  background: #FFFFFF;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  color: var(--tv-primary);
+}
+
+.hero-stack__volume--featured .hero-stack__publication { color: var(--tv-text); }
+.hero-stack__volume--featured .hero-stack__meta { color: var(--tv-text-2); }
+.hero-stack__volume--featured .hero-stack__feature { color: var(--tv-text); }
+.hero-stack__volume--featured .hero-stack__art { color: var(--tv-primary); opacity: 0.07; }
+.hero-stack__volume--featured .hero-stack__divider { background: rgba(15, 23, 42, 0.16); }
+.hero-stack__volume--featured .hero-stack__feature-label { color: var(--tv-accent-text); }
+.hero-stack__volume--featured .hero-stack__feature-title { color: var(--tv-text); }
+.hero-stack__volume--featured .hero-stack__feature-author { color: var(--tv-text-muted); }
+.hero-stack__volume--featured .hero-stack__imprint { color: var(--tv-text-muted); }
+
+/* Mid (Issue 05): deep teal + cream knockout. */
+.hero-stack__volume--mid {
+  background: var(--tv-primary);
+  border: 1px solid var(--tv-primary-hover);
+  color: #FFFFFF;
+}
+
+.hero-stack__volume--mid .hero-stack__publication { color: #FFFFFF; }
+.hero-stack__volume--mid .hero-stack__meta { color: rgba(255, 255, 255, 0.78); }
+.hero-stack__volume--mid .hero-stack__feature { color: rgba(255, 255, 255, 0.95); }
+.hero-stack__volume--mid .hero-stack__art { color: #FFFFFF; opacity: 0.13; }
+.hero-stack__volume--mid .hero-stack__divider { background: rgba(255, 255, 255, 0.22); }
+.hero-stack__volume--mid .hero-stack__imprint { color: rgba(255, 255, 255, 0.65); }
+
+/* Back (Issue 04): amber soft + deep amber type. */
+.hero-stack__volume--back {
+  background: var(--tv-accent-soft);
+  border: 1px solid rgba(180, 83, 9, 0.22);
+  color: var(--tv-accent-text);
+}
+
+.hero-stack__volume--back .hero-stack__publication { color: var(--tv-text); }
+.hero-stack__volume--back .hero-stack__meta { color: rgba(15, 23, 42, 0.6); }
+.hero-stack__volume--back .hero-stack__feature { color: var(--tv-accent-text); }
+.hero-stack__volume--back .hero-stack__art { color: var(--tv-accent-text); opacity: 0.11; }
+.hero-stack__volume--back .hero-stack__divider { background: rgba(180, 83, 9, 0.25); }
+.hero-stack__volume--back .hero-stack__imprint { color: rgba(180, 83, 9, 0.7); }
+
+/* ============ Watermark art (numeral) ============ */
+
+.hero-stack__art {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--tv-font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(220px, 38vw, 320px);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+/* ============ Foreground stacking ============ */
+
+.hero-stack__masthead,
+.hero-stack__divider,
+.hero-stack__feature,
+.hero-stack__features,
+.hero-stack__colophon {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============ Masthead ============ */
+
+.hero-stack__masthead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.hero-stack__masthead-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hero-stack__masthead-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.hero-stack__mark {
+  display: block;
+  flex-shrink: 0;
+}
+
+.hero-stack__publication {
+  font-family: var(--tv-font-serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+  margin: 0;
+  line-height: 1;
+}
+
+.hero-stack__meta {
+  font-family: var(--tv-font-body);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.hero-stack__meta--sub {
+  opacity: 0.7;
+}
+
+/* ============ Divider ============ */
+
+.hero-stack__divider {
+  display: block;
+  height: 1px;
+  margin: 14px 0;
+}
+
+/* ============ Cover line (tagline) ============ */
+
+.hero-stack__feature {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  font-family: var(--tv-font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(18px, 1.8vw, 22px);
+  line-height: 1.22;
+  letter-spacing: -0.012em;
+  margin: 8px 0;
+}
+
+/* ============ Feature index (featured cover only) ============ */
+
+.hero-stack__features {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.hero-stack__feature-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hero-stack__feature-label {
+  font-family: var(--tv-font-body);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin: 0;
+  line-height: 1;
+}
+
+.hero-stack__feature-title {
+  font-family: var(--tv-font-serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.22;
+  letter-spacing: -0.005em;
+  margin: 0;
+}
+
+.hero-stack__feature-author {
+  font-family: var(--tv-font-body);
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.3;
+  margin: 0;
+}
+
+/* ============ Simple colophon (non-featured covers) ============ */
+
+.hero-stack__colophon {
+  margin: 0;
+}
+
+.hero-stack__imprint {
+  font-family: var(--tv-font-body);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+/* ============ Breath animation ============ */
+
+@keyframes hero-stack-breath {
+  0%, 100% { scale: 1; }
+  50% { scale: 1.01; }
+}
+
+/* ============ Desktop ============ */
+
+@media (min-width: 760px) {
+  .hero-stack {
+    max-width: 340px;
+    margin: 0;
+  }
+
+  .hero-stack__volume {
+    padding: 26px 26px 22px;
+  }
+
+  .hero-stack__publication {
+    font-size: 22px;
+  }
+
+  .hero-stack__meta {
+    font-size: 10px;
+  }
+
+  .hero-stack__feature {
+    font-size: clamp(20px, 1.9vw, 24px);
+    margin: 10px 0;
+  }
+
+  .hero-stack__feature-title {
+    font-size: 14px;
+  }
+
+  .hero-stack__divider {
+    margin: 16px 0;
+  }
+}
+
+/* ============ Reduced motion ============ */
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-stack {
+    animation: none;
+    transform: none;
+    transition: none;
+  }
+
+  .hero-stack__volume {
+    opacity: 1;
+    animation: none;
+  }
+
+  .hero-stack:hover .hero-stack__volume,
+  .hero-stack:focus-visible .hero-stack__volume {
+    transform: inherit;
+  }
+}
+
+/* ============ Keyframes ============ */
+
+@keyframes hero-stack-rise {
+  to { opacity: 1; }
+}

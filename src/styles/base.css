@@ -1,0 +1,109 @@
+/* Base: reset, type defaults, accessibility floor. */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-base);
+  font-weight: var(--tv-fw-regular);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text);
+  background: var(--tv-canvas-app);
+}
+
+img, svg, video, canvas {
+  display: block;
+  max-width: 100%;
+}
+
+img {
+  height: auto;
+}
+
+button, input, select, textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+a {
+  color: var(--tv-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--tv-primary-hover);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  line-height: var(--tv-lh-tight);
+  color: var(--tv-text);
+}
+
+h1 { font-size: var(--tv-fs-xl); letter-spacing: var(--tv-tracking-tight); }
+h2 { font-size: var(--tv-fs-lg); letter-spacing: var(--tv-tracking-tight); }
+h3 { font-size: var(--tv-fs-md); }
+
+p { line-height: var(--tv-lh-base); }
+
+:focus-visible {
+  outline: 2px solid var(--tv-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: var(--tv-z-modal);
+  background: var(--tv-primary);
+  color: var(--tv-text-inverse);
+  padding: var(--tv-space-3) var(--tv-space-4);
+  border-radius: 0 0 var(--tv-radius-md) 0;
+  font-weight: var(--tv-fw-semibold);
+}
+
+.skip-link:focus {
+  left: 0;
+}
+
+::selection {
+  background: var(--tv-primary-soft);
+  color: var(--tv-text);
+}
+
+@media (max-width: 760px) {
+  h1 { font-size: var(--tv-fs-lg); }
+  h2 { font-size: var(--tv-fs-md); }
+}
+
+@media (min-width: 761px) {
+  h1 { font-size: var(--tv-fs-2xl); }
+  h2 { font-size: var(--tv-fs-xl); }
+}

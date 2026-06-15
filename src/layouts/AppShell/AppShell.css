@@ -1,0 +1,466 @@
+/* AppShell.
+   Mobile (< 960px): sidebar hidden, page title in topbar, dark slate bottom tab bar + sheet.
+   Desktop (>= 960px): persistent sidebar, no bottom chrome.
+
+   The mobile bottom chrome (tabs + More sheet) wears the same dark slate as
+   the desktop sidebar. Brand-chrome continuity: navigation is always the
+   dark layer, content is the warm/cool surface. Visual identity carries
+   across devices instead of breaking at the breakpoint. */
+
+.shell {
+  min-height: 100dvh;
+  background: var(--tv-canvas-app);
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+/* ============ Sidebar (desktop only) ============ */
+
+.shell-sidebar {
+  display: none;
+}
+
+.shell-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-3);
+  padding: 0 var(--tv-space-2);
+  margin-bottom: var(--tv-space-6);
+}
+
+.shell-sidebar-brand-name {
+  flex: 1;
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-md);
+  color: var(--tv-sidebar-text-active);
+  letter-spacing: -0.01em;
+}
+
+/* ============ Sidebar nav ============ */
+
+.shell-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.shell-nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-3);
+  padding: var(--tv-space-3) var(--tv-space-3);
+  border-radius: var(--tv-radius-md);
+  color: var(--tv-sidebar-text);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-medium);
+  text-decoration: none;
+  min-height: 40px;
+  transition: background var(--tv-duration-fast) var(--tv-ease),
+              color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.shell-nav-item:hover {
+  background: var(--tv-sidebar-item-hover);
+  color: var(--tv-sidebar-text-active);
+}
+
+.shell-nav-item.is-active {
+  background: var(--tv-sidebar-item-active);
+  color: var(--tv-sidebar-text-active);
+}
+
+.shell-nav-item.is-active::before {
+  content: '';
+  width: 3px;
+  height: 18px;
+  background: var(--tv-primary-light);
+  border-radius: 2px;
+  margin-left: -10px;
+  margin-right: var(--tv-space-2);
+}
+
+/* ============ Sidebar identity block (desktop foot) ============ */
+
+.shell-identity {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-3);
+  padding: var(--tv-space-3);
+  margin-top: var(--tv-space-4);
+  border-top: 1px solid var(--tv-sidebar-border);
+  padding-top: var(--tv-space-4);
+}
+
+.shell-identity-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--tv-sidebar-item-active);
+  color: var(--tv-primary-softer);
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-sm);
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+.shell-identity-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.shell-identity-name {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-sidebar-text-active);
+  margin: 0;
+  line-height: var(--tv-lh-tight);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shell-identity-roles {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  color: var(--tv-primary-softer);
+  margin: 3px 0 0 0;
+  letter-spacing: var(--tv-tracking-wider);
+  text-transform: uppercase;
+  line-height: var(--tv-lh-tight);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shell-identity-signout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--tv-radius-md);
+  color: var(--tv-sidebar-text);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background var(--tv-duration-fast) var(--tv-ease),
+              color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.shell-identity-signout:hover {
+  background: var(--tv-sidebar-item-hover);
+  color: var(--tv-sidebar-text-active);
+}
+
+.shell-identity-signout:focus-visible {
+  outline: 2px solid var(--tv-primary-light);
+  outline-offset: 2px;
+}
+
+/* ============ Main column ============ */
+
+.shell-main {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.shell-topbar {
+  position: sticky;
+  top: 0;
+  z-index: var(--tv-z-sticky);
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-4);
+  height: 52px;
+  padding: 0 var(--tv-space-4);
+  background: var(--tv-surface);
+  border-bottom: 1px solid var(--tv-border);
+}
+
+/* Suppress topbar bottom border when the onboarding banner is mounted below;
+   otherwise the two hairlines stack into a doubled rule. */
+.shell-main:has(.onbb) .shell-topbar {
+  border-bottom-color: transparent;
+}
+
+/* Page title. Always left-aligned. Centered titles need flanking elements
+   (back, action, avatar) to feel balanced; we do not have those on the topbar,
+   so left-align reads as a quiet section indicator rather than a floating
+   centered title. Mobile 18px matches iOS regular nav-bar weight. */
+.shell-topbar-title {
+  flex: 1;
+  margin: 0;
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-md);
+  color: var(--tv-text);
+  text-align: left;
+  letter-spacing: var(--tv-tracking-tight);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shell-content {
+  flex: 1;
+  /* Bottom padding reserves room for the mobile tab bar (60px + safe area). */
+  padding: var(--tv-space-6) var(--tv-space-4) calc(80px + env(safe-area-inset-bottom, 0px));
+  max-width: var(--tv-content-max);
+  width: 100%;
+  margin: 0 auto;
+}
+
+.shell-content:focus {
+  outline: none;
+}
+
+/* ============ Mobile bottom tab bar ============
+   Dark slate to match the desktop sidebar. Same chrome identity, different
+   layout per device. Inactive icons sit muted; active gains teal pop plus
+   a 2px primary-light strip at the top center of the tab, echoing the
+   sidebar's left-strip pattern rotated for horizontal layout. */
+
+.shell-tabs {
+  position: fixed;
+  inset: auto 0 0 0;
+  display: flex;
+  background: var(--tv-sidebar-bg);
+  border-top: 1px solid var(--tv-sidebar-border);
+  z-index: var(--tv-z-sticky);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  /* Soft dark shadow defines the lift without competing with content above. */
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.18);
+}
+
+.shell-tab {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: 56px;
+  padding: 6px 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--tv-sidebar-text);
+  text-decoration: none;
+  transition: color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.shell-tab:hover {
+  color: var(--tv-sidebar-text-active);
+}
+
+.shell-tab.is-active {
+  color: var(--tv-primary-light);
+}
+
+/* Top accent strip on the active tab. Matches the sidebar's 3x18 left strip
+   in spirit, rotated horizontal for the bottom bar. 18px wide, 2px thick,
+   centered above the icon. */
+.shell-tab.is-active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 22px;
+  height: 2px;
+  background: var(--tv-primary-light);
+  border-radius: 0 0 2px 2px;
+}
+
+/* Active label gains weight alongside the color shift. Two signals beat one. */
+.shell-tab.is-active .shell-tab-label {
+  font-weight: var(--tv-fw-semibold);
+}
+
+.shell-tab-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shell-tab-label {
+  font-family: var(--tv-font-body);
+  font-size: 0.6875rem;
+  font-weight: var(--tv-fw-medium);
+  letter-spacing: 0.01em;
+  line-height: 1;
+}
+
+/* ============ Mobile More sheet ============
+   Sheet inherits the same dark slate as the tab bar above it. When the
+   sheet opens, the chrome layer expands upward; same colour, no break. */
+
+.shell-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  z-index: calc(var(--tv-z-modal) - 1);
+  border: 0;
+  cursor: pointer;
+}
+
+.shell-sheet {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: var(--tv-z-modal);
+  background: var(--tv-sidebar-bg);
+  border-radius: var(--tv-radius-lg) var(--tv-radius-lg) 0 0;
+  border-top: 1px solid var(--tv-sidebar-border);
+  box-shadow: 0 -10px 28px rgba(0, 0, 0, 0.32);
+  padding: var(--tv-space-3) var(--tv-space-4)
+           calc(var(--tv-space-4) + env(safe-area-inset-bottom, 0px));
+  transform: translateY(100%);
+  transition: transform var(--tv-duration-slow) var(--tv-ease);
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-2);
+}
+
+.shell-sheet.is-open {
+  transform: translateY(0);
+}
+
+/* Handle reads against the dark sheet; muted off-white. */
+.shell-sheet-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--tv-sidebar-text);
+  opacity: 0.4;
+  border-radius: 2px;
+  margin: 0 auto var(--tv-space-3);
+  flex-shrink: 0;
+}
+
+.shell-sheet-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: var(--tv-space-2);
+}
+
+.shell-sheet-link {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-3);
+  padding: var(--tv-space-3);
+  border-radius: var(--tv-radius-md);
+  color: var(--tv-sidebar-text);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-base);
+  font-weight: var(--tv-fw-medium);
+  text-decoration: none;
+  min-height: 48px;
+  transition: background var(--tv-duration-fast) var(--tv-ease),
+              color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.shell-sheet-link:hover {
+  background: var(--tv-sidebar-item-hover);
+  color: var(--tv-sidebar-text-active);
+}
+
+.shell-sheet-link.is-active {
+  background: var(--tv-sidebar-item-active);
+  color: var(--tv-primary-light);
+}
+
+/* Identity block inside the sheet. Uses a slightly lighter slate tile so it
+   reads as grouped, like the desktop sidebar foot. The identity child
+   classes already match the sidebar dark theme by default, so no overrides
+   needed here. */
+.shell-sheet-identity {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-3);
+  padding: var(--tv-space-3);
+  background: var(--tv-sidebar-item-active);
+  border-radius: var(--tv-radius-md);
+  margin-bottom: var(--tv-space-2);
+}
+
+.shell-sheet-signout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--tv-space-2);
+  min-height: 48px;
+  padding: 0 var(--tv-space-4);
+  background: transparent;
+  border: 1px solid var(--tv-sidebar-border);
+  border-radius: var(--tv-radius-md);
+  color: var(--tv-sidebar-text-active);
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-base);
+  cursor: pointer;
+  transition: background var(--tv-duration-fast) var(--tv-ease),
+              border-color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.shell-sheet-signout:hover {
+  background: var(--tv-sidebar-item-hover);
+  border-color: var(--tv-sidebar-text);
+}
+
+.shell-sheet-signout:focus-visible {
+  outline: 2px solid var(--tv-primary-light);
+  outline-offset: 2px;
+}
+
+/* ============ Desktop overrides (>= 960px) ============ */
+
+@media (min-width: 960px) {
+  .shell {
+    grid-template-columns: var(--tv-shell-sidebar) 1fr;
+  }
+
+  .shell-sidebar {
+    display: flex;
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+    width: var(--tv-shell-sidebar);
+    background: var(--tv-sidebar-bg);
+    color: var(--tv-sidebar-text);
+    flex-direction: column;
+    padding: var(--tv-space-6) var(--tv-space-4);
+    border-right: 1px solid var(--tv-sidebar-border);
+  }
+
+  .shell-topbar {
+    height: var(--tv-shell-topbar);
+  }
+
+  .shell-topbar-title {
+    font-size: var(--tv-fs-md);
+  }
+
+  .shell-content {
+    padding: var(--tv-space-8) var(--tv-space-8) var(--tv-space-16);
+  }
+
+  /* Bottom chrome is mobile-only. */
+  .shell-tabs,
+  .shell-sheet,
+  .shell-sheet-backdrop {
+    display: none;
+  }
+}

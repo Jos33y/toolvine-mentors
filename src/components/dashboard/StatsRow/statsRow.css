@@ -1,0 +1,77 @@
+.stats-row {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--tv-space-3);
+}
+
+.stats-row__stat {
+  background: var(--tv-canvas-brand);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-lg);
+  padding: var(--tv-space-4) var(--tv-space-4) var(--tv-space-3);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--tv-space-3);
+  min-height: 116px;
+}
+
+.stats-row__num {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: clamp(1.75rem, 1.4rem + 0.9vw, 2.5rem);
+  line-height: 1;
+  letter-spacing: var(--tv-tracking-tight);
+  color: var(--tv-text);
+}
+
+.stats-row__label {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tv-tracking-normal);
+  color: var(--tv-text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-1);
+  white-space: nowrap;
+}
+
+/* Icon inherits the label color via currentColor. No per-icon coloring. */
+.stats-row__icon {
+  flex-shrink: 0;
+}
+
+/* The actionable stat. Amber on the number alone. Icon stays muted with
+   the label so the visual hierarchy reads: number first, label second. */
+.stats-row__stat--accent .stats-row__num {
+  color: var(--tv-accent-text);
+}
+
+/* 13" laptop sweet spot. Cards still readable, labels guaranteed to fit. */
+@media (min-width: 720px) and (max-width: 1100px) {
+  .stats-row {
+    gap: var(--tv-space-2);
+  }
+  .stats-row__stat {
+    padding: var(--tv-space-4) var(--tv-space-3) var(--tv-space-3);
+  }
+}
+
+@media (max-width: 720px) {
+  .stats-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--tv-space-3);
+  }
+  .stats-row__stat {
+    padding: var(--tv-space-4);
+    min-height: 100px;
+  }
+  .stats-row__label {
+    white-space: normal;
+  }
+}

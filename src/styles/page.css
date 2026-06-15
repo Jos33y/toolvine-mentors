@@ -1,0 +1,104 @@
+/* Page primitives reused across dashboards. */
+
+.page-head {
+  margin-bottom: var(--tv-space-6);
+}
+
+.page-eyebrow {
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  letter-spacing: var(--tv-tracking-wider);
+  text-transform: uppercase;
+  color: var(--tv-primary);
+  margin-bottom: var(--tv-space-2);
+}
+
+.page-title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-xl);
+  color: var(--tv-text);
+  letter-spacing: var(--tv-tracking-tight);
+}
+
+.page-sub {
+  margin-top: var(--tv-space-2);
+  font-size: var(--tv-fs-base);
+  color: var(--tv-text-2);
+  max-width: 60ch;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--tv-space-4);
+}
+
+.card {
+  background: var(--tv-surface);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-lg);
+  padding: var(--tv-space-5);
+}
+
+.card-title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-md);
+  color: var(--tv-text);
+  margin-bottom: var(--tv-space-2);
+}
+
+.card-body {
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-2);
+  line-height: var(--tv-lh-base);
+}
+
+/* Empty state. Solid hairline border; dashed reads as "drop zone" and this
+   is a calm waiting placeholder, not an action target. */
+.empty {
+  background: var(--tv-surface);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-lg);
+  padding: var(--tv-space-8) var(--tv-space-6);
+  text-align: center;
+}
+
+.empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: var(--tv-space-3);
+  background: var(--tv-primary-soft);
+  color: var(--tv-primary);
+  border-radius: var(--tv-radius-pill);
+}
+
+.empty-title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-md);
+  color: var(--tv-text);
+  margin-bottom: var(--tv-space-2);
+}
+
+.empty-body {
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-2);
+  line-height: var(--tv-lh-base);
+  max-width: 48ch;
+  margin: 0 auto;
+}
+
+@media (min-width: 760px) {
+  .card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .card-grid.cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

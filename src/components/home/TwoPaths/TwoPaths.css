@@ -1,0 +1,454 @@
+/* TwoPaths. Cinematic diagonal split — mentee/mentor decision moment.
+   Requires: npm install gsap
+   Portraits: src/assets/panels/mentee-portrait.jpg, mentor-portrait.jpg */
+
+.paths {
+  position: relative;
+  width: 100%;
+  background: #292524;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* ============ Header ============ */
+
+.paths__header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  text-align: center;
+  padding: 48px 24px 0;
+  pointer-events: none;
+}
+
+.paths__eyebrow {
+  font-family: var(--tv-font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--tv-accent);
+  margin: 0 0 14px;
+  opacity: 0.85;
+}
+
+.paths__title {
+  font-family: var(--tv-font-display);
+  font-weight: 600;
+  font-size: clamp(28px, 3.4vw, 44px);
+  line-height: 1.12;
+  letter-spacing: -0.028em;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+/* ============ Split ============ */
+
+.paths__split {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+/* Shorter laptops: reduce section height to avoid dead mid-zone */
+@media (min-width: 760px) and (max-height: 750px) {
+  .paths__split {
+    min-height: 85vh;
+    min-height: 85svh;
+  }
+
+  .paths__header {
+    padding-top: 40px;
+  }
+
+  .paths__content {
+    padding: 36px 48px;
+  }
+}
+
+/* ============ Panels ============ */
+
+.paths__panel {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+  overflow: hidden;
+  will-change: clip-path;
+}
+
+/* ============ Portrait (editorial treatment) ============ */
+
+.paths__portrait {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  animation: paths-ken-burns 18s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+
+/* Only run Ken Burns when section is in viewport */
+.paths--inview .paths__portrait {
+  animation-play-state: running;
+}
+
+/* Desync the two panels */
+.paths__panel--mentor .paths__portrait {
+  animation-duration: 22s;
+  animation-delay: -8s;
+}
+
+@keyframes paths-ken-burns {
+  from { transform: scale(1); }
+  to { transform: scale(1.05); }
+}
+
+.paths__portrait-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.35) contrast(1.15) brightness(0.6);
+  will-change: transform;
+}
+
+/* Mentor photo has a lighter background, needs stronger darkening */
+.paths__panel--mentor .paths__portrait-img {
+  filter: grayscale(0.4) contrast(1.25) brightness(0.45);
+}
+
+/* ============ Gradient overlay (readability over portraits) ============ */
+
+.paths__gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.15) 0%,
+    transparent 25%,
+    rgba(0, 0, 0, 0.45) 60%,
+    rgba(0, 0, 0, 0.82) 100%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ============ Dim overlay (GSAP, dims inactive panel) ============ */
+
+.paths__dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  opacity: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* ============ Content ============ */
+
+.paths__content {
+  position: absolute;
+  bottom: 0;
+  z-index: 3;
+  padding: 48px;
+  max-width: 420px;
+}
+
+.paths__content--mentee {
+  left: 14%;
+}
+
+.paths__content--mentor {
+  right: 14%;
+  text-align: right;
+}
+
+.paths__headline {
+  font-family: var(--tv-font-display);
+  font-weight: 600;
+  font-size: clamp(26px, 2.8vw, 38px);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: #FFFFFF;
+  margin: 0 0 12px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+}
+
+.paths__fragment {
+  font-family: var(--tv-font-body);
+  font-weight: 400;
+  font-size: clamp(15px, 1.3vw, 17px);
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* ============ Reveal (GSAP-controlled) ============ */
+
+.paths__reveal {
+  margin-top: 24px;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.paths__reveal-inner {
+  overflow: hidden;
+}
+
+.paths__story {
+  font-family: var(--tv-font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(16px, 1.4vw, 19px);
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.78);
+  margin: 0 0 28px;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* ============ CTA ============ */
+
+.paths__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 14px 32px;
+  background: #FFFFFF;
+  color: var(--tv-text);
+  font-family: var(--tv-font-display);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: -0.005em;
+  text-decoration: none;
+  border-radius: var(--tv-radius-md);
+  transition: background 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.paths__cta:hover {
+  background: var(--tv-primary-soft);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+}
+
+.paths__cta--lg {
+  min-height: 56px;
+  padding: 16px 44px;
+  font-size: 16px;
+}
+
+/* ============ Overlay content (testimonial on click) ============ */
+
+.paths__overlay-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  text-align: center;
+  max-width: 580px;
+  width: 90%;
+  padding: 24px;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.paths__testimonial {
+  margin: 0 0 44px;
+}
+
+.paths__testimonial p {
+  font-family: var(--tv-font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(22px, 2.6vw, 32px);
+  line-height: 1.38;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 24px;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.5);
+}
+
+.paths__testimonial p::before {
+  content: '\201C';
+  display: block;
+  font-family: var(--tv-font-serif);
+  font-size: clamp(48px, 6vw, 72px);
+  line-height: 0.6;
+  color: var(--tv-accent);
+  opacity: 0.5;
+  margin-bottom: 16px;
+}
+
+.paths__testimonial-attr {
+  font-family: var(--tv-font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: var(--tv-accent);
+  opacity: 0.8;
+}
+
+/* ============ Close ============ */
+
+.paths__close {
+  position: absolute;
+  top: 32px;
+  right: 32px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  cursor: pointer;
+  visibility: hidden;
+  opacity: 0;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.paths__close:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #FFFFFF;
+}
+
+/* ============ Mobile ============ */
+
+@media (max-width: 759px) {
+  .paths__header {
+    position: relative;
+    padding: 64px 24px 36px;
+  }
+
+  .paths__split {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    gap: 2px;
+  }
+
+  .paths__panel {
+    position: relative;
+    min-height: 400px;
+    clip-path: none !important;
+  }
+
+  .paths__portrait-img {
+    filter: grayscale(0.3) contrast(1.1) brightness(0.55);
+  }
+
+  .paths__content {
+    left: 0;
+    right: 0;
+    padding: 28px 24px;
+    max-width: none;
+    text-align: left;
+  }
+
+  .paths__content--mentor {
+    text-align: left;
+  }
+
+  .paths__reveal {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    visibility: visible;
+    transition: grid-template-rows 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .paths__reveal-inner {
+    min-height: 0;
+  }
+
+  .paths__panel[data-mobile-expanded] .paths__reveal {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+
+  .paths__panel[data-mobile-expanded] .paths__portrait-img {
+    transform: scale(1.05);
+    transition: transform 6s ease-out;
+  }
+
+  .paths__overlay-content,
+  .paths__close {
+    display: none;
+  }
+}
+
+/* ============ Desktop ============ */
+
+@media (min-width: 760px) {
+  .paths__header {
+    padding-top: 64px;
+  }
+}
+
+/* ============ Reduced motion ============ */
+
+@media (prefers-reduced-motion: reduce) {
+  .paths__panel {
+    transition: none !important;
+    will-change: auto;
+  }
+
+  .paths__panel--mentee {
+    clip-path: polygon(0 0, 58% 0, 42% 100%, 0 100%) !important;
+  }
+
+  .paths__panel--mentor {
+    clip-path: polygon(58.4% 0, 100% 0, 100% 100%, 42.4% 100%) !important;
+  }
+
+  .paths__reveal {
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: block;
+  }
+
+  .paths__dim {
+    display: none;
+  }
+
+  .paths__portrait-img {
+    transform: none !important;
+  }
+
+  .paths__portrait {
+    animation: none !important;
+  }
+
+  .paths__overlay-content,
+  .paths__close {
+    display: none;
+  }
+}
+
+/* ============ Focus ============ */
+
+.paths__panel:focus-visible {
+  outline: 2px solid var(--tv-primary-light);
+  outline-offset: -2px;
+  z-index: 6;
+}
+
+.paths__cta:focus-visible {
+  outline: 2px solid var(--tv-primary);
+  outline-offset: 2px;
+}
+
+.paths__close:focus-visible {
+  outline: 2px solid var(--tv-primary);
+  outline-offset: 2px;
+}

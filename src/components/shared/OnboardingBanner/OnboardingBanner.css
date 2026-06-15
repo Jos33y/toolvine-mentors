@@ -1,0 +1,151 @@
+/* ============ Onboarding banner ============
+   Mounts between the AppShell topbar and content. Warm cream background ties
+   it back to the pre-setup canvas the user just came from; amber left bar
+   reads as soft attention without alert urgency. */
+
+.onbb {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--tv-space-4);
+  padding: var(--tv-space-3) var(--tv-space-4);
+  background: var(--tv-canvas-brand);
+  border-bottom: 1px solid var(--tv-border);
+  /* 2px left bar: signals soft attention without competing with the icon. */
+  border-left: 2px solid var(--tv-accent);
+}
+
+@media (min-width: 768px) {
+  .onbb {
+    padding: var(--tv-space-3) var(--tv-space-8);
+  }
+}
+
+/* ============ Body ============ */
+
+.onbb__body {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-3);
+  min-width: 0;
+  flex: 1;
+}
+
+.onbb__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--tv-radius-md);
+  background: var(--tv-accent-soft);
+  color: var(--tv-accent-text);
+  flex-shrink: 0;
+}
+
+.onbb__text {
+  min-width: 0;
+}
+
+.onbb__title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text);
+  margin: 0;
+  line-height: var(--tv-lh-tight);
+}
+
+.onbb__sub {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-2);
+  margin: 2px 0 0 0;
+  line-height: var(--tv-lh-snug);
+}
+
+/* ============ Actions ============ */
+
+.onbb__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  flex-shrink: 0;
+}
+
+/* CTA: explicit color on every state so global a:hover rules cannot bleed
+   through and turn the label invisible against the teal background. */
+.onbb__cta,
+.onbb__cta:visited {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 var(--tv-space-4);
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-inverse);
+  background: var(--tv-primary);
+  border-radius: var(--tv-radius-md);
+  text-decoration: none;
+  transition: background var(--tv-duration-fast) var(--tv-ease);
+  white-space: nowrap;
+}
+
+.onbb__cta:hover,
+.onbb__cta:focus {
+  background: var(--tv-primary-hover);
+  color: var(--tv-text-inverse);
+  text-decoration: none;
+}
+
+.onbb__cta:focus-visible {
+  outline: none;
+  box-shadow: var(--tv-shadow-focus);
+}
+
+/* Dismiss: 28x28 so its visual weight reads as auxiliary, not equal to the CTA. */
+.onbb__dismiss {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--tv-radius-md);
+  color: var(--tv-text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background var(--tv-duration-fast) var(--tv-ease),
+              color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.onbb__dismiss:hover {
+  background: rgba(15, 23, 42, 0.04);
+  color: var(--tv-text);
+}
+
+.onbb__dismiss:focus-visible {
+  outline: none;
+  box-shadow: var(--tv-shadow-focus);
+}
+
+/* ============ Mobile: stack the banner ============ */
+
+@media (max-width: 599px) {
+  .onbb {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--tv-space-3);
+  }
+
+  .onbb__actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .onbb__cta {
+    flex: 1;
+  }
+}

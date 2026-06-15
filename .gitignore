@@ -1,0 +1,15 @@
+node_modules
+dist
+dist-ssr
+*.local
+.env
+.env.example
+.env.*.local
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.log
+docs
+supabase
+toolvine-platform-tree.txt

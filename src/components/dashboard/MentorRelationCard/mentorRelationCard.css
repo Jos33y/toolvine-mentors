@@ -1,0 +1,116 @@
+.mentor-card {
+  position: relative;
+  background: var(--tv-canvas-brand);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-lg);
+  padding: var(--tv-space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-4);
+  overflow: hidden;
+  min-height: 280px;
+}
+
+.mentor-card__head,
+.mentor-card__body,
+.mentor-card__foot {
+  position: relative;
+  z-index: 1;
+}
+
+.mentor-card__eyebrow {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tv-tracking-wider);
+  color: var(--tv-accent-text);
+  margin: 0 0 var(--tv-space-1);
+}
+
+.mentor-card__title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-lg);
+  line-height: var(--tv-lh-tight);
+  letter-spacing: var(--tv-tracking-tight);
+  color: var(--tv-text);
+  margin: 0;
+}
+
+.mentor-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-3);
+  max-width: 520px;
+}
+
+.mentor-card__copy {
+  margin: 0;
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+}
+
+.mentor-card__sub {
+  margin: 0;
+  font-size: var(--tv-fs-xs);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-muted);
+}
+
+.mentor-card__foot {
+  margin-top: auto;
+  padding-top: var(--tv-space-4);
+  border-top: 1px solid var(--tv-border);
+}
+
+.mentor-card__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-semibold);
+  color: var(--tv-primary);
+  text-decoration: none;
+  transition: color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.mentor-card__cta:hover {
+  color: var(--tv-primary-hover);
+}
+
+.mentor-card__cta:hover .mentor-card__cta-arrow {
+  transform: translateX(2px);
+}
+
+.mentor-card__cta-arrow {
+  display: inline-block;
+  transition: transform var(--tv-duration-fast) var(--tv-ease);
+}
+
+.mentor-card__cta:focus-visible {
+  outline: none;
+  box-shadow: var(--tv-shadow-focus);
+  border-radius: var(--tv-radius-sm);
+}
+
+/* Vesica watermark, anchored bottom-right and clipped by the card. */
+.mentor-card__watermark {
+  position: absolute;
+  right: calc(var(--tv-space-5) * -1);
+  bottom: calc(var(--tv-space-5) * -1);
+  width: 160px;
+  height: 160px;
+  opacity: 0.07;
+  color: var(--tv-primary);
+  pointer-events: none;
+  z-index: 0;
+  line-height: 0;
+}
+
+@media (max-width: 640px) {
+  .mentor-card { padding: var(--tv-space-5); min-height: 240px; }
+  .mentor-card__watermark { width: 130px; height: 130px; }
+}

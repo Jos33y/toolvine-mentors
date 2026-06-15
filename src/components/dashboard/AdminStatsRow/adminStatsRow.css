@@ -1,0 +1,107 @@
+/* ============ Admin stats row ============
+   Number sits at the top, icon badge + label anchored at the bottom. The
+   icon badge gives each cell a recognisable visual identifier without
+   competing with the number for hierarchy. */
+
+.admin-stats {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--tv-space-3);
+}
+
+.admin-stats__item {
+  display: flex;
+  flex-direction: column;
+  padding: var(--tv-space-5);
+  background: var(--tv-surface);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  min-height: 152px;
+  transition: border-color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.admin-stats__item:hover {
+  border-color: var(--tv-border-strong);
+}
+
+.admin-stats__value {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: clamp(2rem, 1.4rem + 2vw, 2.5rem);
+  line-height: 1;
+  letter-spacing: var(--tv-tracking-tight);
+  color: var(--tv-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-stats__item--action .admin-stats__value { color: var(--tv-accent); }
+
+.admin-stats__breakdown {
+  margin-top: var(--tv-space-2);
+  font-size: var(--tv-fs-xs);
+  line-height: var(--tv-lh-snug);
+  color: var(--tv-text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-stats__head {
+  margin-top: auto;
+  padding-top: var(--tv-space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-3);
+  min-width: 0;
+}
+
+/* Icon badge. Subtle neutral tint by default; soft amber when the cell is
+   the action stat. Apple Settings pattern: contained, deliberate, identifies
+   the row without shouting. */
+.admin-stats__head-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--tv-radius-sm);
+  background: rgba(15, 23, 42, 0.05);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tv-text-2);
+  flex-shrink: 0;
+}
+
+.admin-stats__item--action .admin-stats__head-icon {
+  background: var(--tv-accent-soft);
+  color: var(--tv-accent);
+}
+
+.admin-stats__label {
+  font-family: var(--tv-font-mono);
+  font-size: 0.6875rem;
+  font-weight: var(--tv-fw-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--tv-tracking-wider);
+  color: var(--tv-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-stats__item--action .admin-stats__label {
+  color: var(--tv-accent-text);
+}
+
+/* ============ Responsive ============ */
+
+@media (max-width: 900px) {
+  .admin-stats { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .admin-stats {
+    grid-template-columns: 1fr;
+    gap: var(--tv-space-2);
+  }
+  .admin-stats__item { min-height: 120px; padding: var(--tv-space-4); }
+}

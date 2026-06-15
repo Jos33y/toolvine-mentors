@@ -1,0 +1,157 @@
+/* ============ Verify email banner ============
+   Sister of OnboardingBanner. Same structural rhythm; distinguished by a teal
+   left bar (signals soft attention without the amber "incomplete form" weight)
+   and an envelope glyph. Mounts above OnboardingBanner inside AppShell, so
+   only one of the two ever shows: verify takes priority. */
+
+.vfb {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--tv-space-4);
+  padding: var(--tv-space-3) var(--tv-space-4);
+  background: var(--tv-canvas-brand);
+  border-bottom: 1px solid var(--tv-border);
+  border-left: 2px solid var(--tv-primary);
+}
+
+@media (min-width: 768px) {
+  .vfb {
+    padding: var(--tv-space-3) var(--tv-space-8);
+  }
+}
+
+/* ============ Body ============ */
+
+.vfb__body {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-3);
+  min-width: 0;
+  flex: 1;
+}
+
+.vfb__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--tv-radius-md);
+  background: var(--tv-primary-soft);
+  color: var(--tv-primary);
+  flex-shrink: 0;
+}
+
+.vfb__text {
+  min-width: 0;
+}
+
+.vfb__title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text);
+  margin: 0;
+  line-height: var(--tv-lh-tight);
+}
+
+.vfb__sub {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-2);
+  margin: 2px 0 0 0;
+  line-height: var(--tv-lh-snug);
+  /* Email addresses can be long; keep the second line clean on mobile. */
+  word-break: break-word;
+}
+
+/* ============ Actions ============ */
+
+.vfb__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  flex-shrink: 0;
+}
+
+.vfb__cta,
+.vfb__cta:visited {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 var(--tv-space-4);
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-inverse);
+  background: var(--tv-primary);
+  border: none;
+  border-radius: var(--tv-radius-md);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background var(--tv-duration-fast) var(--tv-ease);
+  white-space: nowrap;
+}
+
+.vfb__cta:hover,
+.vfb__cta:focus {
+  background: var(--tv-primary-hover);
+  color: var(--tv-text-inverse);
+  text-decoration: none;
+}
+
+.vfb__cta:focus-visible {
+  outline: none;
+  box-shadow: var(--tv-shadow-focus);
+}
+
+.vfb__cta:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.vfb__dismiss {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--tv-radius-md);
+  color: var(--tv-text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background var(--tv-duration-fast) var(--tv-ease),
+              color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.vfb__dismiss:hover {
+  background: rgba(15, 23, 42, 0.04);
+  color: var(--tv-text);
+}
+
+.vfb__dismiss:focus-visible {
+  outline: none;
+  box-shadow: var(--tv-shadow-focus);
+}
+
+/* ============ Mobile: stack the banner ============ */
+
+@media (max-width: 599px) {
+  .vfb {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--tv-space-3);
+  }
+
+  .vfb__actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .vfb__cta {
+    flex: 1;
+  }
+}

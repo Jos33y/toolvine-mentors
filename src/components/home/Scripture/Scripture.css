@@ -1,0 +1,106 @@
+.scripture {
+  position: relative;
+  padding: 0 0 0 56px;
+  margin: 0;
+}
+
+.scripture-quote {
+  position: absolute;
+  top: -36px;
+  left: 0;
+  font-family: var(--tv-font-serif);
+  font-weight: 500;
+  font-size: 120px;
+  line-height: 1;
+  color: var(--tv-accent);
+  pointer-events: none;
+  user-select: none;
+  opacity: 0;
+  transition: opacity 400ms var(--tv-ease);
+}
+
+.scripture--visible .scripture-quote {
+  opacity: 1;
+  transition-delay: 200ms;
+}
+
+.scripture-verse {
+  font-family: var(--tv-font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 1.4;
+  color: var(--tv-text);
+  letter-spacing: -0.005em;
+  margin: 0 0 20px;
+}
+
+/* ============ Word-by-word reveal ============ */
+
+.scripture-word {
+  display: inline-block;
+  margin-right: 0.3em;
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.scripture--visible .scripture-word {
+  animation: scripture-word-in 500ms var(--tv-ease) forwards;
+}
+
+@keyframes scripture-word-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.scripture-ref {
+  font-family: var(--tv-font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+  margin: 0;
+  opacity: 0;
+  transition: opacity 400ms var(--tv-ease);
+}
+
+.scripture--visible .scripture-ref {
+  opacity: 1;
+  transition-delay: 600ms;
+}
+
+/* ============ Mobile ============ */
+
+@media (max-width: 760px) {
+  .scripture {
+    padding-left: 36px;
+  }
+
+  .scripture-quote {
+    font-size: 88px;
+    top: -24px;
+  }
+
+  .scripture-verse {
+    font-size: 24px;
+  }
+}
+
+/* ============ Reduced motion ============ */
+
+@media (prefers-reduced-motion: reduce) {
+  .scripture-word {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+
+  .scripture-quote,
+  .scripture-ref {
+    opacity: 1;
+    transition: none;
+  }
+}

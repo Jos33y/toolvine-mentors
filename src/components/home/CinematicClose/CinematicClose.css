@@ -1,0 +1,344 @@
+/* CinematicClose. Atmospheric dark title card.
+   Three layers: ambient wash, particle field (canvas), grain.
+   Typography overlay on top. Cursor parallax on hover devices
+   drives particle motion via canvas (not CSS). */
+
+/* ============ Base section ============ */
+
+.cc {
+  position: relative;
+  background: var(--tv-text);
+  width: 100%;
+  min-height: 92vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* ============ Layer 1: Ambient color wash ============ */
+
+.cc__wash {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    170deg,
+    rgba(217, 119, 6, 0.05) 0%,
+    transparent 35%,
+    transparent 65%,
+    rgba(15, 23, 42, 0.08) 100%
+  );
+}
+
+/* ============ Layer 2: Particle field (canvas) ============ */
+
+.cc__particles {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.cc--visible .cc__particles {
+  animation: cc-particles-in 900ms var(--tv-ease) 100ms forwards;
+}
+
+@keyframes cc-particles-in {
+  to { opacity: 1; }
+}
+
+/* ============ Layer 3: Paper grain ============ */
+
+.cc__grain {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px;
+  opacity: 0.06;
+  mix-blend-mode: soft-light;
+}
+
+/* ============ Layer 4: Typography container ============ */
+
+.cc__inner {
+  position: relative;
+  z-index: 4;
+  max-width: var(--tv-content-max);
+  margin: 0 auto;
+  padding: var(--tv-space-16) var(--tv-space-6);
+  width: 100%;
+}
+
+/* Short viewports (13" laptops, landscape tablets) */
+@media (max-height: 800px) {
+  .cc {
+    min-height: 92vh;
+  }
+
+  .cc__inner {
+    padding-top: var(--tv-space-12);
+    padding-bottom: var(--tv-space-12);
+  }
+
+  .cc__beat--bened {
+    margin-top: var(--tv-space-10);
+  }
+
+  .cc__beat--attr {
+    margin-top: var(--tv-space-10);
+  }
+}
+
+/* ============ Hanging quote glyph ============ */
+
+.cc__glyph {
+  display: block;
+  font-family: var(--tv-font-serif);
+  font-style: italic;
+  font-size: clamp(4rem, 10vw, 7rem);
+  line-height: 0.5;
+  color: var(--tv-accent);
+  opacity: 0;
+  margin-bottom: var(--tv-space-1);
+  user-select: none;
+}
+
+.cc--visible .cc__glyph {
+  animation: cc-fade 400ms var(--tv-ease) 200ms forwards;
+}
+
+/* ============ Beat 1: Scripture ============ */
+
+.cc__eyebrow {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  font-weight: 500;
+  letter-spacing: var(--tv-tracking-wider);
+  text-transform: uppercase;
+  color: var(--tv-accent);
+  margin: 0 0 var(--tv-space-4);
+  opacity: 0;
+}
+
+.cc--visible .cc__eyebrow {
+  animation: cc-fade 400ms var(--tv-ease) 400ms forwards;
+}
+
+.cc__verse {
+  margin: 0;
+}
+
+.cc__verse-line {
+  display: block;
+  font-family: var(--tv-font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(3rem, 10vw, 7.5rem);
+  line-height: var(--tv-lh-tight);
+  letter-spacing: var(--tv-tracking-tight);
+  color: var(--tv-text-inverse);
+  clip-path: inset(0 100% 0 0);
+}
+
+.cc__verse-line--2 {
+  padding-left: 1.5em;
+}
+
+.cc--visible .cc__verse-line--1 {
+  animation: cc-reveal 900ms var(--tv-ease) 500ms forwards;
+}
+
+.cc--visible .cc__verse-line--2 {
+  animation: cc-reveal 900ms var(--tv-ease) 1100ms forwards;
+}
+
+@keyframes cc-reveal {
+  to { clip-path: inset(0 0 0 0); }
+}
+
+/* ============ Beat 2: Benediction ============ */
+
+.cc__beat--bened {
+  margin-top: var(--tv-space-16);
+}
+
+.cc__rule {
+  display: block;
+  width: 56px;
+  height: 1px;
+  background: var(--tv-accent);
+  margin-bottom: var(--tv-space-6);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.cc--visible .cc__rule {
+  animation: cc-draw 400ms var(--tv-ease) 2100ms forwards;
+}
+
+@keyframes cc-draw {
+  to { transform: scaleX(1); }
+}
+
+.cc__bened-lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-3);
+}
+
+.cc__bened-line {
+  font-family: var(--tv-font-serif);
+  font-style: normal;
+  font-weight: 400;
+  font-size: clamp(1.4rem, 3vw, 2.125rem);
+  line-height: var(--tv-lh-snug);
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+  opacity: 0;
+}
+
+.cc--visible .cc__bened-line:nth-child(1) {
+  animation: cc-fade 400ms var(--tv-ease) 2300ms forwards;
+}
+
+.cc--visible .cc__bened-line:nth-child(2) {
+  animation: cc-fade 400ms var(--tv-ease) 2450ms forwards;
+}
+
+.cc--visible .cc__bened-line:nth-child(3) {
+  animation: cc-fade 400ms var(--tv-ease) 2600ms forwards;
+}
+
+/* ============ Beat 3: Attribution ============ */
+
+.cc__beat--attr {
+  margin-top: var(--tv-space-16);
+}
+
+.cc__brand {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-sm);
+  letter-spacing: var(--tv-tracking-wide);
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0 0 var(--tv-space-2);
+  opacity: 0;
+}
+
+.cc__source {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  color: rgba(255, 255, 255, 0.35);
+  margin: 0;
+  opacity: 0;
+}
+
+.cc--visible .cc__brand {
+  animation: cc-fade 350ms var(--tv-ease) 3000ms forwards;
+}
+
+.cc--visible .cc__source {
+  animation: cc-fade 350ms var(--tv-ease) 3150ms forwards;
+}
+
+@keyframes cc-fade {
+  to { opacity: 1; }
+}
+
+/* ============ Tablet ============ */
+
+@media (min-width: 760px) and (max-width: 1024px) {
+  .cc__verse-line {
+    font-size: clamp(2.75rem, 8vw, 5rem);
+  }
+
+  .cc__verse-line--2 {
+    padding-left: 1.25em;
+  }
+
+  .cc__glyph {
+    font-size: clamp(4rem, 10vw, 7rem);
+  }
+}
+
+/* ============ Mobile ============ */
+
+@media (max-width: 759px) {
+  .cc__inner {
+    padding: var(--tv-space-16) var(--tv-space-5);
+  }
+
+  .cc__glyph {
+    font-size: 4.5rem;
+  }
+
+  .cc__verse-line {
+    font-size: clamp(2.25rem, 11vw, 3.25rem);
+  }
+
+  .cc__verse-line--2 {
+    padding-left: 0.75em;
+  }
+
+  .cc__bened-line {
+    font-size: clamp(1.125rem, 4.5vw, 1.5rem);
+  }
+}
+
+/* ============ Reduced motion / low power ============ */
+
+.cc--static .cc__particles {
+  opacity: 1;
+  animation: none !important;
+}
+
+.cc--static .cc__glyph,
+.cc--static .cc__eyebrow,
+.cc--static .cc__bened-line,
+.cc--static .cc__brand,
+.cc--static .cc__source {
+  opacity: 1;
+  animation: none !important;
+}
+
+.cc--static .cc__verse-line {
+  clip-path: none;
+  animation: none !important;
+}
+
+.cc--static .cc__rule {
+  transform: scaleX(1);
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cc .cc__particles {
+    opacity: 1 !important;
+    animation: none !important;
+  }
+
+  .cc .cc__glyph,
+  .cc .cc__eyebrow,
+  .cc .cc__bened-line,
+  .cc .cc__brand,
+  .cc .cc__source {
+    animation: cc-fade 400ms var(--tv-ease) forwards !important;
+  }
+
+  .cc .cc__verse-line {
+    clip-path: none !important;
+    animation: cc-fade 400ms var(--tv-ease) forwards !important;
+  }
+
+  .cc .cc__rule {
+    transform: scaleX(1) !important;
+    animation: none !important;
+  }
+}

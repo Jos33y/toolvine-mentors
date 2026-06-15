@@ -1,0 +1,154 @@
+.tasks-card {
+  background: var(--tv-canvas-brand);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-lg);
+  padding: var(--tv-space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-5);
+}
+
+/* ============ Header ============ */
+
+.tasks-card__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-1);
+}
+
+.tasks-card__eyebrow {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tv-tracking-wider);
+  color: var(--tv-accent-text);
+  margin: 0;
+}
+
+.tasks-card__title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-lg);
+  line-height: var(--tv-lh-tight);
+  letter-spacing: var(--tv-tracking-tight);
+  color: var(--tv-text);
+  margin: 0;
+}
+
+.tasks-card__count {
+  color: var(--tv-text-muted);
+  font-weight: var(--tv-fw-regular);
+}
+
+.tasks-card__copy {
+  margin: 0;
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  max-width: 520px;
+}
+
+/* ============ List ============ */
+
+.tasks-card__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-4);
+}
+
+.tasks-card__item {
+  padding-bottom: var(--tv-space-4);
+  border-bottom: 1px solid var(--tv-border);
+}
+
+.tasks-card__item:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.tasks-card__overflow {
+  margin: 0;
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tv-tracking-wide);
+  color: var(--tv-text-muted);
+}
+
+/* ============ Row ============ */
+
+.task-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--tv-space-3);
+}
+
+/* Forward-compatible: the future "mark done" turns this into a real checkbox
+   at the same position. The size and stroke are sized to match the eventual
+   click target without changing visual rhythm. */
+.task-row__bullet {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-top: 4px;
+  border: 1.5px solid var(--tv-primary);
+  border-radius: 50%;
+  background: transparent;
+}
+
+.task-row__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.task-row__text {
+  margin: 0 0 var(--tv-space-1);
+  font-size: var(--tv-fs-base);
+  line-height: var(--tv-lh-snug);
+  color: var(--tv-text);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.task-row__meta {
+  margin: 0;
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-muted);
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  flex-wrap: wrap;
+}
+
+.task-row__sep {
+  color: var(--tv-text-muted);
+}
+
+.task-row__due {
+  color: var(--tv-text-muted);
+}
+
+.task-row__due--over {
+  color: var(--tv-warning-text);
+  font-weight: var(--tv-fw-semibold);
+}
+
+/* ============ Loading ============ */
+
+.tasks-card__skeleton {
+  height: 180px;
+  background: var(--tv-canvas-app);
+  border-radius: var(--tv-radius-md);
+}
+
+/* ============ Responsive ============ */
+
+@media (max-width: 640px) {
+  .tasks-card { padding: var(--tv-space-5); }
+}

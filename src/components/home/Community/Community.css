@@ -1,0 +1,444 @@
+/* Section 4: Community. Founder quote + Vinethoughts cover spread, then people masthead. */
+
+.community {
+  background: var(--tv-canvas-brand);
+  padding: 56px 24px 72px;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* ============ Atmospheric layers ============ */
+
+.community::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 1000px 700px at 10% 5%, rgba(217, 119, 6, 0.04), transparent 60%),
+    radial-gradient(ellipse 800px 600px at 95% 95%, rgba(15, 118, 110, 0.04), transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.community::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(15, 23, 42, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.022) 1px, transparent 1px);
+  background-size: 64px 64px;
+  -webkit-mask-image: radial-gradient(ellipse 1400px 1000px at 50% 50%, black 15%, transparent 75%);
+  mask-image: radial-gradient(ellipse 1400px 1000px at 50% 50%, black 15%, transparent 75%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.community__inner {
+  position: relative;
+  z-index: 2;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+/* ============ Header ============ */
+
+.community__head {
+  margin-bottom: 40px;
+  max-width: 720px;
+}
+
+.community__eyebrow {
+  font-family: var(--tv-font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--tv-accent-text);
+  margin: 0 0 16px;
+}
+
+.community__title {
+  font-family: var(--tv-font-display);
+  font-weight: 600;
+  font-size: clamp(26px, 2.8vw, 36px);
+  line-height: 1.2;
+  color: var(--tv-text);
+  letter-spacing: -0.018em;
+  margin: 0;
+}
+
+/* ============ Architectural divider ============ */
+
+.community__divider {
+  display: block;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    var(--tv-accent) 0%,
+    rgba(217, 119, 6, 0.18) 35%,
+    transparent 100%
+  );
+  margin: 0 0 40px;
+}
+
+/* ============ Spread (quote + cover side by side) ============ */
+
+.community__spread {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 36px;
+  align-items: start;
+}
+
+/* ============ Founder quote ============ */
+
+.community__quote {
+  position: relative;
+  margin: 0;
+  padding: 0 0 0 48px;
+}
+
+.community__quote-mark {
+  position: absolute;
+  top: -28px;
+  left: -8px;
+  font-family: var(--tv-font-serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(88px, 11vw, 132px);
+  line-height: 1;
+  color: var(--tv-accent);
+  user-select: none;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.community__quote-text {
+  font-family: var(--tv-font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(22px, 2.6vw, 32px);
+  line-height: 1.35;
+  color: var(--tv-text);
+  letter-spacing: -0.01em;
+  margin: 0 0 28px;
+}
+
+.community__attribution {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-style: normal;
+}
+
+.community__attribution-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.community__attribution-name {
+  font-family: var(--tv-font-body);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--tv-text);
+  letter-spacing: -0.005em;
+}
+
+.community__attribution-role {
+  font-family: var(--tv-font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+}
+
+/* ============ Avatars (photo-ready) ============ */
+
+.community__avatar {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  background:
+    linear-gradient(180deg, rgba(204, 251, 241, 0.4) 0%, rgba(15, 118, 110, 0.06) 100%);
+  border: 1px solid rgba(15, 118, 110, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+}
+
+.community__avatar--lg {
+  width: 64px;
+  height: 64px;
+}
+
+.community__avatar::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 1px solid rgba(15, 118, 110, 0.10);
+  pointer-events: none;
+}
+
+.community__initials {
+  font-family: var(--tv-font-serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--tv-primary);
+  letter-spacing: -0.01em;
+  user-select: none;
+}
+
+.community__initials--lg {
+  font-size: 26px;
+}
+
+/* ============ Asterism ornament ============ */
+
+.community__ornament {
+  display: block;
+  text-align: center;
+  font-family: var(--tv-font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(26px, 2.8vw, 36px);
+  line-height: 1;
+  color: var(--tv-accent);
+  letter-spacing: 0.05em;
+  opacity: 0.7;
+  margin: 36px 0;
+  user-select: none;
+}
+
+/* ============ Masthead (people row) ============ */
+
+.community__masthead-label {
+  font-family: var(--tv-font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+  margin: 0 0 20px;
+}
+
+.community__masthead-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+}
+
+.community__person {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.community__person-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.community__person-name {
+  font-family: var(--tv-font-body);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--tv-text);
+  letter-spacing: -0.005em;
+}
+
+.community__person-role {
+  font-family: var(--tv-font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+}
+
+/* ============ Mini Vinethoughts cover ============ */
+
+.vt-cover {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-self: center;
+}
+
+.vt-cover__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 180px;
+  aspect-ratio: 3 / 4;
+  padding: 16px;
+  background: #FFFFFF;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  overflow: hidden;
+  text-decoration: none;
+  transform: rotate(2deg);
+  box-shadow:
+    0 6px 20px rgba(15, 23, 42, 0.08),
+    0 1px 3px rgba(15, 23, 42, 0.04);
+  transition: transform 400ms var(--tv-ease),
+              box-shadow 400ms var(--tv-ease);
+}
+
+.vt-cover__card:hover {
+  transform: rotate(0deg) translateY(-4px);
+  box-shadow:
+    0 14px 32px rgba(15, 23, 42, 0.12),
+    0 3px 6px rgba(15, 23, 42, 0.05);
+}
+
+.vt-cover__numeral {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--tv-font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 140px;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: var(--tv-primary);
+  opacity: 0.06;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+.vt-cover__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.vt-cover__masthead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vt-cover__mark {
+  display: block;
+  flex-shrink: 0;
+  color: var(--tv-primary);
+}
+
+.vt-cover__name {
+  font-family: var(--tv-font-serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  color: var(--tv-text);
+  line-height: 1;
+}
+
+.vt-cover__rule {
+  display: block;
+  height: 1px;
+  background: rgba(15, 23, 42, 0.14);
+  margin: 10px 0;
+}
+
+.vt-cover__meta {
+  font-family: var(--tv-font-body);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--tv-text-2);
+  margin: 0 0 auto;
+  line-height: 1.4;
+}
+
+.vt-cover__tagline {
+  font-family: var(--tv-font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1.3;
+  letter-spacing: -0.005em;
+  color: var(--tv-text);
+  margin: 0;
+}
+
+.vt-cover__links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 4px;
+}
+
+.community__aside-link {
+  font-family: var(--tv-font-serif);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--tv-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  white-space: nowrap;
+  transition: color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.community__aside-link:hover {
+  color: var(--tv-primary-hover);
+}
+
+/* ============ Desktop ============ */
+
+@media (min-width: 760px) {
+  .community {
+    padding: 64px 32px 80px;
+  }
+
+  .community__head {
+    margin-bottom: 48px;
+  }
+
+  .community__divider {
+    margin-bottom: 48px;
+  }
+
+  .community__spread {
+    grid-template-columns: 1fr auto;
+    gap: clamp(40px, 6vw, 80px);
+    align-items: center;
+  }
+
+  .community__quote {
+    padding-left: 72px;
+  }
+
+  .community__quote-mark {
+    top: -36px;
+    left: 0;
+  }
+
+  .community__ornament {
+    margin: 40px 0;
+  }
+
+  .community__masthead-row {
+    gap: 40px;
+  }
+}
