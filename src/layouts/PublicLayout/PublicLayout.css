@@ -117,7 +117,7 @@
 
 /* ============ Mobile menu button: hairline-bordered control ============ */
 
-.public-menu-btn {
+.public-menu-btn { 
   margin-left: auto;
   display: inline-flex;
   align-items: center;
