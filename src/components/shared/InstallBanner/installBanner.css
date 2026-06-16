@@ -1,0 +1,126 @@
+/* Bottom-anchored install banner. Lifts above the public footer, honors
+   iOS safe-area inset, caps at 480px so it reads as a chip on tablet and
+   desktop rather than a full-width footer rail. */
+
+.install-banner {
+  position: fixed;
+  inset: auto var(--tv-space-4) calc(var(--tv-space-4) + env(safe-area-inset-bottom, 0px)) var(--tv-space-4);
+  display: grid;
+  grid-template-columns: 40px 1fr auto auto;
+  align-items: center;
+  gap: var(--tv-space-3);
+  padding: var(--tv-space-3) var(--tv-space-3) var(--tv-space-3) var(--tv-space-4);
+  background: var(--tv-surface);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-lg);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05),
+              0 12px 32px rgba(15, 23, 42, 0.10);
+  z-index: var(--tv-z-sticky);
+  animation: install-banner-in 360ms var(--tv-ease) both;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+@keyframes install-banner-in {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.install-banner__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.install-banner__icon img {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--tv-radius-md);
+  display: block;
+}
+
+.install-banner__copy {
+  min-width: 0;
+}
+
+.install-banner__title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.install-banner__sub {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-2);
+  margin: 2px 0 0 0;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.install-banner__cta {
+  background: var(--tv-primary);
+  color: var(--tv-primary-text, #ffffff);
+  border: none;
+  padding: var(--tv-space-2) var(--tv-space-4);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-sm);
+  cursor: pointer;
+  white-space: nowrap;
+  min-height: 40px;
+  transition: background var(--tv-duration-fast) var(--tv-ease);
+}
+
+.install-banner__cta:hover {
+  background: var(--tv-primary-deep, #0D655E);
+}
+
+.install-banner__cta:focus-visible {
+  outline: 2px solid var(--tv-primary-light);
+  outline-offset: 2px;
+}
+
+.install-banner__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  color: var(--tv-text-muted);
+  cursor: pointer;
+  border-radius: var(--tv-radius-md);
+  transition: background var(--tv-duration-fast) var(--tv-ease),
+              color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.install-banner__close:hover {
+  background: var(--tv-canvas-app);
+  color: var(--tv-text);
+}
+
+.install-banner__close:focus-visible {
+  outline: 2px solid var(--tv-primary-light);
+  outline-offset: 2px;
+}
+
+/* Narrow phones — tuck the icon to save horizontal space for copy + actions. */
+@media (max-width: 380px) {
+  .install-banner {
+    grid-template-columns: 1fr auto auto;
+    padding: var(--tv-space-3);
+  }
+  .install-banner__icon { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .install-banner { animation: none; }
+}

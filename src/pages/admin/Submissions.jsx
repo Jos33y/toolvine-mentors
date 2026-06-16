@@ -17,6 +17,13 @@ const STATUS_FILTERS = [
   { value: 'archived', label: 'Archived' }
 ]
 
+// Submission origin labels. Add new sources here as channels expand
+// (applications, safeguarding reports, etc.). Defaults to contact since that
+// is the only source feeding this inbox today.
+const SOURCE_MAP = {
+  contact: 'Contact form'
+}
+
 export function Submissions() {
   const [status,     setStatus]     = useState(null)
   const [expandedId, setExpandedId] = useState(null)
@@ -131,7 +138,10 @@ function SubmissionRow({ row, expanded, onToggle, onUpdateStatus }) {
       >
         <span className="subs__row-name">{name}</span>
         <span className="subs__row-email">{email}</span>
-        <StatusPill status={row.status} />
+        <span className="subs__row-pills">
+          <SourcePill source={row.source} />
+          <StatusPill status={row.status} />
+        </span>
         <span className="subs__row-time">{formatRelative(row.created_at)}</span>
         <span className="subs__row-chevron" aria-hidden="true">
           <ChevronDown />
@@ -206,6 +216,11 @@ function StatusPill({ status }) {
   return (
     <span className={`subs__pill subs__pill--${info.mod}`}>{info.label}</span>
   )
+}
+
+function SourcePill({ source }) {
+  const label = SOURCE_MAP[source] ?? SOURCE_MAP.contact
+  return <span className="subs__pill subs__pill--source">{label}</span>
 }
 
 // ============ Panels ============

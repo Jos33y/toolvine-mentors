@@ -1,0 +1,97 @@
+/* Dashboard install card. Sits in the dashboard grid like any other card.
+   Same surface as the rest (white card, hairline border) so it does not
+   compete with primary widgets visually. Primary CTA does the work. */
+
+.install-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-3);
+  padding: var(--tv-space-5);
+  background: var(--tv-surface);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+}
+
+.install-card__close {
+  position: absolute;
+  top: var(--tv-space-3);
+  right: var(--tv-space-3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  color: var(--tv-text-muted);
+  cursor: pointer;
+  border-radius: var(--tv-radius-sm);
+  transition: background var(--tv-duration-fast) var(--tv-ease),
+              color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.install-card__close:hover {
+  background: var(--tv-canvas-app);
+  color: var(--tv-text);
+}
+
+.install-card__close:focus-visible {
+  outline: 2px solid var(--tv-primary-light);
+  outline-offset: 2px;
+}
+
+.install-card__icon img {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--tv-radius-md);
+  display: block;
+}
+
+.install-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-2);
+  margin-right: var(--tv-space-6);
+}
+
+.install-card__title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-md);
+  color: var(--tv-text);
+  margin: 0;
+  letter-spacing: var(--tv-tracking-tight);
+}
+
+.install-card__text {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-2);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.install-card__cta {
+  align-self: flex-start;
+  background: var(--tv-primary);
+  color: var(--tv-primary-text, #ffffff);
+  border: none;
+  padding: var(--tv-space-2) var(--tv-space-4);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-sm);
+  cursor: pointer;
+  min-height: 40px;
+  transition: background var(--tv-duration-fast) var(--tv-ease);
+}
+
+.install-card__cta:hover {
+  background: var(--tv-primary-deep, #0D655E);
+}
+
+.install-card__cta:focus-visible {
+  outline: 2px solid var(--tv-primary-light);
+  outline-offset: 2px;
+}

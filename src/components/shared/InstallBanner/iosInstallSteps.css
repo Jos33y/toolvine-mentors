@@ -1,0 +1,162 @@
+/* iOS Add-to-Home-Screen bottom-sheet overlay. Warm brand canvas so the
+   moment reads as the marketing brand rather than the working app surface.
+   Slides up from bottom; backdrop fades in behind. */
+
+.ios-steps__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  z-index: calc(var(--tv-z-modal) - 1);
+  border: 0;
+  cursor: pointer;
+  animation: ios-steps-fade 240ms var(--tv-ease) both;
+}
+
+.ios-steps {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: var(--tv-z-modal);
+  background: var(--tv-canvas-brand);
+  border-radius: var(--tv-radius-lg) var(--tv-radius-lg) 0 0;
+  box-shadow: 0 -10px 32px rgba(15, 23, 42, 0.18);
+  padding: var(--tv-space-3) var(--tv-space-5)
+           calc(var(--tv-space-6) + env(safe-area-inset-bottom, 0px));
+  max-width: 520px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-4);
+  animation: ios-steps-slide 320ms var(--tv-ease) both;
+}
+
+@keyframes ios-steps-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes ios-steps-slide {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.ios-steps__handle {
+  width: 36px;
+  height: 4px;
+  background: var(--tv-border);
+  border-radius: 2px;
+  margin: 0 auto;
+  flex-shrink: 0;
+}
+
+.ios-steps__head {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-3);
+}
+
+.ios-steps__icon img {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--tv-radius-md);
+  display: block;
+}
+
+.ios-steps__title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-lg);
+  color: var(--tv-text);
+  margin: 0;
+  letter-spacing: var(--tv-tracking-tight);
+}
+
+.ios-steps__sub {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-2);
+  margin: 2px 0 0 0;
+}
+
+.ios-steps__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-3);
+}
+
+.ios-steps__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--tv-space-3);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-base);
+  color: var(--tv-text);
+  line-height: 1.5;
+}
+
+.ios-steps__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--tv-primary);
+  color: var(--tv-primary-text, #ffffff);
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-sm);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.ios-steps__text {
+  flex: 1;
+}
+
+.ios-steps__text strong {
+  font-weight: var(--tv-fw-semibold);
+}
+
+.ios-steps__inline-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: var(--tv-primary-soft);
+  color: var(--tv-primary);
+  border-radius: 4px;
+  vertical-align: middle;
+  margin: 0 2px;
+}
+
+.ios-steps__done {
+  background: var(--tv-primary);
+  color: var(--tv-primary-text, #ffffff);
+  border: none;
+  padding: var(--tv-space-3) var(--tv-space-5);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-base);
+  cursor: pointer;
+  min-height: 48px;
+  transition: background var(--tv-duration-fast) var(--tv-ease);
+}
+
+.ios-steps__done:hover {
+  background: var(--tv-primary-deep, #0D655E);
+}
+
+.ios-steps__done:focus-visible {
+  outline: 2px solid var(--tv-primary-light);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ios-steps,
+  .ios-steps__backdrop { animation: none; }
+}

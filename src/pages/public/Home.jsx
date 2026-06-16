@@ -8,6 +8,7 @@ import { Pause } from '@/components/home/Pause/Pause'
 import { TwoPaths } from '@/components/home/TwoPaths/TwoPaths'
 import { WallOfWitness } from '@/components/home/WallOfWitness/WallOfWitness'
 import { CinematicClose } from '@/components/home/CinematicClose/CinematicClose'
+import { InstallBanner } from '@/components/shared/InstallBanner/InstallBanner'
 
 import './Home.css'
 
@@ -120,6 +121,8 @@ export function Home() {
       <TwoPaths />
       <WallOfWitness />
       <CinematicClose />
+
+      <InstallBanner />
     </div>
   )
 }

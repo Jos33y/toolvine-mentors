@@ -86,18 +86,29 @@
 
 /* ============ List + rows ============ */
 
+/* List as a stack of standalone cards with gap between them. Earlier the
+   list lived inside a single bordered container with hairline dividers; the
+   visual reading was too dense for an inbox that fills slowly. Each row now
+   owns its border, radius, and background. */
 .subs__list {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-3);
+}
+
+.subs__row {
   background: var(--tv-surface);
   border: 1px solid var(--tv-border);
   border-radius: var(--tv-radius-md);
   overflow: hidden;
+  transition: border-color var(--tv-duration-fast) var(--tv-ease);
 }
 
-.subs__row + .subs__row {
-  border-top: 1px solid var(--tv-border);
+.subs__row:hover {
+  border-color: var(--tv-text-muted);
 }
 
 .subs__row-head {
@@ -154,6 +165,13 @@
   font-size: var(--tv-fs-xs);
   color: var(--tv-text-muted);
   white-space: nowrap;
+}
+
+.subs__row-pills {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  flex-wrap: wrap;
 }
 
 .subs__row-chevron {
@@ -294,6 +312,13 @@
   padding: 2px calc(var(--tv-space-2) - 1px);
 }
 
+.subs__pill--source {
+  background: transparent;
+  border: 1px solid var(--tv-border);
+  color: var(--tv-text-muted);
+  padding: 2px calc(var(--tv-space-2) - 1px);
+}
+
 /* ============ Empty / loading / error ============ */
 
 .subs__panel {
@@ -384,7 +409,7 @@
     grid-template-areas:
       "name    chevron"
       "email   email"
-      "status  time";
+      "pills   time";
     gap: 4px var(--tv-space-3);
     padding: var(--tv-space-3);
   }
@@ -394,8 +419,8 @@
   .subs__row-time    { grid-area: time; justify-self: end; }
   .subs__row-chevron { grid-area: chevron; }
 
-  .subs__row-head > .subs__pill {
-    grid-area: status;
+  .subs__row-head > .subs__row-pills {
+    grid-area: pills;
     justify-self: start;
   }
 

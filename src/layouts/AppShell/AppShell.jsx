@@ -8,19 +8,18 @@ import { OnboardingBanner } from '@/components/shared/OnboardingBanner/Onboardin
 import { VerifyEmailBanner } from '@/components/shared/VerifyEmailBanner/VerifyEmailBanner'
 import './AppShell.css'
 
-// Order is deliberate per role. Items higher in this array fill the mobile
-// bottom tab bar first; items past MOBILE_TAB_LIMIT spill into the More
-// sheet. The shape produces these resolved orderings:
+// NAV_ITEMS is the registry. Display order is then overridden per role via
+// PRIMARY_BY_ROLE so each role sees its highest-value tools in the mobile
+// tab bar. Resolved orderings:
 //
-//   Admin:  Dashboard · Mentees · Meetings · Pairings ·
-//           [Users · Submissions · Activity · Insights · Profile in More]
+//   Admin:  Dashboard · Users · Pairings · Activity ·
+//           [Mentees · Meetings · Submissions · Insights · Profile in More]
 //   Mentor: Dashboard · Mentees · Meetings · Profile
 //   Mentee: Dashboard · My Mentor · Meetings · Profile
 //
-// Profile sits at the end across all roles — it's a settings-tier surface,
-// not a daily destination. Admins reach it from the More sheet on mobile and
-// from the sidebar foot on desktop. Mentors and mentees see it as their
-// fourth tab because they have no admin tools competing for the slot.
+// Profile sits at the end across all roles. Submissions moves to More for
+// admin since contact submissions arrive infrequently and Activity/Users/
+// Pairings carry the daily admin workload.
 const NAV_ITEMS = [
   { to: '/dashboard', label: 'Dashboard', icon: 'dashboard', allow: null, end: true },
 
@@ -47,6 +46,22 @@ const NAV_ITEMS = [
 // sheet. 4 + a fixed "More" slot = 5 visible tabs.
 const MOBILE_TAB_LIMIT = 4
 
+// Per-role display order. The first four entries here become the visible
+// mobile tabs; everything else flows to More. Admin sees admin tools first;
+// mentor/mentee see their relationship surface first.
+const PRIMARY_BY_ROLE = {
+  [ROLES.ADMIN]:  ['/dashboard', '/users',   '/pairings', '/admin/activity'],
+  [ROLES.MENTOR]: ['/dashboard', '/mentees', '/meetings', '/profile'],
+  [ROLES.MENTEE]: ['/dashboard', '/mentor',  '/meetings', '/profile']
+}
+
+function primaryRole(roles) {
+  if (roles.includes(ROLES.ADMIN))  return ROLES.ADMIN
+  if (roles.includes(ROLES.MENTOR)) return ROLES.MENTOR
+  if (roles.includes(ROLES.MENTEE)) return ROLES.MENTEE
+  return null
+}
+
 export function AppShell() {
   const profile = useAuth((s) => s.profile)
   const roles   = useAuth((s) => s.roles)
@@ -66,10 +81,24 @@ export function AppShell() {
     }
   }, [moreOpen])
 
-  // Filter the nav to items the user's roles unlock.
-  const items = useMemo(() => (
-    NAV_ITEMS.filter((item) => !item.allow || item.allow.some((r) => roles.includes(r)))
-  ), [roles])
+  // Filter the nav to items the user's roles unlock, then reorder using the
+  // primary-role priority list so the user's daily tools fill the tab bar.
+  const items = useMemo(() => {
+    const allowed = NAV_ITEMS.filter((item) =>
+      !item.allow || item.allow.some((r) => roles.includes(r))
+    )
+    const primary = primaryRole(roles)
+    const order   = PRIMARY_BY_ROLE[primary] ?? []
+
+    const prioritized = order
+      .map((to) => allowed.find((item) => item.to === to))
+      .filter(Boolean)
+
+    const used      = new Set(prioritized.map((item) => item.to))
+    const remaining = allowed.filter((item) => !used.has(item.to))
+
+    return [...prioritized, ...remaining]
+  }, [roles])
 
   // Page title for the topbar. Derived from the active route. We sort by `to`
   // length so '/mentees' beats '/' when both prefix-match an item.
