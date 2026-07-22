@@ -6,50 +6,36 @@ import './Programs.css'
 
 /* ============ Data ============ */
 
-const BADGES = ['Six streams', 'One mentor at a time', '12-week rhythm', 'Free to join']
+const BADGES = ['Four programs', 'Monthly rhythm', 'Open to all', 'Free to join']
 
-const STREAMS = [
+const PROGRAMS = [
   {
     mark: 'A',
-    title: 'Spiritual & Ministry',
-    body: 'Following Jesus in daily practice, scripture, prayer, and the work of the local church.',
-    focus: ['Prayer', 'Scripture', 'Calling', 'Ministry'],
-    scope: '34 pairs'
+    title: 'Toolvine Family Meeting',
+    body: 'A monthly gathering where a guest speaker joins us to speak into the issues of life. Open to the whole community.',
+    cadence: 'Monthly',
+    audience: 'Community-wide'
   },
   {
     mark: 'B',
-    title: 'Career & Professional',
-    body: 'Work that fits the person God has shaped, from early career to the harder transitions.',
-    focus: ['Discernment', 'Transitions', 'Workplace', 'Integrity'],
-    scope: '41 pairs'
+    title: 'Toolvine Pray',
+    body: 'Our monthly prayer meeting, led by a team drawn from across the community.',
+    cadence: 'Monthly',
+    audience: 'Prayer team-led'
   },
   {
     mark: 'C',
-    title: 'Relationship & Marriage',
-    body: 'Friendship, courtship, marriage, family. The long obedience of loving the people closest to us.',
-    focus: ['Courtship', 'Marriage', 'Communication', 'Conflict'],
-    scope: '22 pairs'
+    title: 'Toolvine Pillars Meeting',
+    body: "Every team leader brings the month's updates from their pillar. This is how the initiative stays connected to itself.",
+    cadence: 'Monthly',
+    audience: 'Team leaders'
   },
   {
     mark: 'D',
-    title: 'Leadership & Mentorship',
-    body: 'Carrying weight on behalf of others. Leading teams, making decisions, growing into responsibility.',
-    focus: ['Teams', 'Decisions', 'Influence', 'Succession'],
-    scope: '19 pairs'
-  },
-  {
-    mark: 'E',
-    title: 'Health & Fitness',
-    body: 'A body cared for and a mind looked after. The everyday discipline of being well.',
-    focus: ['Physical', 'Mental', 'Habits', 'Rest'],
-    scope: '7 pairs'
-  },
-  {
-    mark: 'F',
-    title: 'Finance & Stewardship',
-    body: 'Money, time, and gifts. Stewardship without anxiety, generosity without performance.',
-    focus: ['Budgeting', 'Giving', 'Saving', 'Generosity'],
-    scope: '4 pairs'
+    title: 'Toolvine Equip',
+    body: 'Training for mentors and mentees, present and incoming. Where the work of mentoring gets sharpened.',
+    cadence: 'Ongoing',
+    audience: 'Mentors and mentees'
   }
 ]
 
@@ -100,12 +86,10 @@ export function Programs() {
         </div>
         <p className="prog__eyebrow">PROGRAMS</p>
         <h1 className="prog__title">
-          Six streams. One{' '}
-          <em className="prog__title-italic">rhythm.</em>
+          The <em className="prog__title-italic">programs</em> we run.
         </h1>
         <p className="prog__subtitle">
-          Toolvine pairings move through the streams of life where mentorship matters most.
-          Faith, career, relationship, leadership, health, and the steady work of stewardship.
+          Every month, our community meets. Four programs shape how we gather, pray, train, and stay connected.
         </p>
         <div className="prog__badges">
           {BADGES.map((b) => <span key={b} className="prog__badge">{b}</span>)}
@@ -115,48 +99,42 @@ export function Programs() {
         </Link>
       </header>
 
-      {/* ============ Streams: dossier rows on atmospheric dark teal ============ */}
-      <section className="prog__streams" aria-label="The six streams">
-        <div className="prog__streams-glow" aria-hidden="true" />
-        <div className="prog__streams-grid" aria-hidden="true" />
-        <div className="prog__streams-grain" aria-hidden="true" />
+      {/* ============ Programs: dossier rows on atmospheric dark teal ============ */}
+      <section className="prog__programs" aria-label="The four programs">
+        <div className="prog__programs-glow" aria-hidden="true" />
+        <div className="prog__programs-grid" aria-hidden="true" />
+        <div className="prog__programs-grain" aria-hidden="true" />
 
-        <div className="prog__streams-inner">
-          <div className="prog__streams-header">
-            <p className="prog__streams-eyebrow">THE STREAMS</p>
-            <h2 className="prog__streams-title">Where mentorship meets life.</h2>
+        <div className="prog__programs-inner">
+          <div className="prog__programs-header">
+            <p className="prog__programs-eyebrow">THE PROGRAMS</p>
+            <h2 className="prog__programs-title">The rhythm we keep.</h2>
+            <p className="prog__programs-lead">
+              Some are open to all, others gather specific teams. Together they carry the month's rhythm.
+            </p>
           </div>
 
-          <div className="prog__stream-list">
-            {STREAMS.map((s, i) => (
-              <RevealOnScroll key={s.mark} delay={i * 60} threshold={0.12}>
-                <article className="prog__stream">
-                  <div className="prog__stream-mark-wrap" aria-hidden="true">
-                    <span className="prog__stream-mark">{s.mark}</span>
+          <div className="prog__program-list">
+            {PROGRAMS.map((p, i) => (
+              <RevealOnScroll key={p.mark} delay={i * 60} threshold={0.12}>
+                <article className="prog__program">
+                  <div className="prog__program-mark-wrap" aria-hidden="true">
+                    <span className="prog__program-mark">{p.mark}</span>
                   </div>
 
-                  <div className="prog__stream-body">
-                    <h3 className="prog__stream-name">{s.title}</h3>
-                    <p className="prog__stream-desc">{s.body}</p>
-                    <ul className="prog__stream-chips">
-                      {s.focus.map((f) => (
-                        <li key={f} className="prog__stream-chip">{f}</li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="prog__stream-scope" aria-label={`${s.scope} active in this stream`}>
-                    <span className="prog__stream-scope-num">{s.scope.split(' ')[0]}</span>
-                    <span className="prog__stream-scope-label">{s.scope.split(' ').slice(1).join(' ')}</span>
+                  <div className="prog__program-body">
+                    <h3 className="prog__program-name">{p.title}</h3>
+                    <p className="prog__program-desc">{p.body}</p>
+                    <p className="prog__program-detail">
+                      <span>{p.cadence}</span>
+                      <span className="prog__program-detail-sep" aria-hidden="true">·</span>
+                      <span>{p.audience}</span>
+                    </p>
                   </div>
                 </article>
               </RevealOnScroll>
             ))}
           </div>
-
-          <p className="prog__streams-note">
-            <span aria-hidden="true">⁂</span> Streams are not categories you pick. Your mentor walks with you across whichever streams the season holds.
-          </p>
         </div>
       </section>
 
@@ -244,7 +222,7 @@ export function Programs() {
       <section className="prog__cta">
         <div className="prog__cta-grain" aria-hidden="true" />
         <div className="prog__cta-inner">
-          <p className="prog__cta-asterism" aria-hidden="true">⁂</p>
+          <p className="prog__cta-asterism" aria-hidden="true">&#8258;</p>
           <h2 className="prog__cta-title"><em>Start a pairing.</em></h2>
           <p className="prog__cta-body">Create your account. Our team will pair you within two weeks.</p>
           <Link to="/auth/sign-up" className="prog__cta-button">Get started &rarr;</Link>

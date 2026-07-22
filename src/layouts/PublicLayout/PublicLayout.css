@@ -205,11 +205,174 @@
   margin-top: var(--tv-space-2);
 }
 
+/* ============ Mobile: Reach out group ============
+   Both children shown inline, no collapse. Get Involved is marked primary
+   with a caption underneath; Contact stays quiet. */
+
+.public-nav-mobile-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: var(--tv-space-4);
+  padding-top: var(--tv-space-3);
+  border-top: 1px solid var(--tv-border);
+}
+
+.public-nav-mobile-group-label {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  letter-spacing: var(--tv-tracking-wider);
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+  margin: 0 0 var(--tv-space-2);
+  padding: 0 var(--tv-space-3);
+}
+
+.public-nav-mobile-sublink {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: var(--tv-space-3);
+  min-height: 44px;
+}
+
+.public-nav-mobile-sublink-label {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-base);
+  color: var(--tv-text);
+}
+
+.public-nav-mobile-sublink-caption {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-regular);
+  color: var(--tv-text-2);
+  line-height: 1.4;
+}
+
+.public-nav-mobile-sublink.is-primary .public-nav-mobile-sublink-label {
+  color: var(--tv-primary);
+}
+
+.public-nav-mobile-sublink.is-active .public-nav-mobile-sublink-label,
+.public-nav-mobile-sublink:hover .public-nav-mobile-sublink-label {
+  color: var(--tv-primary);
+}
+
 /* ============ Main ============ */
 
 .public-main {
   flex: 1;
 }
+
+/* ============ Desktop dropdown ============
+   Reach out sits alongside the flat nav links but opens a small panel on
+   hover or focus. Two children: Get Involved (primary, caption line) and
+   Contact (secondary, plain). */
+
+.public-nav-dropdown {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.public-nav-dropdown-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: var(--tv-space-2) var(--tv-space-3);
+  border-radius: var(--tv-radius-md);
+  color: var(--tv-text-2);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-medium);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transition: background var(--tv-duration-fast) var(--tv-ease), color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.public-nav-dropdown-trigger:hover,
+.public-nav-dropdown.is-open .public-nav-dropdown-trigger,
+.public-nav-dropdown-trigger.is-active {
+  color: var(--tv-text);
+  background: rgba(15, 118, 110, 0.06);
+}
+
+.public-nav-dropdown-caret {
+  display: inline-flex;
+  align-items: center;
+  transition: transform var(--tv-duration) var(--tv-ease);
+}
+
+.public-nav-dropdown.is-open .public-nav-dropdown-caret {
+  transform: rotate(180deg);
+}
+
+.public-nav-dropdown-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--tv-space-2);
+  background: var(--tv-surface);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-lg);
+  box-shadow: var(--tv-shadow-lg);
+  z-index: var(--tv-z-overlay);
+  animation: dropdown-in 160ms var(--tv-ease);
+}
+
+@keyframes dropdown-in {
+  from { opacity: 0; transform: translate(-50%, -4px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.public-nav-dropdown-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--tv-space-3) var(--tv-space-4);
+  border-radius: var(--tv-radius-md);
+  text-decoration: none;
+  transition: background var(--tv-duration-fast) var(--tv-ease);
+}
+
+.public-nav-dropdown-item:hover,
+.public-nav-dropdown-item.is-active {
+  background: rgba(15, 118, 110, 0.06);
+}
+
+.public-nav-dropdown-item-label {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text);
+}
+
+.public-nav-dropdown-item.is-primary .public-nav-dropdown-item-label {
+  color: var(--tv-primary);
+}
+
+.public-nav-dropdown-item.is-primary:hover .public-nav-dropdown-item-label {
+  color: var(--tv-primary-hover);
+}
+
+.public-nav-dropdown-item-caption {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+  line-height: 1.4;
+}
+
+/* Dropdown is desktop-only. Mobile uses the auto-expanded group above. */
+.public-nav-dropdown { display: none; }
 
 /* ============ Desktop ============ */
 
@@ -218,6 +381,16 @@
   .public-cta-desktop { display: inline-flex; }
   .public-menu-btn    { display: none; }
   .public-nav-mobile  { display: none; }
+  .public-nav-dropdown { display: inline-flex; }
 
   .public-header-inner { padding: var(--tv-space-4) var(--tv-space-6); }
+}
+
+/* ============ Reduced motion ============ */
+
+@media (prefers-reduced-motion: reduce) {
+  .public-nav-dropdown-panel { animation: none; }
+  .public-nav-dropdown-caret,
+  .public-nav-dropdown-trigger,
+  .public-nav-dropdown-item { transition: none; }
 }

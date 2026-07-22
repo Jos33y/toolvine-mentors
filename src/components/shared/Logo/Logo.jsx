@@ -4,7 +4,7 @@ import logomark256      from '@/assets/brand/logomark-256.png'
 import logomarkLight256 from '@/assets/brand/logomark-light-256.png'
 
 // Variants: mark, mark-light (both PNG), mark-mono (SVG, currentColor), favicon (SVG, no stem), horizontal (+ wordmark), stacked (+ wordmark + subtitle).
-export function Logo({ variant = 'mark', size = 40, withWordmark = false, light = false, title = 'ToolVine' }) {
+export function Logo({ variant = 'mark', size = 40, withWordmark = false, light = false, title = 'Toolvine' }) {
   if (variant === 'mark-mono' || variant === 'favicon') {
     return <MarkSVG variant={variant} size={size} title={title} />
   }
@@ -99,7 +99,7 @@ function Horizontal({ size, light, title }) {
         letterSpacing: '-0.01em',
         color: wordColor
       }}>
-        ToolVine
+        Toolvine
       </span>
     </span>
   )
@@ -123,7 +123,7 @@ function Stacked({ size, light, title }) {
           letterSpacing: '-0.01em',
           color: wordColor
         }}>
-          ToolVine
+          Toolvine
         </span>
         <span style={{
           fontFamily: 'Inter, system-ui, sans-serif',

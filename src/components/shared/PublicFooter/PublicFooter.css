@@ -135,7 +135,7 @@
 
 .pf__nav {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: var(--tv-space-8);
   margin-bottom: var(--tv-space-10);
 }

@@ -11,7 +11,8 @@ export async function fetchSubmissions({
   let q = supabase
     .from('contact_submissions')
     .select(`
-      id, subject, name, email, message, user_agent, referrer,
+      id, subject, source, interest, organization, phone,
+      name, email, message, user_agent, referrer,
       status, admin_notes, reviewed_at, created_at,
       reviewer:profiles!contact_submissions_reviewed_by_fkey ( id, full_name )
     `, { count: 'exact' })

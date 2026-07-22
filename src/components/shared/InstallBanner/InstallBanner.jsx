@@ -17,13 +17,13 @@ export function InstallBanner() {
         <div
           className="install-banner"
           role="dialog"
-          aria-label="Install ToolVine"
+          aria-label="Install Toolvine"
         >
           <div className="install-banner__icon" aria-hidden="true">
             <img src="/app-icon-192.png" alt="" width="40" height="40" />
           </div>
           <div className="install-banner__copy">
-            <p className="install-banner__title">Install ToolVine</p>
+            <p className="install-banner__title">Install Toolvine</p>
             <p className="install-banner__sub">Faster access from your home screen.</p>
           </div>
           <button

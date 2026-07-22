@@ -7,6 +7,7 @@ import { Community } from '@/components/home/Community/Community'
 import { Pause } from '@/components/home/Pause/Pause'
 import { TwoPaths } from '@/components/home/TwoPaths/TwoPaths'
 import { WallOfWitness } from '@/components/home/WallOfWitness/WallOfWitness'
+import { SupportBand } from '@/components/home/SupportBand/SupportBand'
 import { CinematicClose } from '@/components/home/CinematicClose/CinematicClose'
 import { InstallBanner } from '@/components/shared/InstallBanner/InstallBanner'
 
@@ -99,7 +100,7 @@ export function Home() {
 
             <div className="hero__cta">
               <Link to="/auth/sign-up" className="hero__btn hero__btn--primary">
-                Join ToolVine
+                Join Toolvine
               </Link>
               <Link to="/programs" className="hero__btn hero__btn--ghost">
                 Explore Programs
@@ -120,6 +121,7 @@ export function Home() {
       <Pause />
       <TwoPaths />
       <WallOfWitness />
+      <SupportBand />
       <CinematicClose />
 
       <InstallBanner />

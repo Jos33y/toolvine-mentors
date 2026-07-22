@@ -4,10 +4,18 @@ import { Icon } from '@/components/shared/Icon/Icon'
 import { Logo } from '@/components/shared/Logo/Logo'
 import { RevealOnScroll } from '@/components/shared/RevealOnScroll/RevealOnScroll'
 import michaelPhoto from '@/assets/portraits/michael-alade.jpg'
-import abigailPhoto from '@/assets/portraits/abigail-alade.jpg'
-import joyPhoto from '@/assets/portraits/joy-ajayi.jpg'
+import { FOUNDER as TEAM_FOUNDER, BOARD as TEAM_BOARD, OPS as TEAM_OPS, initialsFor } from '@/lib/team'
 import './About.css'
 import './About.vine.css'
+
+// Six-avatar teaser strip for the About team section. Draws Founder plus
+// the first few board and ops members so the strip mixes photos with
+// initials, matching what visitors will see on the /team page.
+const TEAM_STRIP = [
+  TEAM_FOUNDER,
+  ...TEAM_BOARD.slice(0, 3),
+  ...TEAM_OPS.slice(0, 2)
+]
 
 /* ============ Data ============ */
 
@@ -44,21 +52,17 @@ const FOUNDER = {
   name: 'Dr. Michael Abimbola Alade',
   paragraphs: [
     'Toolvine Mentors & Leaders Initiative was born from a calling that preceded the platform. From leading the University of Ibadan school fellowship between 2007 and 2009, to mentoring younger colleagues through his clinical career as a pediatric dentist, the work of guiding people was already underway.',
-    'In 2020, with the support of family, trusted friends, and mentees, ToolVine Mentors was officially established to connect Christian mentors and mentees for transformational impact through Christ-centered mentorship and leadership development.'
+    'In 2020, with the support of family, trusted friends, and mentees, Toolvine Mentors was officially established to connect Christian mentors and mentees for transformational impact through Christ-centered mentorship and leadership development.'
   ],
-  quote: 'What started as informal guidance gradually grew into a deeper calling to mentorship.',
-  vision: 'We connect at least a member of every Christian household to a mentor or to a mentee for impact.'
+  quote: 'What started as informal guidance gradually grew into a deeper calling to mentorship.'
 }
 
-const TEAM = [
-  { initials: 'AA', name: 'Abigail Jesutofunmi Alade',  role: 'Secretariat Lead',            photo: abigailPhoto, group: 'board' },
-  { initials: 'JA', name: 'Joy Oluwaseun Ajayi',        role: 'Social Media Lead',           photo: joyPhoto,     group: 'board' },
-  { initials: 'OO', name: 'Olamide Oluwaseyi Oladepo',  role: 'Recruitment & Training Lead', photo: null,         group: 'board' },
-  { initials: 'AO', name: 'Adedayo Oreoluwa Adewole',   role: 'Programme Unit Lead',         photo: null,         group: 'board' },
-  { initials: 'OA', name: 'Olayinka Ajayi',             role: 'Pathway Tracking Lead',       photo: null,         group: 'ops' },
-  { initials: 'AJ', name: 'Mentor Adedoyin Jegede',     role: 'Welfare Lead',                photo: null,         group: 'ops' },
-  { initials: 'KO', name: 'Kikelomo Olabamiji',         role: 'Admin, Initiative',           photo: null,         group: 'ops' }
-]
+// Draft mission awaiting client sign-off. Vision is the founder's stated
+// statement, elevated to a proper section with equal weight to the mission.
+const PURPOSE = {
+  mission: 'To raise Christ-centered leaders through structured mentorship. Toolvine pairs experienced mentors with those coming after them, holds the record of the relationship, and equips both sides to walk in their calling with clarity.',
+  vision: 'We connect at least a member of every Christian household to a mentor or to a mentee for impact.'
+}
 
 const EDITORIAL_NAMES = [
   'Abigail Jesutofunmi Alade',
@@ -338,17 +342,57 @@ export function About() {
                   <span aria-hidden="true">&ldquo;</span>{FOUNDER.quote}<span aria-hidden="true">&rdquo;</span>
                 </blockquote>
               </figure>
-
-              <figure className="about__founder-vision">
-                <figcaption>THE VISION</figcaption>
-                <blockquote>{FOUNDER.vision}</blockquote>
-              </figure>
             </RevealOnScroll>
           </div>
         </div>
       </section>
 
-      {/* ============ 4. Vinethoughts ============ */}
+      {/* ============ 4. Purpose (Mission and Vision) ============ */}
+      <section className="about__purpose" aria-label="Mission and Vision">
+        <div className="about__purpose-inner">
+          <div className="about__purpose-head">
+            <p className="about__purpose-eyebrow">THE FOUNDATION</p>
+            <h2 className="about__purpose-title">Mission and Vision.</h2>
+          </div>
+
+          <div className="about__purpose-grid">
+            <RevealOnScroll threshold={0.2}>
+              <div className="about__purpose-block about__purpose-block--mission">
+                <p className="about__purpose-label">THE MISSION</p>
+                <p className="about__purpose-body">{PURPOSE.mission}</p>
+              </div>
+            </RevealOnScroll>
+
+            <div className="about__purpose-divider" aria-hidden="true" />
+
+            <RevealOnScroll threshold={0.2} delay={120}>
+              <div className="about__purpose-block about__purpose-block--vision">
+                <p className="about__purpose-label">THE VISION</p>
+                <p className="about__purpose-body">{PURPOSE.vision}</p>
+              </div>
+            </RevealOnScroll>
+          </div>
+        </div>
+      </section>
+
+      {/* ============ 4a. Support aside (small, quiet) ============ */}
+      <aside className="about__support" aria-label="Other ways to support">
+        <div className="about__support-inner">
+          <RevealOnScroll threshold={0.3}>
+            <p className="about__support-title">
+              There are other ways to walk with us.
+            </p>
+            <p className="about__support-body">
+              Volunteer, sponsor, invest, or partner with Toolvine.
+            </p>
+            <Link to="/get-involved" className="about__support-cta">
+              Get involved <span aria-hidden="true">&rarr;</span>
+            </Link>
+          </RevealOnScroll>
+        </div>
+      </aside>
+
+      {/* ============ 5. Vinethoughts ============ */}
       <section className="about__vine" aria-label="Vinethoughts">
         <div className="about__vine-inner">
           <div className="about__vine-head" ref={rackRef}>
@@ -449,44 +493,44 @@ export function About() {
         </div>
       </section>
 
-      {/* ============ 5. The Team (compact masthead) ============ */}
+      {/* ============ 6. The Team (avatar-strip teaser) ============ */}
       <section className="about__team" aria-label="The team">
         <div className="about__team-inner">
-          <div className="about__team-head">
+          <RevealOnScroll threshold={0.2}>
             <p className="about__team-eyebrow">THE TEAM</p>
             <h2 className="about__team-title">The people who carry it.</h2>
-          </div>
 
-          {['board', 'ops'].map((group) => {
-            const heading = group === 'board' ? 'Board' : 'Unit Heads & Administrative'
-            const members = TEAM.filter(t => t.group === group)
-            return (
-              <div key={group} className="about__team-group">
-                <h3 className="about__team-group-heading">{heading}</h3>
-                <div className="about__team-roster">
-                  {members.map((p, i) => (
-                    <RevealOnScroll key={p.name} threshold={0.1} delay={i * 60}>
-                      <div className="about__member">
-                        {p.photo ? (
-                          <img src={p.photo} alt="" className="about__member-avatar about__member-avatar--photo" />
-                        ) : (
-                          <span className="about__member-avatar" aria-hidden="true">{p.initials}</span>
-                        )}
-                        <div className="about__member-text">
-                          <p className="about__member-name">{p.name}</p>
-                          <p className="about__member-role">{p.role}</p>
-                        </div>
-                      </div>
-                    </RevealOnScroll>
-                  ))}
-                </div>
-              </div>
-            )
-          })}
+            <ul className="about__team-strip" aria-label="A few of the people">
+              {TEAM_STRIP.map((p, i) => (
+                <li
+                  key={p.name}
+                  className="about__team-strip-item"
+                  style={{ zIndex: TEAM_STRIP.length - i }}
+                  title={p.name}
+                >
+                  {p.photo ? (
+                    <img src={p.photo} alt="" className="about__team-strip-avatar about__team-strip-avatar--photo" />
+                  ) : (
+                    <span className="about__team-strip-avatar about__team-strip-avatar--initials" aria-hidden="true">
+                      {initialsFor(p.name)}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+
+            <p className="about__team-body">
+              Dr. Alade leads a growing team of board members, operations leads, and mentors across Nigeria.
+            </p>
+
+            <Link to="/team" className="about__team-cta">
+              Meet the team <span aria-hidden="true">&rarr;</span>
+            </Link>
+          </RevealOnScroll>
         </div>
       </section>
 
-      {/* ============ 6. Invitation ============ */}
+      {/* ============ 7. Invitation ============ */}
       <section className="about__invite" aria-label="Get involved">
         <div className="about__invite-inner">
           <p className="about__invite-asterism" aria-hidden="true">&lowast;&lowast;&lowast;</p>

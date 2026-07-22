@@ -19,8 +19,8 @@ export function pickFooterTagline() {
 
 // Naming forms by surface, per docs/client-voice.md.
 export const NAMES = {
-  short:  'ToolVine',
-  medium: 'ToolVine Mentors',
+  short:  'Toolvine',
+  medium: 'Toolvine Mentors',
   legal:  'Toolvine Mentors & Leaders Initiative',
   shout:  'TOOLVINE MENTORS AND LEADERS INITIATIVE'
 }

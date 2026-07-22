@@ -18,10 +18,19 @@ const STATUS_FILTERS = [
 ]
 
 // Submission origin labels. Add new sources here as channels expand
-// (applications, safeguarding reports, etc.). Defaults to contact since that
-// is the only source feeding this inbox today.
+// (applications, safeguarding reports, etc.). Contact-form submissions and
+// Get Involved intake share this inbox; the source pill differentiates them.
 const SOURCE_MAP = {
-  contact: 'Contact form'
+  contact:      'Contact form',
+  get_involved: 'Get Involved'
+}
+
+// Get Involved interest labels. Only populated when source is 'get_involved'.
+const INTEREST_MAP = {
+  volunteer: 'Volunteer',
+  sponsor:   'Sponsor',
+  invest:    'Invest',
+  partner:   'Partner'
 }
 
 export function Submissions() {
@@ -139,7 +148,7 @@ function SubmissionRow({ row, expanded, onToggle, onUpdateStatus }) {
         <span className="subs__row-name">{name}</span>
         <span className="subs__row-email">{email}</span>
         <span className="subs__row-pills">
-          <SourcePill source={row.source} />
+          <SourcePill source={row.source} interest={row.interest} />
           <StatusPill status={row.status} />
         </span>
         <span className="subs__row-time">{formatRelative(row.created_at)}</span>
@@ -156,6 +165,25 @@ function SubmissionRow({ row, expanded, onToggle, onUpdateStatus }) {
 
       {expanded && (
         <div className="subs__row-body">
+          {(row.organization || row.phone) && (
+            <ul className="subs__row-meta">
+              {row.organization && (
+                <li className="subs__row-meta-item">
+                  <span className="subs__row-meta-label">Organization</span>
+                  <span className="subs__row-meta-value">{row.organization}</span>
+                </li>
+              )}
+              {row.phone && (
+                <li className="subs__row-meta-item">
+                  <span className="subs__row-meta-label">Phone</span>
+                  <a href={`tel:${row.phone}`} className="subs__row-meta-value subs__row-meta-value--link">
+                    {row.phone}
+                  </a>
+                </li>
+              )}
+            </ul>
+          )}
+
           <div className="subs__row-message">{message}</div>
 
           <div className="subs__row-actions">
@@ -188,7 +216,7 @@ function SubmissionRow({ row, expanded, onToggle, onUpdateStatus }) {
             )}
             {email && (
               <a
-                href={`mailto:${email}?subject=${encodeURIComponent('Re: your message to ToolVine')}`}
+                href={`mailto:${email}?subject=${encodeURIComponent('Re: your message to Toolvine')}`}
                 className="subs__action subs__action--primary"
               >
                 <Icon name="mail" size={14} />
@@ -218,9 +246,13 @@ function StatusPill({ status }) {
   )
 }
 
-function SourcePill({ source }) {
-  const label = SOURCE_MAP[source] ?? SOURCE_MAP.contact
-  return <span className="subs__pill subs__pill--source">{label}</span>
+function SourcePill({ source, interest }) {
+  const base  = SOURCE_MAP[source] ?? SOURCE_MAP.contact
+  const label = interest && INTEREST_MAP[interest]
+    ? `${base} \u00B7 ${INTEREST_MAP[interest]}`
+    : base
+  const mod = source === 'get_involved' ? 'get-involved' : 'contact'
+  return <span className={`subs__pill subs__pill--source subs__pill--source-${mod}`}>{label}</span>
 }
 
 // ============ Panels ============
@@ -266,7 +298,7 @@ function emptyMessageFor(status) {
     case 'read':     return 'Nothing in the read bucket. Mark a message read to see it here.'
     case 'replied':  return 'No replied submissions yet.'
     case 'archived': return 'Nothing archived.'
-    default:         return 'No submissions yet. Messages from the contact form will appear here.'
+    default:         return 'No submissions yet. Messages from the contact form and Get Involved will appear here.'
   }
 }
 

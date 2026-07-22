@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { supabase } from './supabase'
 
 export const contactSchema = z.object({
-  subject: z.enum(['general', 'partnership', 'press_speaking']),
+  subject: z.enum(['general', 'press_speaking']),
   name: z.string().trim().min(2, 'Tell us your name.').max(120, 'Keep it under 120 characters.'),
   email: z.string().trim().email('That email looks off.').max(200),
   message: z
@@ -17,8 +17,9 @@ export async function submitContactForm(values) {
 
   const payload = {
     ...parsed,
+    source:     'contact',
     user_agent: typeof navigator !== 'undefined' ? navigator.userAgent.slice(0, 500) : null,
-    referrer: typeof document !== 'undefined' ? (document.referrer || null) : null
+    referrer:   typeof document !== 'undefined' ? (document.referrer || null) : null
   }
 
   const { error } = await supabase.from('contact_submissions').insert(payload)

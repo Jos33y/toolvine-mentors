@@ -15,8 +15,8 @@ const PRACTICES = [
   {
     numeral: 'II.',
     headline: 'We walk together.',
-    body: 'Pairings meet in their own rhythm. The community gathers in Family Meetings and ToolVine Prays. No one walks this alone. No one mentors in isolation.',
-    expanded: 'Family Meetings, ToolVine Prays, and one-on-one sessions. Every rhythm matters.',
+    body: 'Pairings meet in their own rhythm. The community gathers in Family Meetings and Toolvine Pray. No one walks this alone. No one mentors in isolation.',
+    expanded: 'Family Meetings, Toolvine Pray, and one-on-one sessions. Every rhythm matters.',
     stat: { value: 1840, label: 'meetings logged in 2025' },
   },
   {

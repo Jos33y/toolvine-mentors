@@ -186,7 +186,7 @@ export function WallOfWitness() {
 
       <div className="witness__footer">
         <p className="witness__caption">
-          Voices from the ToolVine community. Initials only, per our convention.
+          Voices from the Toolvine community. Initials only, per our convention.
         </p>
         <Link to="/auth/sign-up" className="witness__cta">
           Join them

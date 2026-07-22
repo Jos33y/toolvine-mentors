@@ -140,7 +140,7 @@ const COPY = {
   },
   success: {
     title: 'Email confirmed',
-    lede:  'Your account is verified. Welcome to ToolVine.'
+    lede:  'Your account is verified. Welcome to Toolvine.'
   },
   expired: {
     title: 'This link has expired',

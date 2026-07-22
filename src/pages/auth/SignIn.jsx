@@ -145,7 +145,7 @@ export function SignIn() {
       </button>
 
       <p className="auth__meta">
-        New to ToolVine? <Link to="/auth/sign-up" className="auth__meta-link">Create an account</Link>
+        New to Toolvine? <Link to="/auth/sign-up" className="auth__meta-link">Create an account</Link>
       </p>
     </section>
   )

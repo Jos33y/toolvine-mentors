@@ -29,7 +29,7 @@ export function InstallCard() {
           </div>
 
           <div className="install-card__body">
-            <h3 className="install-card__title">Install ToolVine</h3>
+            <h3 className="install-card__title">Install Toolvine</h3>
             <p className="install-card__text">
               Add the app to your home screen for quicker access. Stays signed in across visits.
             </p>

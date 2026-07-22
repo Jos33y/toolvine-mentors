@@ -1,7 +1,7 @@
-/* Programs v1. Streams as a typographic dossier, not a card grid.
-   Background rhythm: cream → DARK TEAL streams → cream → cream → DARK SLATE.
-   Streams pattern echoes HowItWorks process (numbered rows on atmosphere) but
-   carries more content per row: serif index letter, focus chips, scope stat. */
+/* Programs page. Four programs as typographic dossier rows on atmospheric dark teal.
+   Background rhythm: cream, DARK TEAL programs section, cream, cream, DARK SLATE CTA.
+   Preserves hero, cadence, commitments, and CTA. Programs section replaces the old
+   streams grid with a leaner row: serif index letter, name, body, small detail line. */
 
 .prog {
   position: relative;
@@ -92,9 +92,9 @@
 }
 .prog__hero-cta:hover { gap: var(--tv-space-3); color: var(--tv-primary-hover); }
 
-/* ============ Streams: rich atmospheric dark teal ============ */
+/* ============ Programs: rich atmospheric dark teal ============ */
 
-.prog__streams {
+.prog__programs {
   position: relative; z-index: 1; overflow: hidden;
   background: linear-gradient(
     145deg,
@@ -107,7 +107,7 @@
   color: var(--tv-text-inverse);
 }
 
-.prog__streams-glow {
+.prog__programs-glow {
   position: absolute; inset: 0; pointer-events: none;
   background:
     radial-gradient(ellipse 55% 70% at 5% 0%, rgba(20, 184, 166, 0.22), transparent 55%),
@@ -116,7 +116,7 @@
     radial-gradient(ellipse 70% 35% at 40% 100%, rgba(15, 118, 110, 0.18), transparent 50%);
 }
 
-.prog__streams-grid {
+.prog__programs-grid {
   position: absolute; inset: 0; pointer-events: none;
   background-image:
     linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
@@ -126,125 +126,93 @@
   mask-image: radial-gradient(ellipse 75% 65% at 50% 45%, black 10%, transparent 70%);
 }
 
-.prog__streams-grain {
+.prog__programs-grain {
   position: absolute; inset: 0; pointer-events: none; z-index: 1;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size: 256px; opacity: 0.05; mix-blend-mode: soft-light;
 }
 
-.prog__streams-inner {
+.prog__programs-inner {
   position: relative; z-index: 2;
   max-width: var(--tv-content-max); margin: 0 auto;
   padding: clamp(var(--tv-space-12), 6vw, var(--tv-space-16)) var(--tv-space-6);
 }
 
-.prog__streams-header { margin-bottom: clamp(var(--tv-space-6), 3vw, var(--tv-space-8)); }
+.prog__programs-header { margin-bottom: clamp(var(--tv-space-8), 4vw, var(--tv-space-10)); max-width: 60ch; }
 
-.prog__streams-eyebrow {
+.prog__programs-eyebrow {
   font-family: var(--tv-font-mono); font-size: var(--tv-fs-xs);
   letter-spacing: var(--tv-tracking-wider); text-transform: uppercase;
   color: var(--tv-accent-light); margin: 0 0 var(--tv-space-3);
 }
 
-.prog__streams-title {
+.prog__programs-title {
   font-family: var(--tv-font-display); font-weight: var(--tv-fw-semibold);
   font-size: clamp(1.5rem, 3vw, 2rem); letter-spacing: -0.015em;
   color: var(--tv-text-inverse); margin: 0;
 }
 
-/* Stream rows */
+.prog__programs-lead {
+  margin: var(--tv-space-4) 0 0;
+  font-family: var(--tv-font-serif); font-style: italic;
+  font-size: clamp(0.9375rem, 1.2vw, 1.0625rem); line-height: 1.6;
+  color: rgba(255, 255, 255, 0.7); max-width: 52ch;
+}
 
-.prog__stream-list { display: flex; flex-direction: column; }
+/* Program rows */
 
-.prog__stream {
+.prog__program-list { display: flex; flex-direction: column; }
+
+.prog__program {
   display: grid;
   grid-template-columns: clamp(64px, 9vw, 100px) 1fr;
   gap: clamp(var(--tv-space-4), 3vw, var(--tv-space-8));
-  padding: clamp(var(--tv-space-6), 3.5vw, var(--tv-space-8)) 0;
+  padding: clamp(var(--tv-space-8), 4.5vw, var(--tv-space-12)) 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   align-items: start;
 }
-.prog__stream:first-child { border-top: 1px solid rgba(255, 255, 255, 0.08); }
+.prog__program:first-child { border-top: 1px solid rgba(255, 255, 255, 0.08); }
 
-.prog__stream-mark-wrap { padding-top: 4px; }
+.prog__program-mark-wrap { padding-top: 4px; }
 
-.prog__stream-mark {
+.prog__program-mark {
   font-family: var(--tv-font-serif); font-style: italic; font-weight: 500;
   font-size: clamp(3rem, 5.5vw, 4.5rem);
   line-height: 0.85; letter-spacing: -0.04em;
   color: rgba(94, 234, 212, 0.5); user-select: none;
 }
 
-.prog__stream-body { display: flex; flex-direction: column; gap: var(--tv-space-3); padding-top: clamp(4px, 0.5vw, 10px); }
+.prog__program-body { display: flex; flex-direction: column; gap: var(--tv-space-3); padding-top: clamp(4px, 0.5vw, 10px); }
 
-.prog__stream-name {
+.prog__program-name {
   font-family: var(--tv-font-display); font-weight: var(--tv-fw-semibold);
-  font-size: clamp(1.125rem, 1.8vw, 1.375rem); letter-spacing: -0.01em;
+  font-size: clamp(1.25rem, 2vw, 1.5rem); letter-spacing: -0.01em;
   color: var(--tv-text-inverse); margin: 0;
 }
 
-.prog__stream-desc {
+.prog__program-desc {
   font-size: var(--tv-fs-base); line-height: 1.65;
-  color: rgba(255, 255, 255, 0.65); max-width: 52ch; margin: 0;
+  color: rgba(255, 255, 255, 0.65); max-width: 56ch; margin: 0;
 }
 
-.prog__stream-chips {
-  list-style: none; padding: 0; margin: var(--tv-space-1) 0 0;
-  display: flex; flex-wrap: wrap; gap: var(--tv-space-2);
-}
-
-.prog__stream-chip {
+.prog__program-detail {
+  display: inline-flex; align-items: center; gap: var(--tv-space-3);
+  margin: var(--tv-space-2) 0 0;
   font-family: var(--tv-font-mono); font-size: 0.6875rem;
-  letter-spacing: var(--tv-tracking-wide); text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.7);
-  padding: 5px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: var(--tv-radius-pill);
-}
-
-.prog__stream-scope {
-  display: none;
-  flex-direction: column; align-items: flex-end; gap: 2px;
-  padding-top: 8px;
-}
-
-.prog__stream-scope-num {
-  font-family: var(--tv-font-serif); font-style: italic; font-weight: 500;
-  font-size: clamp(1.75rem, 2.6vw, 2.25rem); line-height: 1;
-  color: var(--tv-accent-light); letter-spacing: -0.02em;
-}
-
-.prog__stream-scope-label {
-  font-family: var(--tv-font-mono); font-size: 0.625rem;
   letter-spacing: var(--tv-tracking-wider); text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.65);
+  color: rgba(255, 255, 255, 0.55);
 }
 
-@media (min-width: 960px) {
-  .prog__stream {
-    grid-template-columns: clamp(80px, 9vw, 110px) 1fr clamp(80px, 9vw, 120px);
-  }
-  .prog__stream-scope { display: flex; }
+.prog__program-detail-sep {
+  color: var(--tv-accent-light); opacity: 0.7;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .prog__stream { transition: background 300ms var(--tv-ease); }
-  .prog__stream:hover { background: rgba(255, 255, 255, 0.02); }
-  .prog__stream:hover .prog__stream-mark { color: rgba(94, 234, 212, 0.85); }
-  .prog__stream:hover .prog__stream-desc { color: rgba(255, 255, 255, 0.82); }
-  .prog__stream:hover .prog__stream-scope-num { color: var(--tv-accent); }
-}
-
-.prog__streams-note {
-  margin: clamp(var(--tv-space-6), 3vw, var(--tv-space-8)) 0 0;
-  font-family: var(--tv-font-serif); font-style: italic;
-  font-size: var(--tv-fs-sm); line-height: 1.6;
-  color: rgba(255, 255, 255, 0.55); max-width: 56ch;
-}
-
-.prog__streams-note span {
-  font-style: normal; color: var(--tv-accent-light);
-  letter-spacing: 0.4em; margin-right: var(--tv-space-2);
+  .prog__program { transition: background 300ms var(--tv-ease); }
+  .prog__program:hover { background: rgba(255, 255, 255, 0.02); }
+  .prog__program:hover .prog__program-mark { color: rgba(94, 234, 212, 0.85); }
+  .prog__program:hover .prog__program-desc { color: rgba(255, 255, 255, 0.82); }
+  .prog__program:hover .prog__program-detail { color: rgba(255, 255, 255, 0.75); }
 }
 
 /* ============ Cadence: cream canvas, structural timeline ============ */
@@ -532,10 +500,12 @@
 
 @media (max-width: 759px) {
   .prog__hero { padding-top: var(--tv-space-10); }
-  .prog__stream { grid-template-columns: 56px 1fr; }
-  .prog__stream-mark { font-size: 2.5rem; }
-  .prog__stream-chips { gap: 6px; }
-  .prog__stream-chip { padding: 4px 10px; font-size: 0.625rem; }
+  .prog__program { grid-template-columns: 56px 1fr; padding: var(--tv-space-6) 0; }
+  .prog__program-mark { font-size: 2.5rem; }
+  .prog__program-detail {
+    flex-wrap: wrap; gap: var(--tv-space-2);
+    font-size: 0.625rem;
+  }
   .prog__commit-grid { gap: var(--tv-space-8); }
   .prog__commit-item { grid-template-columns: 32px 1fr; gap: var(--tv-space-3); }
   .prog__commit-icon { width: 32px; height: 32px; }
@@ -544,6 +514,6 @@
 /* ============ Reduced motion ============ */
 
 @media (prefers-reduced-motion: reduce) {
-  .prog__stream, .prog__commit-icon, .prog__commit-icon::after { transition: none; }
+  .prog__program, .prog__commit-icon, .prog__commit-icon::after { transition: none; }
   .prog__hero-cta, .prog__cta-button { transition: none; }
 }

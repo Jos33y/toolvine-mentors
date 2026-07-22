@@ -41,9 +41,9 @@ const STATS = [
 ]
 
 const FAQS = [
-  { q: 'Is ToolVine free?', a: 'Yes. ToolVine is free for both mentors and mentees. The platform is funded by the initiative, not by user fees.' },
+  { q: 'Is Toolvine free?', a: 'Yes. Toolvine is free for both mentors and mentees. The platform is funded by the initiative, not by user fees.' },
   { q: 'How long until I get paired?', a: 'Our team reviews new accounts regularly. Most mentees are paired with a mentor within two weeks of signing up.' },
-  { q: 'Do I have to be a Christian?', a: 'ToolVine is a Christian mentoring initiative. The community is faith-aware and welcoming. You do not need to be at any particular stage in your faith to join, but the resources and conversations are rooted in a Christian worldview.' },
+  { q: 'Do I have to be a Christian?', a: 'Toolvine is a Christian mentoring initiative. The community is faith-aware and welcoming. You do not need to be at any particular stage in your faith to join, but the resources and conversations are rooted in a Christian worldview.' },
   { q: 'How much time does mentoring take?', a: 'One meeting per month is the minimum. Most pairs meet every two weeks. Each session runs 30 to 60 minutes, plus a few minutes for your mentor to write notes.' },
   { q: 'Can I choose my own mentor?', a: 'Pairing is done by our team, not by algorithm and not by the user. This is intentional. The team knows the community personally and makes better matches than self-selection would.' },
   { q: 'What if my pairing is not working?', a: 'Start by talking to your mentor or mentee directly. If that does not resolve it, contact the admin team. Pairings can be changed, and past pairings remain on record for continuity.' }
@@ -69,7 +69,7 @@ export function HowItWorks() {
           <em className="hiw__title-italic">alone.</em>
         </h1>
         <p className="hiw__subtitle">
-          ToolVine pairs you with a Christian mentor who has walked your path.
+          Toolvine pairs you with a Christian mentor who has walked your path.
           In faith, in career, in life. Here is how.
         </p>
         <div className="hiw__badges">
@@ -81,7 +81,7 @@ export function HowItWorks() {
       </header>
 
       {/* ============ Value props ============ */}
-      <section className="hiw__props-section" aria-label="Why ToolVine">
+      <section className="hiw__props-section" aria-label="Why Toolvine">
         <div className="hiw__props-inner">
           <RevealOnScroll threshold={0.15}>
             <div className="hiw__props">

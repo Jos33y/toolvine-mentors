@@ -15,10 +15,13 @@ import { OnboardingLayout } from '@/layouts/OnboardingLayout/OnboardingLayout'
 // Public pages render on first paint; keep in the entry chunk.
 import { Home } from '@/pages/public/Home'
 import { About } from '@/pages/public/About'
+import { Team } from '@/pages/public/Team'
+import { Outreach } from '@/pages/public/Outreach'
 import { Programs } from '@/pages/public/Programs'
 import { HowItWorks } from '@/pages/public/HowItWorks'
 import { Resources } from '@/pages/public/Resources'
 import { Contact } from '@/pages/public/Contact'
+import { GetInvolved } from '@/pages/public/GetInvolved'
 import { Privacy } from '@/pages/public/Privacy'
 import { Terms } from '@/pages/public/Terms'
 import { CommunityGuidelines } from '@/pages/public/CommunityGuidelines'
@@ -103,10 +106,13 @@ const router = createBrowserRouter([
         children: [
           { path: '/',                     element: <Home /> },
           { path: '/about',                element: <About /> },
+          { path: '/team',                 element: <Team /> },
+          { path: '/outreach',             element: <Outreach /> },
           { path: '/programs',             element: <Programs /> },
           { path: '/how-it-works',         element: <HowItWorks /> },
           { path: '/resources',            element: <Resources /> },
           { path: '/contact',              element: <Contact /> },
+          { path: '/get-involved',         element: <GetInvolved /> },
           { path: '/privacy',              element: <Privacy /> },
           { path: '/terms',                element: <Terms /> },
           { path: '/community-guidelines', element: <CommunityGuidelines /> }

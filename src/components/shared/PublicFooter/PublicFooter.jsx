@@ -221,6 +221,14 @@ export function PublicFooter() {
             <p className="pf__col-label">About</p>
             <div className="pf__col-links">
               <Link to="/about">About</Link>
+              <Link to="/team">Team</Link>
+              <Link to="/outreach">Outreach</Link>
+            </div>
+          </div>
+          <div className="pf__col">
+            <p className="pf__col-label">Reach out</p>
+            <div className="pf__col-links">
+              <Link to="/get-involved">Get Involved</Link>
               <Link to="/contact">Contact</Link>
             </div>
           </div>

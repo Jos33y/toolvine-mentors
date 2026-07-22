@@ -11,7 +11,7 @@ export function Terms() {
     >
       <LegalSection id="agreement" title="Agreement">
         <p>
-          These terms govern your use of toolvinementors.com and the ToolVine mentoring
+          These terms govern your use of toolvinementors.com and the Toolvine mentoring
           platform, operated by Toolvine Mentors and Leaders Initiative. By creating an
           account or using the service, you agree to be bound by them.
         </p>
@@ -21,7 +21,7 @@ export function Terms() {
         </p>
       </LegalSection>
 
-      <LegalSection id="eligibility" title="Who can use ToolVine">
+      <LegalSection id="eligibility" title="Who can use Toolvine">
         <p>
           You must be at least 18 years old to create an account. You must provide accurate
           information about yourself, keep it up to date, and not impersonate someone else.
@@ -41,7 +41,7 @@ export function Terms() {
         </p>
         <p>
           We do not delete user accounts on request alone. If you no longer want to use
-          ToolVine, request deactivation. Your history will be preserved in a read-only
+          Toolvine, request deactivation. Your history will be preserved in a read-only
           state for community continuity, unless you also request full deletion under our{' '}
           <Link to="/privacy">privacy policy</Link>.
         </p>
@@ -49,7 +49,7 @@ export function Terms() {
 
       <LegalSection id="relationship" title="The mentoring relationship">
         <p>
-          ToolVine provides the platform that supports your mentoring relationship. We are
+          Toolvine provides the platform that supports your mentoring relationship. We are
           not a party to the relationship itself. The conversations, the counsel, and the
           decisions that happen between a mentor and a mentee are theirs, not ours.
         </p>
@@ -62,7 +62,7 @@ export function Terms() {
 
       <LegalSection id="acceptable-use" title="Acceptable use">
         <p>
-          You agree not to use ToolVine to:
+          You agree not to use Toolvine to:
         </p>
         <ul>
           <li>Harass, abuse, or harm another person, on or off the platform.</li>
@@ -77,7 +77,7 @@ export function Terms() {
 
       <LegalSection id="content" title="Content">
         <p>
-          You own the content you create on ToolVine, including your profile, your messages,
+          You own the content you create on Toolvine, including your profile, your messages,
           and the notes you write as a mentor. You grant us a limited licence to store,
           display, and back up that content for the purpose of operating the service.
         </p>

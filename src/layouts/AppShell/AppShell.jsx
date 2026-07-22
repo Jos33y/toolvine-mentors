@@ -132,7 +132,7 @@ export function AppShell() {
       <aside className="shell-sidebar" aria-label="Primary">
         <div className="shell-sidebar-brand">
           <Logo variant="mark-light" size={32} />
-          <span className="shell-sidebar-brand-name">ToolVine</span>
+          <span className="shell-sidebar-brand-name">Toolvine</span>
         </div>
 
         <nav className="shell-nav" aria-label="Primary navigation">

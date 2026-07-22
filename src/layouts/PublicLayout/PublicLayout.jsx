@@ -1,5 +1,5 @@
-import { NavLink, Outlet, Link } from 'react-router-dom'
-import { useState } from 'react'
+import { NavLink, Outlet, Link, useLocation } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '@/stores/useAuth'
 import { homeFor } from '@/lib/roles'
 import { NAMES } from '@/lib/taglines'
@@ -8,12 +8,30 @@ import { Icon } from '@/components/shared/Icon/Icon'
 import { PublicFooter } from '@/components/shared/PublicFooter/PublicFooter'
 import './PublicLayout.css'
 
-const NAV = [
-  { to: '/',             label: 'Home',          end: true },
-  { to: '/about',        label: 'About' },
+// Flat nav items (About and Reach out are dropdowns rendered separately
+// so their placement in the row is under our control).
+const NAV_LEFT = [
+  { to: '/',             label: 'Home',          end: true }
+]
+
+const NAV_RIGHT = [
   { to: '/programs',     label: 'Programs' },
   { to: '/how-it-works', label: 'How it Works' },
-  { to: '/resources',    label: 'Resources' },
+  { to: '/resources',    label: 'Resources' }
+]
+
+// About dropdown children. All three are peer destinations; none is
+// visually prioritized above the others.
+const ABOUT_ITEMS = [
+  { to: '/about',    label: 'About',    caption: 'Who we are' },
+  { to: '/team',     label: 'Team',     caption: 'The people who carry it' },
+  { to: '/outreach', label: 'Outreach', caption: 'In the community' }
+]
+
+// Reach out dropdown children. Get Involved is marked primary so it
+// visually leads. Contact stays as the quiet default.
+const REACH_OUT_ITEMS = [
+  { to: '/get-involved', label: 'Get Involved', caption: 'Volunteer, sponsor, invest, or partner', primary: true },
   { to: '/contact',      label: 'Contact' }
 ]
 
@@ -39,7 +57,7 @@ export function PublicLayout() {
           </Link>
 
           <nav className="public-nav-desktop" aria-label="Primary">
-            {NAV.map((item) => (
+            {NAV_LEFT.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
@@ -49,6 +67,18 @@ export function PublicLayout() {
                 {item.label}
               </NavLink>
             ))}
+            <NavDropdown label="About" items={ABOUT_ITEMS} />
+            {NAV_RIGHT.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.end}
+                className={({ isActive }) => `public-nav-link ${isActive ? 'is-active' : ''}`}
+              >
+                {item.label}
+              </NavLink>
+            ))}
+            <NavDropdown label="Reach out" items={REACH_OUT_ITEMS} />
           </nav>
 
           <div className="public-cta-desktop">
@@ -63,7 +93,7 @@ export function PublicLayout() {
           </div>
 
           <button
-            className={`public-menu-btn${open ? ' is-open' : ''}`} 
+            className={`public-menu-btn${open ? ' is-open' : ''}`}
             onClick={() => setOpen((v) => !v)}
             aria-label={open ? 'Close menu' : 'Open menu'}
             aria-expanded={open}
@@ -75,7 +105,7 @@ export function PublicLayout() {
 
       {open && (
         <nav className="public-nav-mobile" aria-label="Primary mobile">
-          {NAV.map((item) => (
+          {NAV_LEFT.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
@@ -86,6 +116,23 @@ export function PublicLayout() {
               {item.label}
             </NavLink>
           ))}
+
+          <MobileGroup label="About" items={ABOUT_ITEMS} onNavigate={() => setOpen(false)} />
+
+          {NAV_RIGHT.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.end}
+              className={({ isActive }) => `public-nav-mobile-link ${isActive ? 'is-active' : ''}`}
+              onClick={() => setOpen(false)}
+            >
+              {item.label}
+            </NavLink>
+          ))}
+
+          <MobileGroup label="Reach out" items={REACH_OUT_ITEMS} onNavigate={() => setOpen(false)} />
+
           <div className="public-nav-mobile-cta">
             {session ? (
               <Link to={dashboardHref} className="public-cta-btn" onClick={() => setOpen(false)}>
@@ -110,6 +157,122 @@ export function PublicLayout() {
       </main>
 
       <PublicFooter />
+    </div>
+  )
+}
+
+/* ============ NavDropdown ============
+   Desktop dropdown used by both About and Reach out. Hover opens; mouse
+   leave closes on a short delay to let the pointer travel from trigger to
+   panel. Focus opens as well so keyboard users get the same reach.
+   Escape closes. Items with primary: true get the highlighted styling. */
+
+function NavDropdown({ label, items }) {
+  const [open, setOpen] = useState(false)
+  const { pathname } = useLocation()
+  const closeTimerRef = useRef(null)
+  const containerRef  = useRef(null)
+
+  const isActive = items.some((i) => pathname === i.to || pathname.startsWith(i.to + '/'))
+
+  const clearClose = () => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current)
+      closeTimerRef.current = null
+    }
+  }
+
+  const scheduleClose = (delay = 160) => {
+    clearClose()
+    closeTimerRef.current = setTimeout(() => setOpen(false), delay)
+  }
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      setOpen(false)
+    }
+  }
+
+  useEffect(() => () => clearClose(), [])
+
+  // Close whenever the route changes so navigating a child auto-collapses.
+  useEffect(() => {
+    setOpen(false)
+  }, [pathname])
+
+  return (
+    <div
+      ref={containerRef}
+      className={`public-nav-dropdown${open ? ' is-open' : ''}`}
+      onMouseEnter={() => { clearClose(); setOpen(true) }}
+      onMouseLeave={() => scheduleClose()}
+      onKeyDown={handleKeyDown}
+    >
+      <button
+        type="button"
+        className={`public-nav-link public-nav-dropdown-trigger${isActive ? ' is-active' : ''}`}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onFocus={() => { clearClose(); setOpen(true) }}
+        onBlur={() => scheduleClose(120)}
+      >
+        {label}
+        <span className="public-nav-dropdown-caret" aria-hidden="true">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M2.5 4 5 6.5 7.5 4" />
+          </svg>
+        </span>
+      </button>
+
+      {open && (
+        <div className="public-nav-dropdown-panel" role="menu">
+          {items.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              role="menuitem"
+              className={({ isActive: linkActive }) =>
+                `public-nav-dropdown-item${linkActive ? ' is-active' : ''}${item.primary ? ' is-primary' : ''}`
+              }
+              onFocus={() => { clearClose(); setOpen(true) }}
+              onBlur={() => scheduleClose(120)}
+              onClick={() => setOpen(false)}
+            >
+              <span className="public-nav-dropdown-item-label">{item.label}</span>
+              {item.caption && (
+                <span className="public-nav-dropdown-item-caption">{item.caption}</span>
+              )}
+            </NavLink>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ============ MobileGroup ============
+   Auto-expanded group used on the mobile sheet. Children are always
+   visible, indented under the group label. */
+
+function MobileGroup({ label, items, onNavigate }) {
+  return (
+    <div className="public-nav-mobile-group">
+      <p className="public-nav-mobile-group-label">{label}</p>
+      {items.map((item) => (
+        <NavLink
+          key={item.to}
+          to={item.to}
+          className={({ isActive }) =>
+            `public-nav-mobile-link public-nav-mobile-sublink ${isActive ? 'is-active' : ''}${item.primary ? ' is-primary' : ''}`
+          }
+          onClick={onNavigate}
+        >
+          <span className="public-nav-mobile-sublink-label">{item.label}</span>
+          {item.caption && (
+            <span className="public-nav-mobile-sublink-caption">{item.caption}</span>
+          )}
+        </NavLink>
+      ))}
     </div>
   )
 }

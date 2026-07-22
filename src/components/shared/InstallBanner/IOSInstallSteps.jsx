@@ -44,8 +44,8 @@ export function IOSInstallSteps({ open, onClose }) {
             <img src="/app-icon-192.png" alt="" width="48" height="48" />
           </div>
           <div>
-            <h2 id="ios-steps-title" className="ios-steps__title">Install ToolVine</h2>
-            <p className="ios-steps__sub">Add ToolVine to your home screen.</p>
+            <h2 id="ios-steps-title" className="ios-steps__title">Install Toolvine</h2>
+            <p className="ios-steps__sub">Add Toolvine to your home screen.</p>
           </div>
         </header>
 
@@ -69,7 +69,7 @@ export function IOSInstallSteps({ open, onClose }) {
           <li className="ios-steps__item">
             <span className="ios-steps__num">3</span>
             <span className="ios-steps__text">
-              Tap <strong>Add</strong> at the top right. The ToolVine icon appears on your home screen.
+              Tap <strong>Add</strong> at the top right. The Toolvine icon appears on your home screen.
             </span>
           </li>
         </ol>

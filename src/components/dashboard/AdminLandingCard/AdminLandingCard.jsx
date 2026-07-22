@@ -19,7 +19,7 @@ export function AdminLandingCard() {
     <article className="admin-card">
       <header className="admin-card__head">
         <p className="admin-card__eyebrow">Platform overview</p>
-        <h2 className="admin-card__title">Today on ToolVine</h2>
+        <h2 className="admin-card__title">Today on Toolvine</h2>
       </header>
 
       <ul className="admin-card__stats">

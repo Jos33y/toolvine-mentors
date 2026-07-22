@@ -12,7 +12,6 @@ import './Contact.css'
 
 const SUBJECTS = [
   { value: 'general',        label: 'General' },
-  { value: 'partnership',    label: 'Partnership' },
   { value: 'press_speaking', label: 'Press & speaking' }
 ]
 
@@ -185,8 +184,14 @@ export function Contact() {
           <em className="contact__title-italic">conversation.</em>
         </h1>
         <p className="contact__intro">
-          Whether you are considering joining, partnering, or simply curious,
-          write to us. Someone from our team replies within two working days.
+          For general questions, feedback, or to say hello.
+          Someone from our team replies within two working days.
+        </p>
+        <p className="contact__pointer">
+          Looking to volunteer, sponsor, invest, or partner?{' '}
+          <Link to="/get-involved" className="contact__pointer-link">
+            Get involved <span aria-hidden="true">&rarr;</span>
+          </Link>
         </p>
         <p className="contact__meta">
           TYPICAL RESPONSE&nbsp;&nbsp;&middot;&nbsp;&nbsp;2 WORKING DAYS

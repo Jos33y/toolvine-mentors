@@ -10,7 +10,7 @@ export function CommunityGuidelines() {
     >
       <LegalSection id="why" title="Why these matter">
         <p>
-          ToolVine exists to support mentoring relationships, and a mentoring relationship is
+          Toolvine exists to support mentoring relationships, and a mentoring relationship is
           only as good as the trust inside it. These guidelines set the expectations that
           make that trust possible. They apply to every mentor, every mentee, and every
           administrator on the platform.
@@ -40,7 +40,7 @@ export function CommunityGuidelines() {
 
       <LegalSection id="mentor-posture" title="The mentor's posture">
         <p>
-          A mentor on ToolVine is a guide, not an authority. Offer counsel; do not impose it.
+          A mentor on Toolvine is a guide, not an authority. Offer counsel; do not impose it.
           Do not use the relationship to push specific views on a mentee's career, finances,
           choice of partner, or doctrine.
         </p>

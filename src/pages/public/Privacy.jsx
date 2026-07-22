@@ -145,7 +145,7 @@ export function Privacy() {
 
       <LegalSection id="children" title="Children">
         <p>
-          ToolVine is for adults. The platform is not directed at people under 18 and we do
+          Toolvine is for adults. The platform is not directed at people under 18 and we do
           not knowingly collect their data. If you believe a minor has registered, contact us
           and we will deactivate the account.
         </p>

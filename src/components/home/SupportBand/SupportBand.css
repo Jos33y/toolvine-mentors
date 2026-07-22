@@ -1,0 +1,129 @@
+/* SupportBand: quiet band between WallOfWitness and CinematicClose.
+   Cream canvas, hairline borders top and bottom, single-column content,
+   four icon chips, one CTA. Reads as a note, not a section header. */
+
+.support-band {
+  position: relative;
+  background: var(--tv-canvas-brand);
+  border-top: 1px solid var(--tv-border);
+  border-bottom: 1px solid var(--tv-border);
+}
+
+.support-band__inner {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: clamp(var(--tv-space-12), 6vw, var(--tv-space-16)) var(--tv-space-6);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.support-band__eyebrow {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wider);
+  text-transform: uppercase;
+  color: var(--tv-accent-text);
+  margin: 0 0 var(--tv-space-4);
+}
+
+.support-band__title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--tv-text);
+  margin: 0;
+  max-width: 22ch;
+}
+
+.support-band__title-italic {
+  font-family: var(--tv-font-serif);
+  font-style: italic;
+  font-weight: 500;
+  color: var(--tv-primary);
+  letter-spacing: -0.03em;
+}
+
+.support-band__body {
+  margin: var(--tv-space-4) 0 var(--tv-space-6);
+  font-size: var(--tv-fs-md);
+  line-height: 1.6;
+  color: var(--tv-text-2);
+  max-width: 52ch;
+}
+
+.support-band__chips {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--tv-space-8);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tv-space-2);
+}
+
+.support-band__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  padding: var(--tv-space-2) var(--tv-space-4);
+  background: var(--tv-surface);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-pill);
+  transition: border-color var(--tv-duration) var(--tv-ease), background var(--tv-duration) var(--tv-ease);
+}
+
+.support-band__chip-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--tv-primary);
+}
+
+.support-band__chip-label {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text);
+}
+
+.support-band__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  padding: var(--tv-space-3) var(--tv-space-6);
+  background: transparent;
+  color: var(--tv-primary);
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-sm);
+  letter-spacing: var(--tv-tracking-tight);
+  border: 1px solid var(--tv-primary);
+  border-radius: var(--tv-radius-pill);
+  text-decoration: none;
+  transition: background var(--tv-duration) var(--tv-ease), color var(--tv-duration) var(--tv-ease), gap var(--tv-duration) var(--tv-ease);
+}
+
+.support-band__cta:hover {
+  background: var(--tv-primary);
+  color: var(--tv-text-inverse);
+  gap: var(--tv-space-3);
+}
+
+/* ============ Mobile ============ */
+
+@media (max-width: 759px) {
+  .support-band__inner {
+    padding: var(--tv-space-10) var(--tv-space-5);
+  }
+  .support-band__chips {
+    margin-bottom: var(--tv-space-6);
+  }
+}
+
+/* ============ Reduced motion ============ */
+
+@media (prefers-reduced-motion: reduce) {
+  .support-band__chip, .support-band__cta { transition: none; }
+}
