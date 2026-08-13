@@ -223,6 +223,7 @@ export function PublicFooter() {
               <Link to="/about">About</Link>
               <Link to="/team">Team</Link>
               <Link to="/outreach">Outreach</Link>
+              <Link to="/partners">Partners</Link>
             </div>
           </div>
           <div className="pf__col">
@@ -263,7 +264,7 @@ export function PublicFooter() {
           <a href="mailto:hello@toolvinementors.com" className="pf__colophon-email">
             hello@toolvinementors.com
           </a>
-          <p>Founded 2020. Headquartered in Lagos, Nigeria.</p>
+          <p>Founded 2021. Headquartered in Ibadan, Nigeria.</p>
           <p>&copy; {new Date().getFullYear()} Toolvine Mentors &amp; Leaders Initiative. All rights reserved.</p>
         </div>
 

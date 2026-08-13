@@ -1,0 +1,619 @@
+/* Meetings index. Same row family as the pairings board and the mentees
+   roster so the three list surfaces read as one system. The schedule form is
+   an inline panel rather than a route or a modal: one screen, per the UX
+   principles, and it matches how assign works on the pairings board. */
+
+.meetings {
+  max-width: 1040px;
+  padding: var(--tv-space-6) var(--tv-space-5) var(--tv-space-16);
+}
+
+/* ============ Head ============ */
+
+.meetings__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-4);
+  margin-bottom: var(--tv-space-5);
+}
+
+.meetings__eyebrow {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wider);
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+  margin: 0 0 var(--tv-space-2);
+}
+
+.meetings__title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-2xl);
+  letter-spacing: var(--tv-tracking-tight);
+  color: var(--tv-text);
+  margin: 0 0 var(--tv-space-2);
+}
+
+.meetings__lede {
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  margin: 0;
+  max-width: 62ch;
+}
+
+.meetings__new {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  min-height: 44px;
+  padding: var(--tv-space-2) var(--tv-space-4);
+  background: var(--tv-primary);
+  color: var(--tv-text-inverse);
+  border: none;
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-semibold);
+  cursor: pointer;
+  transition: background var(--tv-duration-fast) var(--tv-ease);
+}
+
+.meetings__new:hover { background: var(--tv-primary-hover); }
+
+@media (min-width: 760px) {
+  .meetings__head {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+}
+
+/* ============ Alerts ============ */
+
+.meetings__alert,
+.meetings__notice {
+  padding: var(--tv-space-3) var(--tv-space-4);
+  margin-bottom: var(--tv-space-4);
+  border-radius: var(--tv-radius-md);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+}
+
+.meetings__alert  { background: var(--tv-error-bg);    color: var(--tv-error-text); }
+.meetings__notice { background: var(--tv-primary-soft); color: var(--tv-primary-hover); }
+
+/* ============ Schedule panel ============ */
+
+.meetings__panel {
+  padding: var(--tv-space-5);
+  margin-bottom: var(--tv-space-5);
+  background: var(--tv-surface);
+  border: 1px solid var(--tv-border-strong);
+  border-radius: var(--tv-radius-lg);
+}
+
+.meetings__panel-title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-md);
+  color: var(--tv-text);
+  margin: 0 0 var(--tv-space-2);
+}
+
+.meetings__panel-hint {
+  font-size: var(--tv-fs-xs);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-muted);
+  margin: 0 0 var(--tv-space-5);
+}
+
+.meetings__form-error {
+  padding: var(--tv-space-2) var(--tv-space-3);
+  margin: 0 0 var(--tv-space-4);
+  background: var(--tv-error-bg);
+  color: var(--tv-error-text);
+  border-radius: var(--tv-radius-md);
+  font-size: var(--tv-fs-sm);
+}
+
+.meetings__fields {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--tv-space-4);
+}
+
+@media (min-width: 760px) {
+  .meetings__fields { grid-template-columns: 1fr 1fr; }
+  .meetings__field--wide { grid-column: 1 / -1; }
+}
+
+.meetings__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-2);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.meetings__label {
+  padding: 0;
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+}
+
+.meetings__input {
+  width: 100%;
+  min-height: 44px;
+  padding: var(--tv-space-2) var(--tv-space-3);
+  background: var(--tv-canvas-app);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text);
+}
+
+.meetings__input:focus {
+  outline: none;
+  border-color: var(--tv-primary);
+  box-shadow: var(--tv-shadow-focus);
+}
+
+.meetings__hint {
+  font-size: var(--tv-fs-xs);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-muted);
+}
+
+.meetings__hint--warn { color: var(--tv-warning-text); }
+
+/* ============ Mode picker ============ */
+
+.meetings__modes {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--tv-space-2);
+}
+
+@media (min-width: 620px) {
+  .meetings__modes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.meetings__mode {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--tv-space-1);
+  min-height: 44px;
+  padding: var(--tv-space-3);
+  text-align: left;
+  background: var(--tv-canvas-app);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  color: var(--tv-text-2);
+  cursor: pointer;
+  transition: border-color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.meetings__mode:hover { border-color: var(--tv-border-strong); }
+
+.meetings__mode--active {
+  background: var(--tv-surface);
+  border-color: var(--tv-primary);
+  color: var(--tv-primary);
+}
+
+.meetings__mode-label {
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-semibold);
+  color: var(--tv-text);
+}
+
+.meetings__mode--active .meetings__mode-label { color: var(--tv-primary-hover); }
+
+.meetings__mode-hint {
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+}
+
+.meetings__panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tv-space-3);
+  margin-top: var(--tv-space-5);
+}
+
+/* ============ Filters ============ */
+
+.meetings__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tv-space-2);
+  margin-bottom: var(--tv-space-5);
+}
+
+.meetings__filter {
+  min-height: 40px;
+  padding: var(--tv-space-2) var(--tv-space-4);
+  background: transparent;
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-pill);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-medium);
+  color: var(--tv-text-2);
+  cursor: pointer;
+  transition: border-color var(--tv-duration-fast) var(--tv-ease),
+              color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.meetings__filter:hover {
+  border-color: var(--tv-border-strong);
+  color: var(--tv-text);
+}
+
+.meetings__filter--active {
+  background: var(--tv-surface);
+  border-color: var(--tv-primary);
+  color: var(--tv-primary);
+}
+
+/* ============ List ============ */
+
+.meetings__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-3);
+}
+
+.meetings__row {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--tv-space-3) var(--tv-space-4);
+  padding: var(--tv-space-4);
+  background: var(--tv-surface);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-lg);
+  /* Top, not centre. The body varies from one line to four, and a centred
+     date block drifts against it row to row. */
+  align-items: start;
+}
+
+.meetings__row--muted { opacity: 0.62; }
+
+/* The soonest upcoming session carries a teal rail. The list already sorts by
+   time, but sorted is not the same as marked, and this is the one row a
+   mentor actually needs to find. */
+.meetings__row--next {
+  border-color: var(--tv-primary-light);
+  box-shadow: inset 3px 0 0 0 var(--tv-primary);
+}
+
+.meetings__row--next .meetings__when {
+  background: var(--tv-primary);
+  color: var(--tv-text-inverse);
+}
+
+.meetings__row--skel {
+  display: block;
+  min-height: 96px;
+  background: var(--tv-canvas-app);
+  border-style: dashed;
+}
+
+@media (min-width: 960px) {
+  .meetings__row {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--tv-space-5);
+  }
+}
+
+/* ============ Time block ============ */
+
+.meetings__when {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  width: 62px;
+  padding: var(--tv-space-2) var(--tv-space-1);
+  background: var(--tv-primary-soft);
+  border-radius: var(--tv-radius-md);
+  color: var(--tv-primary-hover);
+}
+
+.meetings__when-day {
+  font-family: var(--tv-font-display);
+  font-size: var(--tv-fs-lg);
+  font-weight: var(--tv-fw-semibold);
+  line-height: 1;
+}
+
+.meetings__when-mon {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  line-height: 1.2;
+}
+
+.meetings__when-time {
+  margin-top: 2px;
+  padding-top: 3px;
+  border-top: 1px solid currentColor;
+  font-family: var(--tv-font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tv-tracking-wide);
+  line-height: 1.2;
+  opacity: 0.75;
+  white-space: nowrap;
+}
+
+/* ============ Body ============ */
+
+.meetings__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-1);
+  min-width: 0;
+}
+
+.meetings__who {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tv-space-2);
+  margin: 0;
+  font-size: var(--tv-fs-base);
+  font-weight: var(--tv-fw-semibold);
+  color: var(--tv-text);
+  overflow-wrap: anywhere;
+}
+
+.meetings__next {
+  padding: 2px var(--tv-space-2);
+  background: var(--tv-primary);
+  border-radius: var(--tv-radius-pill);
+  font-family: var(--tv-font-mono);
+  font-size: 10px;
+  font-weight: var(--tv-fw-semibold);
+  letter-spacing: var(--tv-tracking-wider);
+  text-transform: uppercase;
+  color: var(--tv-text-inverse);
+}
+
+.meetings__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tv-space-2);
+  margin: 0;
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  color: var(--tv-text-muted);
+}
+
+/* Separator lives in the gap rather than in the copy, so the line reflows
+   cleanly on a narrow screen instead of leaving an orphan dot. */
+.meetings__dot::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 3px;
+  margin-right: var(--tv-space-2);
+  border-radius: 50%;
+  background: currentColor;
+  vertical-align: middle;
+  opacity: 0.6;
+}
+
+.meetings__mode-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-1);
+  padding: 2px var(--tv-space-2);
+  background: var(--tv-canvas-app);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-pill);
+  color: var(--tv-text-2);
+}
+
+.meetings__where {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-1);
+  margin: 0;
+  font-size: var(--tv-fs-xs);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  overflow-wrap: anywhere;
+}
+
+.meetings__overdue {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-1);
+  margin: 0;
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-warning-text);
+}
+
+/* ============ Status ============ */
+
+.meetings__status {
+  justify-self: start;
+  align-self: center;
+  padding: 3px var(--tv-space-2);
+  border-radius: var(--tv-radius-pill);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tv-tracking-wide);
+  white-space: nowrap;
+}
+
+.meetings__status--scheduled {
+  background: var(--tv-canvas-app);
+  border: 1px solid var(--tv-border);
+  color: var(--tv-text-muted);
+}
+
+.meetings__status--completed {
+  background: var(--tv-success-bg);
+  color: var(--tv-success-text);
+}
+
+.meetings__status--cancelled {
+  background: var(--tv-canvas-app);
+  border: 1px solid var(--tv-border);
+  color: var(--tv-text-muted);
+}
+
+/* ============ Actions ============ */
+
+.meetings__actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tv-space-2);
+}
+
+@media (min-width: 960px) {
+  .meetings__actions {
+    grid-column: auto;
+    align-self: center;
+    justify-content: flex-end;
+  }
+}
+
+/* The completion rule stated as time. Sits with the controls because it
+   occupies the slot the control will take, rather than trailing the row as
+   a sentence explaining an absence. */
+.meetings__locked {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-1);
+  padding: var(--tv-space-1) var(--tv-space-3);
+  border: 1px dashed var(--tv-border-strong);
+  border-radius: var(--tv-radius-pill);
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  color: var(--tv-text-muted);
+  white-space: nowrap;
+}
+
+.meetings__action {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: var(--tv-space-2) var(--tv-space-4);
+  background: transparent;
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-medium);
+  color: var(--tv-text-2);
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color var(--tv-duration-fast) var(--tv-ease),
+              color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.meetings__action:hover:not(:disabled),
+.meetings__action:focus-visible {
+  border-color: var(--tv-border-strong);
+  color: var(--tv-text);
+}
+
+.meetings__action:disabled { opacity: 0.5; cursor: default; }
+
+.meetings__action--danger { color: var(--tv-error-text); }
+
+.meetings__action--danger:hover:not(:disabled) {
+  border-color: var(--tv-error);
+  color: var(--tv-error-text);
+}
+
+.meetings__save {
+  min-height: 40px;
+  padding: var(--tv-space-2) var(--tv-space-5);
+  background: var(--tv-primary);
+  color: var(--tv-text-inverse);
+  border: none;
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-semibold);
+  cursor: pointer;
+  transition: background var(--tv-duration-fast) var(--tv-ease);
+}
+
+/* The global a:hover rule outranks a single class, so filled controls have
+   to restate their colour or the label disappears on hover. */
+.meetings__save:hover:not(:disabled),
+.meetings__save:focus-visible {
+  background: var(--tv-primary-hover);
+  color: var(--tv-text-inverse);
+}
+
+/* A washed-out brand colour still reads as a button you can press. Disabled
+   controls go neutral instead, so unavailable looks unavailable. */
+.meetings__save:disabled,
+.meetings__save:disabled:hover {
+  background: var(--tv-border);
+  color: var(--tv-text-muted);
+  opacity: 1;
+  cursor: default;
+}
+
+/* ============ Empty ============ */
+
+.meetings__empty {
+  padding: var(--tv-space-10) var(--tv-space-5);
+  text-align: center;
+  background: var(--tv-surface);
+  border: 1px dashed var(--tv-border-strong);
+  border-radius: var(--tv-radius-lg);
+}
+
+.meetings__empty-title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-md);
+  color: var(--tv-text);
+  margin: 0 0 var(--tv-space-2);
+}
+
+.meetings__empty-body {
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  margin: 0 auto var(--tv-space-5);
+  max-width: 54ch;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .meetings__new,
+  .meetings__save,
+  .meetings__action,
+  .meetings__mode,
+  .meetings__filter { transition: none; }
+}

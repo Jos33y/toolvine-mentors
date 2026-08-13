@@ -1,19 +1,7 @@
 import './Community.css'
 import { Link } from 'react-router-dom'
 import { RevealOnScroll } from '@/components/shared/RevealOnScroll/RevealOnScroll'
-
-const MASTHEAD = [
-  {
-    initials: 'AA',
-    name: 'Abigail Jesutofunmi Alade',
-    role: 'Secretariat Lead · Editor, Vinethoughts'
-  },
-  {
-    initials: 'KO',
-    name: 'Kikelomo Olabamiji',
-    role: 'Administrator'
-  }
-]
+import { TEAMS, personFor, initialsFor } from '@/lib/team'
 
 /* ============ Mini Vinethoughts cover ============ */
 
@@ -37,7 +25,7 @@ function VinethoughtsCover() {
       </Link>
       <div className="vt-cover__links">
         <Link to="/resources" className="community__aside-link">Read the current edition &rarr;</Link>
-        <Link to="/about#leadership" className="community__aside-link">Meet the board on About &rarr;</Link>
+        <Link to="/team" className="community__aside-link">Meet the board and teams &rarr;</Link>
       </div>
     </div>
   )
@@ -83,19 +71,27 @@ export function Community() {
 
           <div className="community__masthead">
             <p className="community__masthead-label">Carried day to day by</p>
-            <div className="community__masthead-row">
-              {MASTHEAD.map((person) => (
-                <div key={person.name} className="community__person">
-                  <div className="community__avatar" aria-hidden="true">
-                    <span className="community__initials">{person.initials}</span>
-                  </div>
-                  <div className="community__person-text">
-                    <span className="community__person-name">{person.name}</span>
-                    <span className="community__person-role">{person.role}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
+
+            <ul className="community__masthead-row">
+              {TEAMS.map((team) => {
+                const lead = personFor(team.leadId)
+                return (
+                  <li key={team.name} className="community__person">
+                    <div className="community__avatar" aria-hidden="true">
+                      <span className="community__initials">{initialsFor(lead.name)}</span>
+                    </div>
+                    <div className="community__person-text">
+                      <span className="community__person-name">{lead.name}</span>
+                      <span className="community__person-role">{team.name}</span>
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+
+            <Link to="/team" className="community__masthead-link">
+              The full team, board, and mentors &rarr;
+            </Link>
           </div>
 
         </RevealOnScroll>

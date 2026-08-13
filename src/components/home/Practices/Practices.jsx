@@ -15,16 +15,16 @@ const PRACTICES = [
   {
     numeral: 'II.',
     headline: 'We walk together.',
-    body: 'Pairings meet in their own rhythm. The community gathers in Family Meetings and Toolvine Pray. No one walks this alone. No one mentors in isolation.',
-    expanded: 'Family Meetings, Toolvine Pray, and one-on-one sessions. Every rhythm matters.',
+    body: 'Pairings meet in their own rhythm. The community gathers in Family Meetings and Toolvine Prays. No one walks this alone. No one mentors in isolation.',
+    expanded: 'Family Meetings, Toolvine Prays, and one-on-one sessions. Every rhythm matters.',
     stat: { value: 1840, label: 'meetings logged in 2025' },
   },
   {
     numeral: 'III.',
     headline: 'We keep the record.',
     body: 'Reflections, check-ins, and prayer requests are held in a system of record. Growth becomes visible over time. What is shared in trust stays in trust.',
-    expanded: 'From the first pairing in 2020 to today. Nothing lost to memory.',
-    stat: { value: 6, label: 'years of continuous record-keeping' },
+    expanded: 'From the first pairing in 2021 to today. Nothing lost to memory.',
+    stat: { value: 5, label: 'years of continuous record-keeping' },
   }
 ]
 

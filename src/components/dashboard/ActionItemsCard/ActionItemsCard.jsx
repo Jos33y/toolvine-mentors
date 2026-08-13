@@ -1,15 +1,17 @@
+import { Icon } from '@/components/shared/Icon/Icon'
 import './actionItemsCard.css'
 
 const DISPLAY_CAP = 5
 
-// The mentor's open commitments across all active pairings. The card the
-// demo skipped. Surfaces what the mentor said they would do, not what they
-// asked the mentee to do.
+// Every open item this mentor wrote, across all their pairings, whoever it
+// was assigned to. The original comment called these the mentor's own
+// commitments; fetchOpenItemsForMentor filters on created_by, so it has
+// always included items set for a mentee. The copy now matches the query.
 //
-// Mentor cannot mark items done in Block C; Block D adds the notes + task
-// creation UI. A future block grants the assigned mentee a narrow update
-// policy to mark items done.
-export function ActionItemsCard({ items = [], loading }) {
+// Marking done goes through set_action_item_status, which permits the
+// assignee, the pairing's mentor, or an admin. A mentor ticking a mentee's
+// item is intended: the mentee often reports it done in conversation.
+export function ActionItemsCard({ items = [], loading, onDone, busyId = null }) {
   if (loading) {
     return (
       <article className="actions-card actions-card--loading">
@@ -24,7 +26,7 @@ export function ActionItemsCard({ items = [], loading }) {
       <article className="actions-card actions-card--empty">
         <Header />
         <p className="actions-card__copy">
-          No open commitments. Action items will appear here as you write them in your meeting notes.
+          Nothing outstanding. Items you set on a meeting appear here until they are done.
         </p>
       </article>
     )
@@ -40,7 +42,11 @@ export function ActionItemsCard({ items = [], loading }) {
       <ul className="actions-card__list">
         {shown.map((item) => (
           <li key={item.id} className="actions-card__item">
-            <ActionRow item={item} />
+            <ActionRow
+              item={item}
+              busy={busyId === item.id}
+              onDone={onDone ? () => onDone(item) : null}
+            />
           </li>
         ))}
       </ul>
@@ -57,13 +63,13 @@ function Header({ count }) {
     <header className="actions-card__head">
       <p className="actions-card__eyebrow">Action items</p>
       <h2 className="actions-card__title">
-        Open commitments{count ? <span className="actions-card__count"> · {count}</span> : null}
+        Open items{count ? <span className="actions-card__count"> · {count}</span> : null}
       </h2>
     </header>
   )
 }
 
-function ActionRow({ item }) {
+function ActionRow({ item, busy, onDone }) {
   const assignee   = item.assignee?.full_name ?? null
   const meetingAt  = item.meeting?.scheduled_for ?? null
   const dueOn      = item.due_on ?? null
@@ -71,7 +77,19 @@ function ActionRow({ item }) {
 
   return (
     <div className="action-row">
-      <span className="action-row__bullet" aria-hidden="true" />
+      {onDone ? (
+        <button
+          type="button"
+          className="action-row__check"
+          onClick={onDone}
+          disabled={busy}
+          aria-label={`Mark done: ${item.body}`}
+        >
+          {busy && <Icon name="check" size={12} strokeWidth={2.5} />}
+        </button>
+      ) : (
+        <span className="action-row__bullet" aria-hidden="true" />
+      )}
 
       <div className="action-row__body">
         <p className="action-row__text">{item.body}</p>

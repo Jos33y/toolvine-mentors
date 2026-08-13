@@ -75,6 +75,26 @@
   color: var(--tv-text);
 }
 
+/* Read-only value shown in place of an input. Used where a field is set by
+   something outside the form, like an invitation. */
+.auth__readonly {
+  margin: 0;
+  padding: var(--tv-space-3) var(--tv-space-4);
+  background: var(--tv-canvas-app);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-medium);
+  color: var(--tv-text);
+}
+
+.auth__input[readonly] {
+  background: var(--tv-canvas-app);
+  color: var(--tv-text-2);
+  cursor: default;
+}
+
 .auth__alert-link {
   color: var(--tv-accent-text);
   font-weight: var(--tv-fw-medium);

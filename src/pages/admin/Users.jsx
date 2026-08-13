@@ -73,7 +73,7 @@ export function Users() {
     setRowError({ id: null, message: '' })
     setRowNotice({ id: null, message: '', tone: 'info' })
     try {
-      const next = await applyRoleDecision(user.id, decision)
+      const next = await applyRoleDecision(user.id, decision, user.full_name)
       if (next) {
         patchUser(user.id, {
           roles:          next.roles || [],

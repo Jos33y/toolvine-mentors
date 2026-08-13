@@ -14,3 +14,9 @@ docs
 supabase
 toolvine-platform-tree.txt
 casing-rename-report.txt
+session-summary.md
+
+# Transfer archives and generated reports. Never committed.
+*.zip
+*-tree.txt
+*-report.txt

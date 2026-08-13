@@ -14,7 +14,7 @@ import './GetInvolved.css'
 const MESSAGE_PLACEHOLDERS = {
   volunteer: 'Tell us what you would like to volunteer with. Share what you can offer and when you are available.',
   sponsor:   'Tell us what you would like to sponsor. A program, an outreach, or a specific need.',
-  invest:    'Tell us what you have in mind. We reply to every serious inquiry.',
+  donate:    'Tell us what you would like to give toward. A specific need, or the general work.',
   partner:   'Tell us about your organization and where you see the missions overlap.'
 }
 

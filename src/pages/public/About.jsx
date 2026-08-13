@@ -4,17 +4,16 @@ import { Icon } from '@/components/shared/Icon/Icon'
 import { Logo } from '@/components/shared/Logo/Logo'
 import { RevealOnScroll } from '@/components/shared/RevealOnScroll/RevealOnScroll'
 import michaelPhoto from '@/assets/portraits/michael-alade.jpg'
-import { FOUNDER as TEAM_FOUNDER, BOARD as TEAM_BOARD, OPS as TEAM_OPS, initialsFor } from '@/lib/team'
+import { BOARD as TEAM_BOARD, personFor, initialsFor } from '@/lib/team'
 import './About.css'
 import './About.vine.css'
 
-// Six-avatar teaser strip for the About team section. Draws Founder plus
-// the first few board and ops members so the strip mixes photos with
-// initials, matching what visitors will see on the /team page.
+// Six-avatar teaser strip for the About team section. The five board members
+// plus one team lead, so the strip mixes photos with initials exactly as the
+// /team page does.
 const TEAM_STRIP = [
-  TEAM_FOUNDER,
-  ...TEAM_BOARD.slice(0, 3),
-  ...TEAM_OPS.slice(0, 2)
+  ...TEAM_BOARD.map((entry) => personFor(entry.id)),
+  personFor('olayinka')
 ]
 
 /* ============ Data ============ */
@@ -52,7 +51,7 @@ const FOUNDER = {
   name: 'Dr. Michael Abimbola Alade',
   paragraphs: [
     'Toolvine Mentors & Leaders Initiative was born from a calling that preceded the platform. From leading the University of Ibadan school fellowship between 2007 and 2009, to mentoring younger colleagues through his clinical career as a pediatric dentist, the work of guiding people was already underway.',
-    'In 2020, with the support of family, trusted friends, and mentees, Toolvine Mentors was officially established to connect Christian mentors and mentees for transformational impact through Christ-centered mentorship and leadership development.'
+    'In 2021, with the support of family, trusted friends, and mentees, Toolvine Mentors was officially established to connect Christian mentors and mentees for transformational impact through Christ-centered mentorship and leadership development.'
   ],
   quote: 'What started as informal guidance gradually grew into a deeper calling to mentorship.'
 }
@@ -209,7 +208,7 @@ function VineCover({ issue, featured }) {
         </div>
       )}
 
-      <div className="about__cover-foot">EST. MMXX &middot; TOOLVINE MENTORS</div>
+      <div className="about__cover-foot">EST. MMXXI &middot; TOOLVINE MENTORS</div>
     </div>
   )
 }
@@ -275,7 +274,7 @@ export function About() {
           <p className="about__hero-body" style={{ '--d': '380ms' }}>
             Toolvine Mentors and Leaders Initiative connects Christian mentors
             and mentees for transformational impact through Christ-centered
-            mentorship and leadership development. Founded 2020, Lagos, Nigeria.
+            mentorship and leadership development. Founded 2021, Ibadan, Nigeria.
           </p>
 
           <figure className="about__hero-scripture" style={{ '--d': '560ms' }}>
@@ -287,9 +286,9 @@ export function About() {
           </figure>
 
           <div className="about__hero-meta" style={{ '--d': '720ms' }}>
-            <span>EST. 2020</span>
+            <span>EST. 2021</span>
             <span aria-hidden="true">&middot;</span>
-            <span>LAGOS, NIGERIA</span>
+            <span>IBADAN, NIGERIA</span>
           </div>
         </div>
       </header>
@@ -520,7 +519,7 @@ export function About() {
             </ul>
 
             <p className="about__team-body">
-              Dr. Alade leads a growing team of board members, operations leads, and mentors across Nigeria.
+              Dr. Alade chairs a board of five. Six teams keep the work moving, and a growing circle of mentors walks with the mentees.
             </p>
 
             <Link to="/team" className="about__team-cta">
@@ -566,7 +565,7 @@ export function About() {
           </div>
 
           <p className="about__invite-colophon">
-            Toolvine Mentors &amp; Leaders Initiative &middot; Est. 2020 &middot; Lagos, Nigeria
+            Toolvine Mentors &amp; Leaders Initiative &middot; Est. 2021 &middot; Ibadan, Nigeria
           </p>
         </div>
       </section>

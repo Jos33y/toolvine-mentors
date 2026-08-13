@@ -233,15 +233,19 @@
 }
 
 .community__masthead-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 28px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px 28px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .community__person {
   display: flex;
   align-items: center;
   gap: 16px;
+  min-width: 0;
 }
 
 .community__person-text {
@@ -257,6 +261,7 @@
   font-weight: 600;
   color: var(--tv-text);
   letter-spacing: -0.005em;
+  overflow-wrap: anywhere;
 }
 
 .community__person-role {
@@ -266,6 +271,22 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--tv-text-muted);
+}
+
+.community__masthead-link {
+  display: inline-block;
+  margin-top: 28px;
+  font-family: var(--tv-font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tv-primary);
+  text-decoration: none;
+  transition: opacity var(--tv-duration) var(--tv-ease);
+}
+
+.community__masthead-link:hover {
+  color: var(--tv-primary-hover);
+  opacity: 0.85;
 }
 
 /* ============ Mini Vinethoughts cover ============ */
@@ -439,6 +460,17 @@
   }
 
   .community__masthead-row {
-    gap: 40px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px 40px;
   }
+}
+
+@media (min-width: 960px) {
+  .community__masthead-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .community__masthead-link { transition: none; }
 }

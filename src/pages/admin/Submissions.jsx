@@ -29,7 +29,7 @@ const SOURCE_MAP = {
 const INTEREST_MAP = {
   volunteer: 'Volunteer',
   sponsor:   'Sponsor',
-  invest:    'Invest',
+  donate:    'Donate',
   partner:   'Partner'
 }
 

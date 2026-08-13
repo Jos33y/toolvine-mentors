@@ -32,13 +32,15 @@ const NAV_ITEMS = [
 
   // Admin tools fill the slots between Meetings and Profile so admin's
   // mobile tab bar carries platform-running shortcuts, not settings.
-  { to: '/pairings',           label: 'Pairings',    icon: 'pairings', allow: [ROLES.ADMIN] },
-  { to: '/users',              label: 'Users',       icon: 'users',    allow: [ROLES.ADMIN] },
+  { to: '/admin/pairings',     label: 'Pairings',    icon: 'pairings', allow: [ROLES.ADMIN] },
+  { to: '/admin/users',        label: 'Users',       icon: 'users',    allow: [ROLES.ADMIN] },
   { to: '/admin/submissions',  label: 'Submissions', icon: 'mail',     allow: [ROLES.ADMIN] },
   { to: '/admin/activity',     label: 'Activity',    icon: 'clock',    allow: [ROLES.ADMIN] },
   { to: '/admin/insights',     label: 'Insights',    icon: 'eye',      allow: [ROLES.ADMIN] },
+  { to: '/admin/invites',      label: 'Invites',     icon: 'mail',      allow: [ROLES.ADMIN] },
+  { to: '/admin/partners',     label: 'Partners',    icon: 'handshake', allow: [ROLES.ADMIN] },
 
-  // Profile last — low-frequency, settings-tier.
+  // Profile last. Low-frequency, settings-tier.
   { to: '/profile',   label: 'Profile',   icon: 'user',      allow: null }
 ]
 
@@ -50,7 +52,7 @@ const MOBILE_TAB_LIMIT = 4
 // mobile tabs; everything else flows to More. Admin sees admin tools first;
 // mentor/mentee see their relationship surface first.
 const PRIMARY_BY_ROLE = {
-  [ROLES.ADMIN]:  ['/dashboard', '/users',   '/pairings', '/admin/activity'],
+  [ROLES.ADMIN]:  ['/dashboard', '/admin/users', '/admin/pairings', '/admin/activity'],
   [ROLES.MENTOR]: ['/dashboard', '/mentees', '/meetings', '/profile'],
   [ROLES.MENTEE]: ['/dashboard', '/mentor',  '/meetings', '/profile']
 }

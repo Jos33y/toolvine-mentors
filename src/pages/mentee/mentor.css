@@ -1,0 +1,315 @@
+/* Mentee view of their own pairing. Working surface, so the panel stays flat
+   and quiet. One person on the screen, which is the point. */
+
+.my-mentor {
+  max-width: 760px;
+  padding: var(--tv-space-6) var(--tv-space-5) var(--tv-space-16);
+}
+
+/* ============ Head ============ */
+
+.my-mentor__head {
+  margin-bottom: var(--tv-space-5);
+}
+
+.my-mentor__eyebrow {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wider);
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+  margin: 0 0 var(--tv-space-2);
+}
+
+.my-mentor__title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-2xl);
+  letter-spacing: var(--tv-tracking-tight);
+  color: var(--tv-text);
+  margin: 0;
+}
+
+.my-mentor__alert {
+  padding: var(--tv-space-3) var(--tv-space-4);
+  margin-bottom: var(--tv-space-4);
+  background: var(--tv-error-bg);
+  color: var(--tv-error-text);
+  border-radius: var(--tv-radius-md);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+}
+
+/* ============ Panel ============ */
+
+.my-mentor__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-5);
+  padding: var(--tv-space-6);
+  background: var(--tv-surface);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-lg);
+}
+
+.my-mentor__panel--skeleton {
+  min-height: 260px;
+  background: var(--tv-canvas-app);
+  border-style: dashed;
+}
+
+.my-mentor__identity {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-4);
+}
+
+.my-mentor__identity-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-1);
+  min-width: 0;
+}
+
+.my-mentor__avatar {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  overflow: hidden;
+  border-radius: var(--tv-radius-pill);
+  background: var(--tv-primary-soft);
+  color: var(--tv-primary-hover);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-lg);
+  font-weight: var(--tv-fw-semibold);
+}
+
+.my-mentor__avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.my-mentor__name {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-lg);
+  line-height: var(--tv-lh-snug);
+  color: var(--tv-text);
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.my-mentor__role {
+  margin: 0;
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-2);
+  overflow-wrap: anywhere;
+}
+
+.my-mentor__since {
+  margin: 0;
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  color: var(--tv-text-muted);
+}
+
+.my-mentor__notice {
+  margin: 0;
+  padding: var(--tv-space-3);
+  background: var(--tv-warning-bg);
+  border-radius: var(--tv-radius-md);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-warning-text);
+}
+
+/* ============ Blocks ============ */
+
+.my-mentor__block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-3);
+}
+
+.my-mentor__block-title {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+  margin: 0;
+}
+
+.my-mentor__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tv-space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.my-mentor__tag {
+  padding: var(--tv-space-1) var(--tv-space-3);
+  background: var(--tv-primary-soft);
+  border-radius: var(--tv-radius-pill);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-primary-hover);
+}
+
+/* ============ Facts ============ */
+
+.my-mentor__facts {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--tv-space-4);
+  margin: 0;
+  padding-top: var(--tv-space-5);
+  border-top: 1px solid var(--tv-border);
+}
+
+@media (min-width: 760px) {
+  .my-mentor__facts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.my-mentor__fact {
+  min-width: 0;
+}
+
+.my-mentor__fact-label {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+  margin-bottom: var(--tv-space-1);
+}
+
+.my-mentor__fact-value {
+  margin: 0;
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text);
+  overflow-wrap: anywhere;
+}
+
+/* ============ Foot ============ */
+
+.my-mentor__foot {
+  padding-top: var(--tv-space-5);
+  border-top: 1px solid var(--tv-border);
+}
+
+.my-mentor__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  min-height: 44px;
+  padding: var(--tv-space-2) var(--tv-space-5);
+  background: var(--tv-primary);
+  color: var(--tv-text-inverse);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-semibold);
+  text-decoration: none;
+  transition: background var(--tv-duration-fast) var(--tv-ease);
+}
+
+/* The global a:hover rule outranks a single class, so the colour has to be
+   restated here or the label vanishes into the teal on hover. */
+.my-mentor__cta:hover,
+.my-mentor__cta:focus-visible {
+  background: var(--tv-primary-hover);
+  color: var(--tv-text-inverse);
+}
+
+/* ============ Empty ============ */
+
+.my-mentor__empty {
+  padding: var(--tv-space-10) var(--tv-space-5);
+  text-align: center;
+  background: var(--tv-surface);
+  border: 1px dashed var(--tv-border-strong);
+  border-radius: var(--tv-radius-lg);
+}
+
+.my-mentor__empty-title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-md);
+  color: var(--tv-text);
+  margin: 0 0 var(--tv-space-2);
+}
+
+.my-mentor__empty-body {
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  margin: 0 auto var(--tv-space-5);
+  max-width: 52ch;
+}
+
+/* ============ History ============ */
+
+.my-mentor__history {
+  margin-top: var(--tv-space-8);
+}
+
+.my-mentor__history-title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-md);
+  color: var(--tv-text);
+  margin: 0 0 var(--tv-space-2);
+}
+
+.my-mentor__history-lede {
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-2);
+  margin: 0 0 var(--tv-space-4);
+}
+
+.my-mentor__history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-2);
+}
+
+.my-mentor__history-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--tv-space-3);
+  padding: var(--tv-space-3) var(--tv-space-4);
+  background: var(--tv-surface);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+}
+
+.my-mentor__history-name {
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-medium);
+  color: var(--tv-text);
+  overflow-wrap: anywhere;
+}
+
+.my-mentor__history-range {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  color: var(--tv-text-muted);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .my-mentor__cta { transition: none; }
+}

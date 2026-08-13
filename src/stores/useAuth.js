@@ -156,15 +156,24 @@ export const useAuth = create((set, get) => ({
   // role travels in user_metadata as role_hint; backend trigger reads it and
   // sets profiles.role_intent + role_undecided. Public sign-up always lands as
   // mentee in user_roles regardless of hint.
-  signUp: async ({ email, password, fullName, role }) => {
+  // inviteToken travels in user metadata so handle_new_user can validate it
+  // server-side. The client never asserts the outcome: the trigger decides
+  // whether the token grants a role and marks the email verified.
+  signUp: async ({ email, password, fullName, role, inviteToken = null }) => {
+    const metadata = { full_name: fullName, role_hint: role }
+    if (inviteToken) metadata.invite_token = inviteToken
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: fullName, role_hint: role } }
+      options: { data: metadata }
     })
     if (error) throw error
 
-    if (data.session) {
+    // An invited user redeemed a link sent to their own inbox, so the trigger
+    // has already set email_verified. Sending a verification email would ask
+    // them to prove what they just proved.
+    if (data.session && !inviteToken) {
       supabase.functions.invoke('verify-email-send').catch((err) => {
         console.warn('[useAuth] verify-email-send failed:', err)
       })

@@ -439,6 +439,10 @@
   max-width: calc(100% - var(--tv-space-8));
 }
 
+/* Floated state sits in the input's top padding, which fits exactly one line.
+   A long placeholder used to wrap here and collide with the typed value, so
+   the floated label is clipped to one line instead. The full text is still
+   readable in the resting state, before anything is typed. */
 .gi__input:focus + .gi__label,
 .gi__input:not(:placeholder-shown) + .gi__label {
   top: var(--tv-space-2);
@@ -447,6 +451,10 @@
   letter-spacing: var(--tv-tracking-wide);
   text-transform: uppercase;
   color: var(--tv-accent-text);
+  max-width: calc(100% - var(--tv-space-8));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .gi__message-meta {

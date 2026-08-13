@@ -16,10 +16,10 @@ export const INTERESTS = [
     caption: 'Fund a specific program, outreach, or resource. One-time or ongoing. Every naira lands where it is earmarked.'
   },
   {
-    value:   'invest',
-    label:   'Invest',
-    icon:    'trendingUp',
-    caption: 'Longer-term partnership. Grow with the initiative as it scales beyond Lagos.'
+    value:   'donate',
+    label:   'Donate',
+    icon:    'gift',
+    caption: 'Give once or regularly toward the work as a whole. Not tied to a single program.'
   },
   {
     value:   'partner',
@@ -30,7 +30,7 @@ export const INTERESTS = [
 ]
 
 export const getInvolvedSchema = z.object({
-  interest:     z.enum(['volunteer', 'sponsor', 'invest', 'partner'], {
+  interest:     z.enum(['volunteer', 'sponsor', 'donate', 'partner'], {
     required_error: 'Choose how you would like to walk with us.'
   }),
   name:         z.string().trim().min(2, 'Tell us your name.').max(120, 'Keep it under 120 characters.'),

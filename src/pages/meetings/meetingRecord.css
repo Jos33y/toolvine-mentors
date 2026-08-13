@@ -1,0 +1,375 @@
+/* Notes and action items on the meeting detail. Two blocks, one rhythm, sat
+   below the meeting panel they belong to. Working surface: nothing animates
+   except on press. */
+
+.record {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-4);
+  margin-top: var(--tv-space-6);
+}
+
+.record__block {
+  padding: var(--tv-space-5) var(--tv-space-6);
+  background: var(--tv-surface);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-lg);
+}
+
+/* ============ Head ============ */
+
+.record__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--tv-space-3);
+  margin-bottom: var(--tv-space-4);
+}
+
+.record__title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-md);
+  color: var(--tv-text);
+  margin: 0 0 var(--tv-space-1);
+}
+
+.record__hint {
+  font-size: var(--tv-fs-xs);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-muted);
+  margin: 0;
+  max-width: 58ch;
+}
+
+.record__error {
+  padding: var(--tv-space-2) var(--tv-space-3);
+  margin: 0 0 var(--tv-space-3);
+  background: var(--tv-error-bg);
+  color: var(--tv-error-text);
+  border-radius: var(--tv-radius-md);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+}
+
+.record__skeleton {
+  height: 120px;
+  border-radius: var(--tv-radius-md);
+  background: var(--tv-canvas-app);
+  border: 1px dashed var(--tv-border);
+}
+
+.record__empty {
+  margin: 0;
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  max-width: 58ch;
+}
+
+/* ============ Save state ============
+   Three states in one slot: saving, unsaved, saved. The chip never leaves the
+   layout, so the head does not jump as the state changes. */
+
+.record__chip {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-1);
+  padding: 2px var(--tv-space-2);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-pill);
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  color: var(--tv-text-muted);
+  white-space: nowrap;
+}
+
+.record__chip--dirty {
+  border-color: var(--tv-warning);
+  color: var(--tv-warning-text);
+}
+
+.record__chip--ok {
+  border-color: var(--tv-success);
+  color: var(--tv-success-text);
+}
+
+/* ============ Notes ============ */
+
+.record__textarea {
+  width: 100%;
+  min-height: 180px;
+  padding: var(--tv-space-4);
+  background: var(--tv-canvas-app);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-relaxed);
+  color: var(--tv-text);
+  resize: vertical;
+}
+
+.record__textarea:focus {
+  outline: none;
+  border-color: var(--tv-primary);
+  box-shadow: var(--tv-shadow-focus);
+}
+
+.record__textarea::placeholder { color: var(--tv-text-muted); }
+
+/* ============ Add form ============ */
+
+.record__add {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-1);
+  min-height: 36px;
+  padding: var(--tv-space-1) var(--tv-space-3);
+  background: transparent;
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-pill);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-medium);
+  color: var(--tv-text-2);
+  cursor: pointer;
+  transition: border-color var(--tv-duration-fast) var(--tv-ease),
+              color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.record__add:hover {
+  border-color: var(--tv-primary);
+  color: var(--tv-primary);
+}
+
+.record__form {
+  padding: var(--tv-space-4);
+  margin-bottom: var(--tv-space-4);
+  background: var(--tv-canvas-app);
+  border: 1px solid var(--tv-border-strong);
+  border-radius: var(--tv-radius-md);
+}
+
+.record__form-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--tv-space-3);
+  margin-top: var(--tv-space-3);
+}
+
+@media (min-width: 620px) {
+  .record__form-row { grid-template-columns: 1fr 1fr; }
+}
+
+.record__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-1);
+  min-width: 0;
+}
+
+.record__label {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+}
+
+.record__input {
+  width: 100%;
+  min-height: 44px;
+  padding: var(--tv-space-2) var(--tv-space-3);
+  background: var(--tv-surface);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text);
+}
+
+.record__input:focus {
+  outline: none;
+  border-color: var(--tv-primary);
+  box-shadow: var(--tv-shadow-focus);
+}
+
+.record__form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tv-space-2);
+  margin-top: var(--tv-space-4);
+}
+
+.record__ghost {
+  min-height: 40px;
+  padding: var(--tv-space-2) var(--tv-space-4);
+  background: transparent;
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-2);
+  cursor: pointer;
+}
+
+.record__ghost:hover { border-color: var(--tv-border-strong); color: var(--tv-text); }
+
+.record__save {
+  min-height: 40px;
+  padding: var(--tv-space-2) var(--tv-space-5);
+  background: var(--tv-primary);
+  color: var(--tv-text-inverse);
+  border: none;
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-semibold);
+  cursor: pointer;
+  transition: background var(--tv-duration-fast) var(--tv-ease);
+}
+
+.record__save:hover:not(:disabled) { background: var(--tv-primary-hover); }
+
+/* Neutral rather than faded brand. A washed-out teal still reads pressable. */
+.record__save:disabled,
+.record__save:disabled:hover {
+  background: var(--tv-border);
+  color: var(--tv-text-muted);
+  cursor: default;
+}
+
+/* ============ Items ============ */
+
+.record__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.record__items--closed {
+  margin-top: var(--tv-space-3);
+  padding-top: var(--tv-space-3);
+  border-top: 1px solid var(--tv-border);
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--tv-space-3);
+  padding: var(--tv-space-3) 0;
+  border-bottom: 1px solid var(--tv-border);
+}
+
+.item:last-child { border-bottom: none; }
+
+.item--done .item__text {
+  color: var(--tv-text-muted);
+  text-decoration: line-through;
+}
+
+.item--cancelled { opacity: 0.55; }
+.item--cancelled .item__text { text-decoration: line-through; }
+
+/* The checkbox sits where MenteeTasksCard's bullet already sits, so the two
+   surfaces keep the same rhythm. */
+.item__check {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  padding: 0;
+  background: transparent;
+  border: 1.5px solid var(--tv-border-strong);
+  border-radius: var(--tv-radius-sm);
+  color: var(--tv-text-inverse);
+  cursor: pointer;
+  transition: border-color var(--tv-duration-fast) var(--tv-ease),
+              background var(--tv-duration-fast) var(--tv-ease);
+}
+
+.item__check:hover:not(:disabled) { border-color: var(--tv-primary); }
+
+.item--done .item__check {
+  background: var(--tv-primary);
+  border-color: var(--tv-primary);
+}
+
+.item__check:disabled { cursor: default; opacity: 0.6; }
+
+.item__check:focus-visible {
+  outline: none;
+  box-shadow: var(--tv-shadow-focus);
+}
+
+.item__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.item__text {
+  margin: 0;
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text);
+  overflow-wrap: anywhere;
+}
+
+.item__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tv-space-2);
+  margin: 0;
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  color: var(--tv-text-muted);
+}
+
+.item__due--over { color: var(--tv-error-text); }
+
+.item__tag {
+  padding: 1px var(--tv-space-2);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-pill);
+}
+
+.item__cancel {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--tv-radius-sm);
+  color: var(--tv-text-muted);
+  cursor: pointer;
+  transition: color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.item__cancel:hover:not(:disabled) { color: var(--tv-error-text); }
+.item__cancel:disabled { opacity: 0.5; cursor: default; }
+
+@media (prefers-reduced-motion: reduce) {
+  .record__add,
+  .record__save,
+  .item__check,
+  .item__cancel { transition: none; }
+}

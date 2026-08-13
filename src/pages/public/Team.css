@@ -1,6 +1,7 @@
-/* Team page. Cream canvas, vesica watermark hero, four vertical sections:
-   founder, board, ops, mentors. Every member card uses the same avatar
-   pattern with initials fallback for missing photos. */
+/* Team page. Cream canvas, vesica watermark hero, then four groups at three
+   different scales: founder spotlight, board roster, teams ledger with the
+   administration block, mentors grid. All four share one hairline rhythm so
+   the page reads as a single document rather than a stack of card grids. */
 
 .team {
   position: relative;
@@ -115,6 +116,80 @@
   user-select: none;
 }
 
+/* ============ Shared avatar ============ */
+/* One avatar treatment at three sizes. Photo where supplied, initials
+   otherwise. Initials are the house fallback across the whole page. */
+
+.team__avatar {
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center 20%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 2px solid var(--tv-primary-soft);
+}
+
+.team__avatar--initials {
+  background: var(--tv-primary-soft);
+  color: var(--tv-primary);
+  font-family: var(--tv-font-serif);
+  font-style: italic;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  user-select: none;
+}
+
+.team__avatar--roster {
+  width: 64px;
+  height: 64px;
+  font-size: 1.375rem;
+}
+
+.team__avatar--ledger {
+  width: 40px;
+  height: 40px;
+  font-size: var(--tv-fs-sm);
+  border-width: 1px;
+}
+
+.team__avatar--member {
+  width: 64px;
+  height: 64px;
+  font-size: 1.375rem;
+}
+
+@media (min-width: 960px) {
+  .team__avatar--roster {
+    width: 80px;
+    height: 80px;
+    font-size: 1.75rem;
+  }
+}
+
+/* ============ Cross-membership marker ============ */
+/* Four of the six team leads also sit on the board. Hovering one appearance
+   fades in a rule beside the others. Opacity only, decorative only: every
+   name is written out in full in both places regardless. */
+
+.team__link-mark {
+  position: absolute;
+  left: calc(var(--tv-space-2) * -1);
+  top: var(--tv-space-2);
+  bottom: var(--tv-space-2);
+  width: 2px;
+  background: var(--tv-accent);
+  border-radius: var(--tv-radius-pill);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--tv-duration-slow) var(--tv-ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .is-linked > .team__link-mark { opacity: 1; }
+}
+
 /* ============ Founder spotlight ============ */
 
 .team__founder {
@@ -129,6 +204,7 @@
 }
 
 .team__founder-card {
+  position: relative;
   display: grid;
   grid-template-columns: 1fr;
   gap: clamp(var(--tv-space-5), 3vw, var(--tv-space-8));
@@ -184,7 +260,7 @@
   font-family: var(--tv-font-display);
   font-weight: var(--tv-fw-semibold);
   font-size: clamp(1.5rem, 3vw, 2rem);
-  letter-spacing: -0.02em;
+  letter-spacing: var(--tv-tracking-tight);
   line-height: 1.15;
   color: var(--tv-text);
   margin: 0 0 var(--tv-space-4);
@@ -198,7 +274,7 @@
   max-width: 56ch;
 }
 
-/* ============ Section (Board / Ops / Mentors) ============ */
+/* ============ Section chrome ============ */
 
 .team__section {
   position: relative;
@@ -236,7 +312,210 @@
   margin: 0;
 }
 
-/* ============ Grid ============ */
+.team__section-note {
+  margin: var(--tv-space-3) 0 0;
+  font-size: var(--tv-fs-base);
+  line-height: 1.6;
+  color: var(--tv-text-2);
+}
+
+/* ============ Board roster ============ */
+/* Full-width rows rather than cards. Prominence comes from scale and space,
+   which is what the board section was asked for. */
+
+.team__roster {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--tv-border);
+}
+
+.team__roster-item {
+  border-bottom: 1px solid var(--tv-border);
+}
+
+.team__roster-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    'avatar name'
+    'avatar role';
+  align-items: center;
+  column-gap: var(--tv-space-5);
+  row-gap: var(--tv-space-1);
+  padding: var(--tv-space-6) 0;
+}
+
+.team__roster-name {
+  grid-area: name;
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: clamp(1.125rem, 2.2vw, 1.5rem);
+  letter-spacing: var(--tv-tracking-tight);
+  line-height: 1.2;
+  color: var(--tv-text);
+  margin: 0;
+}
+
+.team__roster-role {
+  grid-area: role;
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  text-transform: uppercase;
+  line-height: 1.5;
+  color: var(--tv-text-muted);
+  margin: 0;
+}
+
+.team__roster-row .team__avatar { grid-area: avatar; }
+
+@media (min-width: 960px) {
+  .team__roster-row {
+    grid-template-columns: auto minmax(0, 1fr) minmax(0, 30ch);
+    grid-template-areas: 'avatar name role';
+    column-gap: var(--tv-space-8);
+    row-gap: 0;
+    padding: var(--tv-space-8) 0;
+  }
+
+  .team__roster-role { text-align: right; }
+}
+
+/* ============ Teams ledger ============ */
+/* Teams are structure, so they read as an index rather than as boxes. */
+
+.team__ledger {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--tv-border);
+  counter-reset: none;
+}
+
+.team__ledger-item {
+  border-bottom: 1px solid var(--tv-border);
+}
+
+.team__ledger-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    'index name'
+    'index lead';
+  align-items: center;
+  column-gap: var(--tv-space-4);
+  row-gap: var(--tv-space-3);
+  padding: var(--tv-space-5) 0;
+}
+
+.team__ledger-index {
+  grid-area: index;
+  align-self: start;
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  color: var(--tv-accent-text);
+  padding-top: var(--tv-space-1);
+  user-select: none;
+}
+
+.team__ledger-name {
+  grid-area: name;
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: clamp(1.0625rem, 1.8vw, 1.375rem);
+  letter-spacing: var(--tv-tracking-tight);
+  line-height: 1.25;
+  color: var(--tv-text);
+  margin: 0;
+}
+
+.team__ledger-lead {
+  grid-area: lead;
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-3);
+  min-width: 0;
+}
+
+.team__ledger-lead-name {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-medium);
+  color: var(--tv-text-2);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 760px) {
+  .team__ledger-row {
+    grid-template-columns: auto minmax(0, 1fr) minmax(0, 26ch);
+    grid-template-areas: 'index name lead';
+    column-gap: var(--tv-space-6);
+    row-gap: 0;
+    padding: var(--tv-space-6) 0;
+  }
+
+  .team__ledger-index {
+    align-self: center;
+    padding-top: 0;
+  }
+}
+
+/* ============ Administration ============ */
+/* Deliberately outside the ledger. One person does not get a grid. */
+
+.team__admin {
+  margin-top: clamp(var(--tv-space-8), 4vw, var(--tv-space-12));
+  padding-top: var(--tv-space-6);
+  border-top: 1px solid var(--tv-border-strong);
+}
+
+.team__admin-label {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wider);
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+  margin: 0 0 var(--tv-space-4);
+}
+
+.team__admin-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-4);
+}
+
+.team__admin-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-1);
+  min-width: 0;
+}
+
+.team__admin-name {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-md);
+  letter-spacing: var(--tv-tracking-tight);
+  color: var(--tv-text);
+  margin: 0;
+}
+
+.team__admin-role {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+  margin: 0;
+}
+
+/* ============ Mentors grid ============ */
 
 .team__grid {
   display: grid;
@@ -245,10 +524,6 @@
 }
 
 @media (min-width: 560px) {
-  .team__grid--board,
-  .team__grid--ops {
-    grid-template-columns: repeat(2, 1fr);
-  }
   .team__grid--mentors {
     grid-template-columns: repeat(2, 1fr);
     gap: var(--tv-space-4);
@@ -256,50 +531,28 @@
 }
 
 @media (min-width: 760px) {
-  .team__grid--board {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .team__grid--ops {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  .team__grid--mentors {
-    grid-template-columns: repeat(3, 1fr);
-  }
+  .team__grid--mentors { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (min-width: 960px) {
-  .team__grid--board {
-    grid-template-columns: repeat(4, 1fr);
-    gap: var(--tv-space-4);
-  }
-  .team__grid--mentors {
-    grid-template-columns: repeat(4, 1fr);
-  }
+  .team__grid--mentors { grid-template-columns: repeat(4, 1fr); }
 }
-
-/* ============ Member card ============ */
 
 .team__member {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  text-align: center;
   gap: var(--tv-space-3);
-  padding: var(--tv-space-5);
+  padding: var(--tv-space-4);
   background: var(--tv-surface);
   border: 1px solid var(--tv-border);
   border-radius: var(--tv-radius-lg);
-  transition: border-color var(--tv-duration) var(--tv-ease), transform var(--tv-duration) var(--tv-ease), box-shadow var(--tv-duration) var(--tv-ease);
-}
-
-.team__member--compact {
-  padding: var(--tv-space-4);
-  align-items: center;
-  text-align: center;
+  transition: transform var(--tv-duration) var(--tv-ease), box-shadow var(--tv-duration) var(--tv-ease);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .team__member:hover {
-    border-color: var(--tv-primary);
     transform: translateY(-2px);
     box-shadow: var(--tv-shadow-md);
   }
@@ -311,45 +564,11 @@
   justify-content: center;
 }
 
-.team__member-avatar {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  object-fit: cover;
-  object-position: center 20%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid var(--tv-primary-soft);
-}
-
-.team__member--compact .team__member-avatar {
-  width: 64px;
-  height: 64px;
-}
-
-.team__member-avatar--initials {
-  background: var(--tv-primary-soft);
-  color: var(--tv-primary);
-  font-family: var(--tv-font-serif);
-  font-style: italic;
-  font-weight: 500;
-  font-size: 1.5rem;
-  letter-spacing: -0.03em;
-}
-
-.team__member--compact .team__member-avatar--initials {
-  font-size: 1.375rem;
-}
-
 .team__member-text {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-}
-
-.team__member--compact .team__member-text {
   align-items: center;
+  gap: var(--tv-space-1);
 }
 
 .team__member-name {
@@ -359,15 +578,6 @@
   color: var(--tv-text);
   margin: 0;
   line-height: 1.3;
-}
-
-.team__member-role {
-  font-family: var(--tv-font-mono);
-  font-size: 0.6875rem;
-  letter-spacing: var(--tv-tracking-wide);
-  text-transform: uppercase;
-  color: var(--tv-text-muted);
-  margin: 0;
 }
 
 /* ============ Close ============ */
@@ -402,10 +612,8 @@
   font-size: clamp(1.125rem, 2vw, 1.375rem);
   line-height: 1.5;
   color: var(--tv-text);
-  margin: 0 0 var(--tv-space-8);
+  margin: 0 auto var(--tv-space-8);
   max-width: 48ch;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .team__close-actions {
@@ -446,25 +654,28 @@
   transition: color var(--tv-duration) var(--tv-ease);
 }
 
-.team__close-secondary:hover {
-  color: var(--tv-primary);
-}
+.team__close-secondary:hover { color: var(--tv-primary); }
 
 /* ============ Mobile ============ */
 
 @media (max-width: 759px) {
   .team__hero { padding-top: var(--tv-space-10); }
+
   .team__founder-card {
     padding: var(--tv-space-5);
     text-align: center;
   }
+
   .team__founder-photo { max-width: 160px; }
-  .team__member { padding: var(--tv-space-4); }
+
+  .team__roster-row { padding: var(--tv-space-5) 0; }
 }
 
 /* ============ Reduced motion ============ */
 
 @media (prefers-reduced-motion: reduce) {
-  .team__member { transition: none; }
-  .team__close-primary, .team__close-secondary { transition: none; }
+  .team__member,
+  .team__link-mark,
+  .team__close-primary,
+  .team__close-secondary { transition: none; }
 }

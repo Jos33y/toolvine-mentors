@@ -1,0 +1,628 @@
+/* Meeting detail. Single column at prose width plus room for the people
+   block. Working surface, so nothing moves except on press. */
+
+.meeting {
+  max-width: 780px;
+  padding: var(--tv-space-6) var(--tv-space-5) var(--tv-space-16);
+}
+
+/* ============ Back ============ */
+
+.meeting__back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-1);
+  margin-bottom: var(--tv-space-5);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-2);
+  text-decoration: none;
+}
+
+.meeting__back:hover { color: var(--tv-text); }
+
+/* Chevron points forward by default, so it is flipped to read as back. */
+.meeting__back svg { transform: rotate(180deg); }
+
+/* ============ Head ============ */
+
+.meeting__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--tv-space-3);
+  margin-bottom: var(--tv-space-5);
+}
+
+.meeting__head-text { min-width: 0; }
+
+.meeting__eyebrow {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wider);
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+  margin: 0 0 var(--tv-space-2);
+}
+
+.meeting__title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-xl);
+  line-height: var(--tv-lh-snug);
+  letter-spacing: var(--tv-tracking-tight);
+  color: var(--tv-text);
+  margin: 0;
+}
+
+.meeting__status {
+  flex-shrink: 0;
+  padding: 3px var(--tv-space-3);
+  border-radius: var(--tv-radius-pill);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tv-tracking-wide);
+  white-space: nowrap;
+}
+
+.meeting__status--scheduled { background: var(--tv-primary-soft); color: var(--tv-primary); }
+.meeting__status--completed { background: var(--tv-success-bg);   color: var(--tv-success-text); }
+.meeting__status--cancelled {
+  background: var(--tv-canvas-app);
+  border: 1px solid var(--tv-border);
+  color: var(--tv-text-muted);
+}
+
+/* ============ Banners ============ */
+
+.meeting__alert,
+.meeting__notice,
+.meeting__warn {
+  padding: var(--tv-space-3) var(--tv-space-4);
+  margin-bottom: var(--tv-space-4);
+  border-radius: var(--tv-radius-md);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+}
+
+.meeting__alert  { background: var(--tv-error-bg);     color: var(--tv-error-text); }
+.meeting__notice { background: var(--tv-primary-soft); color: var(--tv-primary-hover); }
+.meeting__warn   { background: var(--tv-warning-bg);   color: var(--tv-warning-text); }
+
+/* ============ Panel ============ */
+
+.meeting__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-5);
+  padding: var(--tv-space-6);
+  background: var(--tv-surface);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-lg);
+}
+
+.meeting__panel--skeleton {
+  min-height: 280px;
+  background: var(--tv-canvas-app);
+  border-style: dashed;
+}
+
+/* ============ People ============ */
+
+.meeting__people {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tv-space-4);
+}
+
+.meeting__join { color: var(--tv-primary-light); display: inline-flex; }
+
+.meeting__person {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-3);
+  min-width: 0;
+}
+
+.meeting__person-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.meeting__person-role {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+}
+
+.meeting__person-name {
+  font-size: var(--tv-fs-base);
+  font-weight: var(--tv-fw-semibold);
+  color: var(--tv-text);
+  overflow-wrap: anywhere;
+}
+
+.meeting__person-mail {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.meeting__avatar {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  overflow: hidden;
+  border-radius: var(--tv-radius-pill);
+  background: var(--tv-primary-soft);
+  color: var(--tv-primary-hover);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-semibold);
+}
+
+.meeting__avatar-img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ============ Facts ============ */
+
+.meeting__facts {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--tv-space-4);
+  margin: 0;
+  padding-top: var(--tv-space-5);
+  border-top: 1px solid var(--tv-border);
+}
+
+@media (min-width: 620px) {
+  .meeting__facts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.meeting__fact { min-width: 0; }
+
+.meeting__fact-label {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+  margin-bottom: var(--tv-space-1);
+}
+
+.meeting__fact-value {
+  margin: 0;
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text);
+  overflow-wrap: anywhere;
+}
+
+.meeting__mode {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+}
+
+/* ============ Blocks ============ */
+
+.meeting__block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-2);
+  padding-top: var(--tv-space-5);
+  border-top: 1px solid var(--tv-border);
+}
+
+.meeting__block-title {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+  margin: 0;
+}
+
+.meeting__link,
+.meeting__where {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  margin: 0;
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text);
+  overflow-wrap: anywhere;
+}
+
+.meeting__link { color: var(--tv-primary); text-decoration: none; }
+.meeting__link:hover { color: var(--tv-primary-hover); text-decoration: underline; }
+
+.meeting__where--missing { color: var(--tv-warning-text); }
+
+.meeting__clocks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-2);
+}
+
+.meeting__clock {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tv-space-2);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-2);
+}
+
+.meeting__clock-name { font-weight: var(--tv-fw-medium); color: var(--tv-text); }
+
+.meeting__clock-when {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  color: var(--tv-text-muted);
+}
+
+/* ============ Actions ============ */
+
+.meeting__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tv-space-3);
+  padding-top: var(--tv-space-5);
+  border-top: 1px solid var(--tv-border);
+}
+
+/* Reads as the state of the meeting, not as a caption apologising for an
+   absent button. Takes the primary control's position so the footer keeps
+   its shape when completion unlocks. */
+.meeting__locked {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  min-height: 44px;
+  padding: var(--tv-space-2) var(--tv-space-4);
+  border: 1px dashed var(--tv-border-strong);
+  border-radius: var(--tv-radius-md);
+  color: var(--tv-text-muted);
+}
+
+.meeting__locked-text {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+}
+
+.meeting__final {
+  margin: 0;
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-muted);
+}
+
+.meeting__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  min-height: 44px;
+  padding: var(--tv-space-2) var(--tv-space-5);
+  background: var(--tv-primary);
+  color: var(--tv-text-inverse);
+  border: none;
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-semibold);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--tv-duration-fast) var(--tv-ease);
+}
+
+/* The global a:hover rule outranks a single class, so filled controls restate
+   their colour or the label vanishes into the fill. */
+.meeting__cta:hover:not(:disabled),
+.meeting__cta:focus-visible {
+  background: var(--tv-primary-hover);
+  color: var(--tv-text-inverse);
+}
+
+.meeting__cta--danger { background: var(--tv-error-text); }
+.meeting__cta--danger:hover:not(:disabled) { background: var(--tv-error); }
+
+/* Neutral, not a washed-out brand colour. Faded teal still reads pressable. */
+.meeting__cta:disabled,
+.meeting__cta:disabled:hover {
+  background: var(--tv-border);
+  color: var(--tv-text-muted);
+  opacity: 1;
+  cursor: default;
+}
+
+.meeting__action {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: var(--tv-space-2) var(--tv-space-4);
+  background: transparent;
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-medium);
+  color: var(--tv-text-2);
+  cursor: pointer;
+  transition: border-color var(--tv-duration-fast) var(--tv-ease),
+              color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.meeting__action:hover:not(:disabled) {
+  border-color: var(--tv-border-strong);
+  color: var(--tv-text);
+}
+
+.meeting__action:disabled { opacity: 0.5; cursor: default; }
+
+.meeting__action--danger { color: var(--tv-error-text); }
+.meeting__action--danger:hover:not(:disabled) {
+  border-color: var(--tv-error);
+  color: var(--tv-error-text);
+}
+
+/* ============ Notes placeholder ============ */
+
+.meeting__later {
+  margin-top: var(--tv-space-6);
+  padding: var(--tv-space-5);
+  background: var(--tv-canvas-app);
+  border: 1px dashed var(--tv-border-strong);
+  border-radius: var(--tv-radius-lg);
+}
+
+.meeting__later-title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-md);
+  color: var(--tv-text);
+  margin: 0 0 var(--tv-space-2);
+}
+
+.meeting__later-body {
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  margin: 0;
+  max-width: 56ch;
+}
+
+/* ============ Dialog ============ */
+
+.meeting__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--tv-z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--tv-space-4);
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.meeting__dialog {
+  width: 100%;
+  max-width: 460px;
+  padding: var(--tv-space-6);
+  background: var(--tv-surface);
+  border-radius: var(--tv-radius-lg);
+  box-shadow: var(--tv-shadow-lg);
+}
+
+.meeting__dialog-title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-lg);
+  line-height: var(--tv-lh-snug);
+  color: var(--tv-text);
+  margin: 0 0 var(--tv-space-3);
+}
+
+.meeting__dialog-body {
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  margin: 0 0 var(--tv-space-5);
+}
+
+.meeting__dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--tv-space-3);
+}
+
+/* ============ Empty ============ */
+
+.meeting__empty {
+  padding: var(--tv-space-10) var(--tv-space-5);
+  text-align: center;
+  background: var(--tv-surface);
+  border: 1px dashed var(--tv-border-strong);
+  border-radius: var(--tv-radius-lg);
+}
+
+.meeting__empty-title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-md);
+  color: var(--tv-text);
+  margin: 0 0 var(--tv-space-2);
+}
+
+.meeting__empty-body {
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  margin: 0 auto var(--tv-space-5);
+  max-width: 52ch;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .meeting__cta,
+  .meeting__action { transition: none; }
+}
+
+/* ============ Reschedule panel ============
+   Same fields as the schedule form, opened prefilled. Sits above the panel it
+   edits so the change and the thing being changed stay in one view. */
+
+.meeting__edit {
+  padding: var(--tv-space-5);
+  margin-bottom: var(--tv-space-4);
+  background: var(--tv-surface);
+  border: 1px solid var(--tv-primary-light);
+  border-radius: var(--tv-radius-lg);
+  box-shadow: inset 3px 0 0 0 var(--tv-primary);
+}
+
+.meeting__edit-title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-md);
+  color: var(--tv-text);
+  margin: 0 0 var(--tv-space-2);
+}
+
+.meeting__edit-hint {
+  font-size: var(--tv-fs-xs);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-muted);
+  margin: 0 0 var(--tv-space-5);
+  max-width: 60ch;
+}
+
+.meeting__edit-error {
+  padding: var(--tv-space-2) var(--tv-space-3);
+  margin: 0 0 var(--tv-space-4);
+  background: var(--tv-error-bg);
+  color: var(--tv-error-text);
+  border-radius: var(--tv-radius-md);
+  font-size: var(--tv-fs-sm);
+}
+
+.meeting__edit-fields {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--tv-space-4);
+}
+
+@media (min-width: 620px) {
+  .meeting__edit-fields { grid-template-columns: 1fr 1fr; }
+  .meeting__field--wide { grid-column: 1 / -1; }
+}
+
+.meeting__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-2);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.meeting__field-label {
+  padding: 0;
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+}
+
+.meeting__field-hint {
+  font-size: var(--tv-fs-xs);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-warning-text);
+}
+
+.meeting__input {
+  width: 100%;
+  min-height: 44px;
+  padding: var(--tv-space-2) var(--tv-space-3);
+  background: var(--tv-canvas-app);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text);
+}
+
+.meeting__input:focus {
+  outline: none;
+  border-color: var(--tv-primary);
+  box-shadow: var(--tv-shadow-focus);
+}
+
+.meeting__modes {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--tv-space-2);
+}
+
+@media (min-width: 620px) {
+  .meeting__modes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* Named -btn because .meeting__mode is already the How value in the facts
+   row. One class with two meanings put a button border around plain text. */
+.meeting__mode-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  min-height: 44px;
+  padding: var(--tv-space-2) var(--tv-space-3);
+  background: var(--tv-canvas-app);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  color: var(--tv-text-2);
+  cursor: pointer;
+  transition: border-color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.meeting__mode-btn:hover { border-color: var(--tv-border-strong); }
+
+.meeting__mode-btn--active {
+  background: var(--tv-surface);
+  border-color: var(--tv-primary);
+  color: var(--tv-primary-hover);
+}
+
+.meeting__mode-btn-label {
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-medium);
+}
+
+.meeting__edit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tv-space-3);
+  margin-top: var(--tv-space-5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .meeting__mode-btn { transition: none; }
+}

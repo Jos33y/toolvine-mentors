@@ -1,4 +1,5 @@
 import { useFormContext, useWatch } from 'react-hook-form'
+import { useAuth } from '@/stores/useAuth'
 import { useCategories } from '@/hooks/useCategories'
 import { Icon } from '@/components/shared/Icon/Icon'
 
@@ -27,6 +28,7 @@ const REFERRAL = [
   { value: 'Church',       label: 'Church or fellowship' },
   { value: 'Social media', label: 'Social media' },
   { value: 'Vinethoughts', label: 'Vinethoughts publication' },
+  { value: 'Invited',      label: 'Invited by the team' },
   { value: 'Other',        label: 'Other' }
 ]
 
@@ -36,7 +38,14 @@ export function Step2Role() {
   const seeking  = useWatch({ control, name: 'focusSeeking' })  ?? []
   const offering = useWatch({ control, name: 'focusOffering' }) ?? []
 
+  const roles = useAuth((s) => s.roles)
   const { categories, loading: catLoading } = useCategories()
+
+  // Public sign-up only ever seeds mentee, so holding the mentor role means an
+  // admin granted it, through an invite or a role decision. Offering a choice
+  // here would let them state an intent that contradicts the role they already
+  // hold, since this radio writes role_intent and not user_roles.
+  const roleGranted = roles.includes('mentor')
 
   const showSeeking  = role === 'mentee' || role === 'undecided'
   const showOffering = role === 'mentor' || role === 'undecided'
@@ -53,7 +62,28 @@ export function Step2Role() {
   return (
     <>
       <div className="onbp__field">
-        <span className="onbp__label" id="onbp-role-label">I would like to join as</span>
+        <span className="onbp__label" id="onbp-role-label">
+          {roleGranted ? 'You are joining as' : 'I would like to join as'}
+        </span>
+
+        {roleGranted ? (
+          <div className="onbp__role onbp__role--granted">
+            <div className="onbp__role-head">
+              <span className="onbp__role-name">Mentor</span>
+              <span className="onbp__role-check" aria-hidden="true">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 6.5L4.5 9L10 3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+            </div>
+            <p className="onbp__role-desc">
+              You guide one or more mentees. Meet monthly. Share what life has taught you.
+            </p>
+            <p className="onbp__role-note">
+              Our team has already set this up for you. Contact us if it is not right.
+            </p>
+          </div>
+        ) : (
         <div className="onbp__roles" role="radiogroup" aria-labelledby="onbp-role-label">
           {ROLE_OPTIONS.map((opt) => (
             <label
@@ -80,6 +110,7 @@ export function Step2Role() {
             </label>
           ))}
         </div>
+        )}
         {errors.roleIntent && <span className="onbp__field-error">{errors.roleIntent.message}</span>}
       </div>
 

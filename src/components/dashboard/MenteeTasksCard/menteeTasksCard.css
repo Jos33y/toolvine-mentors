@@ -152,3 +152,56 @@
 @media (max-width: 640px) {
   .tasks-card { padding: var(--tv-space-5); }
 }
+
+
+/* ============ Mark done ============
+   Replaces the placeholder bullet at the same size and position, so a card
+   that was read-only becomes actionable without shifting a pixel. */
+
+.task-row__check {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-top: 3px;
+  padding: 0;
+  background: transparent;
+  border: 1.5px solid var(--tv-border-strong);
+  border-radius: var(--tv-radius-sm);
+  color: var(--tv-text-inverse);
+  cursor: pointer;
+  transition: border-color var(--tv-duration-fast) var(--tv-ease),
+              background var(--tv-duration-fast) var(--tv-ease);
+}
+
+.task-row__check:hover:not(:disabled) {
+  border-color: var(--tv-primary);
+  background: var(--tv-primary-soft);
+}
+
+.task-row__check:disabled {
+  background: var(--tv-primary);
+  border-color: var(--tv-primary);
+  cursor: default;
+}
+
+.task-row__check:focus-visible {
+  outline: none;
+  box-shadow: var(--tv-shadow-focus);
+}
+
+.tasks-card__error {
+  margin: 0 0 var(--tv-space-3);
+  padding: var(--tv-space-2) var(--tv-space-3);
+  background: var(--tv-error-bg);
+  color: var(--tv-error-text);
+  border-radius: var(--tv-radius-md);
+  font-size: var(--tv-fs-xs);
+  line-height: var(--tv-lh-base);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .task-row__check { transition: none; }
+}

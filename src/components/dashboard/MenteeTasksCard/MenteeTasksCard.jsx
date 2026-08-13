@@ -1,15 +1,36 @@
+import { useState } from 'react'
 import { useMenteeTasks } from '@/hooks/useMenteeTasks'
+import { Icon } from '@/components/shared/Icon/Icon'
+import { setActionItemStatus, friendlyItemError, ITEM_STATUS } from '@/lib/meetingActionItems'
 import './menteeTasksCard.css'
 
 const DISPLAY_CAP = 6
 
-// The mentee's view of what their mentor set them. The card the platform
-// existed to surface and the demo skipped. Read-only in Block C; a later
-// block grants the assignee a narrow update policy to mark items done.
-// The open-circle bullet sits where the future checkbox will land, so when
-// mark-done ships the visual rhythm of the card does not change.
+// The mentee's view of what their mentor set them. Marking done goes through
+// set_action_item_status, a narrow security-definer RPC, because a mentee has
+// no UPDATE policy on the table: one that let them tick a box would also let
+// them rewrite the text, reassign it, or move the due date.
+//
+// The bullet the card shipped with was a placeholder for exactly this control,
+// so the rhythm does not change now that it is real.
 export function MenteeTasksCard({ menteeId }) {
-  const { items, loading } = useMenteeTasks(menteeId)
+  const { items, loading, refresh } = useMenteeTasks(menteeId)
+
+  const [busyId, setBusyId] = useState(null)
+  const [error, setError]   = useState('')
+
+  async function onDone(item) {
+    setBusyId(item.id)
+    setError('')
+    try {
+      await setActionItemStatus(item.id, ITEM_STATUS.DONE)
+      await refresh()
+    } catch (e) {
+      setError(friendlyItemError(e))
+    } finally {
+      setBusyId(null)
+    }
+  }
 
   if (loading) {
     return (
@@ -38,10 +59,12 @@ export function MenteeTasksCard({ menteeId }) {
     <article className="tasks-card">
       <Header count={items.length} />
 
+      {error && <p className="tasks-card__error" role="alert">{error}</p>}
+
       <ul className="tasks-card__list">
         {shown.map((item) => (
           <li key={item.id} className="tasks-card__item">
-            <TaskRow item={item} />
+            <TaskRow item={item} busy={busyId === item.id} onDone={() => onDone(item)} />
           </li>
         ))}
       </ul>
@@ -64,14 +87,22 @@ function Header({ count }) {
   )
 }
 
-function TaskRow({ item }) {
+function TaskRow({ item, busy, onDone }) {
   const meetingAt = item.meeting?.scheduled_for ?? null
   const dueOn     = item.due_on ?? null
   const overdue   = isOverdue(dueOn)
 
   return (
     <div className="task-row">
-      <span className="task-row__bullet" aria-hidden="true" />
+      <button
+        type="button"
+        className="task-row__check"
+        onClick={onDone}
+        disabled={busy}
+        aria-label={`Mark done: ${item.body}`}
+      >
+        {busy && <Icon name="check" size={12} strokeWidth={2.5} />}
+      </button>
 
       <div className="task-row__body">
         <p className="task-row__text">{item.body}</p>

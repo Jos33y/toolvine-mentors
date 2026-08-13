@@ -1,4 +1,5 @@
 import { useAuth } from '@/stores/useAuth'
+import { useMenteePairing } from '@/hooks/useMenteePairing'
 import { GreetingHero }       from '@/components/dashboard/GreetingHero/GreetingHero'
 import { MentorRelationCard } from '@/components/dashboard/MentorRelationCard/MentorRelationCard'
 import { NextMeetingCard }    from '@/components/dashboard/NextMeetingCard/NextMeetingCard'
@@ -22,8 +23,6 @@ export function Dashboard() {
   const roles   = useAuth((s) => s.roles)
   const loading = useAuth((s) => s.loading)
 
-  if (loading || !profile) return null
-
   const isAdmin  = roles.includes('admin')
   const isMentor = roles.includes('mentor')
   const isMentee = roles.includes('mentee')
@@ -31,6 +30,14 @@ export function Dashboard() {
   const showAdminGroup  = isAdmin
   const showMentorGroup = isMentor && !isAdmin
   const showMenteeGroup = isMentee && !isAdmin && !isMentor
+
+  // Hooks cannot be conditional, so this runs for every role and no-ops on a
+  // null id. Only the mentee group reads the result.
+  const { pairing, nextMeeting, loading: pairingLoading } = useMenteePairing(
+    showMenteeGroup && profile ? profile.id : null
+  )
+
+  if (loading || !profile) return null
 
   const multiRole = [showAdminGroup, showMentorGroup, showMenteeGroup].filter(Boolean).length > 1
 
@@ -60,8 +67,19 @@ export function Dashboard() {
           )}
           <div className="dash__grid">
             <div className="dash__col dash__col--main">
-              <MentorRelationCard profile={profile} roles={roles} />
-              {!isPending && <NextMeetingCard />}
+              <MentorRelationCard
+                profile={profile}
+                roles={roles}
+                pairing={pairing}
+                loading={pairingLoading}
+              />
+              {!isPending && (
+                <NextMeetingCard
+                  meeting={nextMeeting}
+                  paired={Boolean(pairing?.mentor)}
+                  loading={pairingLoading}
+                />
+              )}
               {!isPending && <MenteeTasksCard menteeId={profile.id} />}
             </div>
             <div className="dash__col dash__col--side">

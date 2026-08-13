@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { createBrowserRouter, Navigate, Outlet, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, Navigate, Outlet, RouterProvider, useLocation } from 'react-router-dom'
 import { useAuth } from '@/stores/useAuth'
 import { ROLES, homeFor, hasAnyRole } from '@/lib/roles'
 import { useRouteAnalytics } from '@/hooks/useRouteAnalytics'
@@ -22,6 +22,7 @@ import { HowItWorks } from '@/pages/public/HowItWorks'
 import { Resources } from '@/pages/public/Resources'
 import { Contact } from '@/pages/public/Contact'
 import { GetInvolved } from '@/pages/public/GetInvolved'
+import { Partners } from '@/pages/public/Partners'
 import { Privacy } from '@/pages/public/Privacy'
 import { Terms } from '@/pages/public/Terms'
 import { CommunityGuidelines } from '@/pages/public/CommunityGuidelines'
@@ -47,6 +48,13 @@ const Users       = lazy(() => import('@/pages/admin/Users').then((m) => ({ defa
 const Submissions = lazy(() => import('@/pages/admin/Submissions').then((m) => ({ default: m.Submissions })))
 const Activity    = lazy(() => import('@/pages/admin/Activity').then((m) => ({ default: m.Activity })))
 const Insights    = lazy(() => import('@/pages/admin/Insights').then((m) => ({ default: m.Insights })))
+const AdminPartners = lazy(() => import('@/pages/admin/Partners').then((m) => ({ default: m.Partners })))
+const AdminInvites  = lazy(() => import('@/pages/admin/Invites').then((m) => ({ default: m.Invites })))
+const AdminPairings = lazy(() => import('@/pages/admin/Pairings').then((m) => ({ default: m.Pairings })))
+const Mentees      = lazy(() => import('@/pages/mentor/Mentees').then((m) => ({ default: m.Mentees })))
+const MyMentor     = lazy(() => import('@/pages/mentee/Mentor').then((m) => ({ default: m.Mentor })))
+const MeetingsPage = lazy(() => import('@/pages/meetings/Meetings').then((m) => ({ default: m.Meetings })))
+const MeetingPage  = lazy(() => import('@/pages/meetings/Meeting').then((m) => ({ default: m.Meeting })))
 
 /* ============ Root ============
    useRouteAnalytics mounts here because it depends on useLocation, which
@@ -90,6 +98,14 @@ function RequireRole({ allow, children }) {
   return children ?? <Outlet />
 }
 
+// Navigate drops the query string, and the moved admin paths are linked with
+// filters on them. Carry search and hash across so a filtered link still lands
+// on its filter.
+function RedirectWithSearch({ to }) {
+  const { search, hash } = useLocation()
+  return <Navigate to={{ pathname: to, search, hash }} replace />
+}
+
 function LazyRoute({ children }) {
   return <Suspense fallback={<Splash />}>{children}</Suspense>
 }
@@ -108,6 +124,7 @@ const router = createBrowserRouter([
           { path: '/about',                element: <About /> },
           { path: '/team',                 element: <Team /> },
           { path: '/outreach',             element: <Outreach /> },
+          { path: '/partners',             element: <Partners /> },
           { path: '/programs',             element: <Programs /> },
           { path: '/how-it-works',         element: <HowItWorks /> },
           { path: '/resources',            element: <Resources /> },
@@ -161,43 +178,31 @@ const router = createBrowserRouter([
               /* Shared (all signed-in roles) */
               {
                 path: '/meetings',
-                element: <PlaceholderPage
-                  eyebrow="Coming soon"
-                  title="Meetings"
-                  body="Where you will schedule sessions, track who showed up, and keep the notes that follow."
-                />
-              },
-
-              /* Admin only — core entities at root paths. */
-              {
-                path: '/users',
-                element: (
-                  <RequireRole allow={[ROLES.ADMIN]}>
-                    <LazyRoute><Users /></LazyRoute>
-                  </RequireRole>
-                )
+                element: <LazyRoute><MeetingsPage /></LazyRoute>
               },
               {
-                path: '/pairings',
-                element: (
-                  <RequireRole allow={[ROLES.ADMIN]}>
-                    <PlaceholderPage
-                      eyebrow="Coming soon"
-                      title="Pairings"
-                      body="Assign mentors to mentees. End pairings cleanly. Keep the history intact."
-                    />
-                  </RequireRole>
-                )
+                path: '/meetings/:id',
+                element: <LazyRoute><MeetingPage /></LazyRoute>
               },
 
-              /* Admin tools group. One guard, many children. */
+              /* Every admin-guarded surface lives under /admin. The old root
+                 paths redirect rather than 404 so links written before the
+                 move keep working. */
+              { path: '/users',    element: <RedirectWithSearch to="/admin/users" /> },
+              { path: '/pairings', element: <RedirectWithSearch to="/admin/pairings" /> },
+
+              /* Admin group. One guard, many children. */
               {
                 path: '/admin',
                 element: <RequireRole allow={[ROLES.ADMIN]} />,
                 children: [
+                  { path: 'users',       element: <LazyRoute><Users /></LazyRoute> },
+                  { path: 'pairings',    element: <LazyRoute><AdminPairings /></LazyRoute> },
                   { path: 'submissions', element: <LazyRoute><Submissions /></LazyRoute> },
                   { path: 'activity',    element: <LazyRoute><Activity    /></LazyRoute> },
-                  { path: 'insights',    element: <LazyRoute><Insights    /></LazyRoute> }
+                  { path: 'insights',    element: <LazyRoute><Insights    /></LazyRoute> },
+                  { path: 'partners',    element: <LazyRoute><AdminPartners /></LazyRoute> },
+                  { path: 'invites',     element: <LazyRoute><AdminInvites  /></LazyRoute> }
                 ]
               },
 
@@ -206,11 +211,7 @@ const router = createBrowserRouter([
                 path: '/mentees',
                 element: (
                   <RequireRole allow={[ROLES.ADMIN, ROLES.MENTOR]}>
-                    <PlaceholderPage
-                      eyebrow="Coming soon"
-                      title="Mentees"
-                      body="The people in your care. Their meeting history, your notes, and the next step."
-                    />
+                    <LazyRoute><Mentees /></LazyRoute>
                   </RequireRole>
                 )
               },
@@ -220,11 +221,7 @@ const router = createBrowserRouter([
                 path: '/mentor',
                 element: (
                   <RequireRole allow={[ROLES.MENTEE]}>
-                    <PlaceholderPage
-                      eyebrow="Coming soon"
-                      title="My Mentor"
-                      body="Your assigned mentor and the record of every meeting you have shared."
-                    />
+                    <LazyRoute><MyMentor /></LazyRoute>
                   </RequireRole>
                 )
               }

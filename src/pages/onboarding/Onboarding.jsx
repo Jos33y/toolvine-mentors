@@ -75,8 +75,14 @@ export function Onboarding() {
     // Carry the role choice from sign-up into onboarding so the user does
     // not see a contradiction. Falls back to 'mentee' only if neither flag
     // is set, which would be unusual.
-    form.setValue('roleIntent', deriveRoleIntent(profile))
-  }, [profile?.full_name, profile?.role_intent, profile?.role_undecided, form])
+    form.setValue('roleIntent', deriveRoleIntent(profile, roles))
+    // A granted role means the team put them here. Preselect the matching
+    // referral rather than making them account for how they arrived, and
+    // leave it editable in case they first heard of Toolvine elsewhere.
+    if (roles.includes('mentor') && !form.getValues('referralSource')) {
+      form.setValue('referralSource', 'Invited')
+    }
+  }, [profile?.full_name, profile?.role_intent, profile?.role_undecided, roles, form])
 
   // One-shot: avoid redirecting mid-flow if onboarded flips true later.
   const redirectChecked = useRef(false)
@@ -191,8 +197,8 @@ export function Onboarding() {
           ))}
         </ol>
 
-        <h1 className="onbp__title">{titleFor(step)}</h1>
-        <p className="onbp__lede">{ledeFor(step)}</p>
+        <h1 className="onbp__title">{titleFor(step, roles.includes('mentor'))}</h1>
+        <p className="onbp__lede">{ledeFor(step, roles.includes('mentor'))}</p>
       </header>
 
       {submitError && (
@@ -253,15 +259,18 @@ export function Onboarding() {
   )
 }
 
-function titleFor(step) {
+function titleFor(step, roleGranted) {
   if (step === 1) return 'Tell us about you'
-  if (step === 2) return 'How you would like to take part'
+  if (step === 2) return roleGranted ? 'How you will take part' : 'How you would like to take part'
   return 'Where to find you'
 }
 
-// Map profile flags back to the form's roleIntent value. Undecided wins over
-// any stored intent because both can be true on a freshly created row.
-function deriveRoleIntent(profile) {
+// Map profile flags back to the form's roleIntent value. A granted mentor role
+// outranks both flags: the role is already held, so the intent cannot disagree
+// with it. Otherwise undecided wins, because both flags can be true on a
+// freshly created row.
+function deriveRoleIntent(profile, roles = []) {
+  if (roles.includes('mentor')) return 'mentor'
   if (!profile) return 'mentee'
   if (profile.role_undecided === true) return 'undecided'
   if (profile.role_intent === 'mentor') return 'mentor'
@@ -269,9 +278,13 @@ function deriveRoleIntent(profile) {
   return 'mentee'
 }
 
-function ledeFor(step) {
+function ledeFor(step, roleGranted) {
   if (step === 1) return 'A few details so we can match you well and stay in touch.'
-  if (step === 2) return 'Pick the closest fit. You can change this with our team later.'
+  if (step === 2) {
+    return roleGranted
+      ? 'Your role is already set. Tell us what you can offer and how much time you have.'
+      : 'Pick the closest fit. You can change this with our team later.'
+  }
   return 'Optional. Helpful for mentors and admins when you connect.'
 }
 

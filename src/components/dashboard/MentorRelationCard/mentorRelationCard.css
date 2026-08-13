@@ -96,6 +96,114 @@
   border-radius: var(--tv-radius-sm);
 }
 
+/* ============ Paired state ============ */
+
+.mentor-card__person {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-4);
+  /* The card holds a 280px floor so it sits level with its neighbour. The
+     paired state carries less copy than the four text states, so the person
+     block takes the slack rather than leaving it under them. */
+  margin-block: auto;
+}
+
+.mentor-card__person-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-1);
+  min-width: 0;
+}
+
+.mentor-card__avatar {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  overflow: hidden;
+  border-radius: var(--tv-radius-pill);
+  background: var(--tv-primary-soft);
+  color: var(--tv-primary-hover);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-md);
+  font-weight: var(--tv-fw-semibold);
+}
+
+.mentor-card__avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mentor-card__role {
+  margin: 0;
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-2);
+  overflow-wrap: anywhere;
+}
+
+.mentor-card__since {
+  margin: 0;
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  color: var(--tv-text-muted);
+}
+
+.mentor-card__place {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-2);
+}
+
+.mentor-card__focus {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tv-space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mentor-card__focus-tag {
+  padding: var(--tv-space-1) var(--tv-space-3);
+  background: var(--tv-primary-soft);
+  border-radius: var(--tv-radius-pill);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-primary-hover);
+}
+
+/* D15. A deactivated mentor keeps their pairing, so the mentee is told
+   plainly rather than left with a mentor who cannot sign in. */
+.mentor-card__notice {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  padding: var(--tv-space-3);
+  background: var(--tv-warning-bg);
+  border-radius: var(--tv-radius-md);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-warning-text);
+}
+
+.mentor-card__skeleton {
+  position: relative;
+  z-index: 1;
+  height: 88px;
+  border-radius: var(--tv-radius-md);
+  background: var(--tv-border);
+  opacity: 0.5;
+}
+
 /* Vesica watermark, anchored bottom-right and clipped by the card. */
 .mentor-card__watermark {
   position: absolute;
@@ -113,4 +221,5 @@
 @media (max-width: 640px) {
   .mentor-card { padding: var(--tv-space-5); min-height: 240px; }
   .mentor-card__watermark { width: 130px; height: 130px; }
+  .mentor-card__avatar { width: 48px; height: 48px; }
 }

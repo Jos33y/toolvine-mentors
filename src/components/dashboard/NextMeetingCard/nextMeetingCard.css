@@ -41,6 +41,109 @@
   max-width: 480px;
 }
 
+/* ============ Scheduled state ============ */
+
+.next-meet__with {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tv-space-2);
+  margin: 0;
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-2);
+}
+
+.next-meet__mode {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-1);
+  padding: 2px var(--tv-space-2);
+  background: var(--tv-surface);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-pill);
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-2);
+}
+
+.next-meet__dur {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  color: var(--tv-text-muted);
+}
+
+.next-meet__detail {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  margin: 0;
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  overflow-wrap: anywhere;
+}
+
+.next-meet__overdue {
+  margin: 0;
+  font-size: var(--tv-fs-xs);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-warning-text);
+}
+
+.next-meet__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tv-space-3);
+  margin-top: var(--tv-space-1);
+}
+
+.next-meet__join {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  min-height: 40px;
+  padding: var(--tv-space-2) var(--tv-space-4);
+  background: var(--tv-primary);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-semibold);
+  color: var(--tv-text-inverse);
+  text-decoration: none;
+  transition: background var(--tv-duration-fast) var(--tv-ease);
+}
+
+/* The global a:hover rule outranks a single class, so the colour is restated
+   or the label disappears into the fill. */
+.next-meet__join:hover,
+.next-meet__join:focus-visible {
+  background: var(--tv-primary-hover);
+  color: var(--tv-text-inverse);
+}
+
+.next-meet__link {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-medium);
+  color: var(--tv-primary);
+  text-decoration: none;
+}
+
+.next-meet__link:hover { color: var(--tv-primary-hover); text-decoration: underline; }
+
+.next-meet__skeleton {
+  height: 72px;
+  border-radius: var(--tv-radius-md);
+  background: var(--tv-border);
+  opacity: 0.5;
+}
+
 @media (max-width: 640px) {
   .next-meet { padding: var(--tv-space-5); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .next-meet__join { transition: none; }
 }

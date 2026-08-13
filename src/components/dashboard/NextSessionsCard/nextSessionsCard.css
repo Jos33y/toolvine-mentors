@@ -206,3 +206,54 @@
     font-size: var(--tv-fs-base);
   }
 }
+
+/* ============ Row actions ============
+   Mark completed only appears once the session time has passed, so the
+   dashboard cannot close out a meeting that has not happened. */
+
+.session-stub__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tv-space-3);
+  margin-top: var(--tv-space-2);
+}
+
+.session-stub__link {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-medium);
+  color: var(--tv-primary);
+  text-decoration: none;
+}
+
+.session-stub__link:hover {
+  color: var(--tv-primary-hover);
+  text-decoration: underline;
+}
+
+.session-stub__done {
+  min-height: 32px;
+  padding: var(--tv-space-1) var(--tv-space-3);
+  background: transparent;
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-pill);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-medium);
+  color: var(--tv-text-2);
+  cursor: pointer;
+  transition: border-color var(--tv-duration-fast) var(--tv-ease),
+              color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.session-stub__done:hover:not(:disabled) {
+  border-color: var(--tv-primary);
+  color: var(--tv-primary);
+}
+
+.session-stub__done:disabled { opacity: 0.5; cursor: default; }
+
+@media (prefers-reduced-motion: reduce) {
+  .session-stub__done { transition: none; }
+}

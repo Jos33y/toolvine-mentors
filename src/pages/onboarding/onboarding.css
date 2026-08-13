@@ -265,6 +265,36 @@
   box-shadow: inset 0 0 0 1px var(--tv-primary);
 }
 
+/* Read-only variant for a user whose role the team already granted. Reads as
+   a settled fact, not a disabled control, so it carries no hover or cursor. */
+.onbp__role--granted {
+  border-color: var(--tv-primary);
+  background: var(--tv-primary-soft);
+  box-shadow: inset 0 0 0 1px var(--tv-primary);
+  cursor: default;
+}
+
+.onbp__role--granted:hover {
+  border-color: var(--tv-primary);
+}
+
+.onbp__role--granted .onbp__role-name {
+  color: var(--tv-primary-hover);
+}
+
+.onbp__role--granted .onbp__role-check {
+  border-color: var(--tv-primary);
+  background: var(--tv-primary);
+}
+
+.onbp__role-note {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  margin: 0;
+}
+
 .onbp__role-input {
   position: absolute;
   opacity: 0;

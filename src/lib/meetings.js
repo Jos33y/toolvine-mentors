@@ -1,4 +1,456 @@
 import { supabase } from '@/lib/supabase'
+import { logAdminAction } from '@/lib/adminLog'
+import { timeOfDay } from '@/lib/format'
+
+// RLS on meetings already scopes every read: an admin sees all rows, a mentor
+// or mentee sees only meetings under a pairing they belong to. So the reads
+// below do not filter by role. Adding a client-side pairing filter would
+// duplicate the policy and drift from it.
+
+/* ============ Constants ============ */
+
+export const MEETING_STATUS = Object.freeze({
+  SCHEDULED: 'scheduled',
+  COMPLETED: 'completed',
+  CANCELLED: 'cancelled'
+})
+
+export const STATUS_LABELS = Object.freeze({
+  scheduled: 'Scheduled',
+  completed: 'Completed',
+  cancelled: 'Cancelled'
+})
+
+// Native modes are gated behind native_calls_enabled. D21: while the flag is
+// off they are absent from the form, not disabled in it.
+export const MEETING_MODES = Object.freeze([
+  { value: 'external',     label: 'Online link',  hint: 'Zoom, Meet, or any other link', needs: 'link',     native: false },
+  { value: 'phone',        label: 'Phone',        hint: 'A call, no link needed',        needs: null,       native: false },
+  { value: 'in_person',    label: 'In person',    hint: 'Somewhere you both go',         needs: 'location', native: false },
+  { value: 'native_video', label: 'Video',        hint: 'Video call on Toolvine',        needs: null,       native: true },
+  { value: 'native_audio', label: 'Audio',        hint: 'Audio call on Toolvine',        needs: null,       native: true }
+])
+
+export const MODE_LABELS = Object.freeze(
+  Object.fromEntries(MEETING_MODES.map((m) => [m.value, m.label]))
+)
+
+export const DURATION_MIN = 5
+export const DURATION_MAX = 480
+export const DEFAULT_DURATION = 60
+
+export const MEETING_FILTERS = [
+  { key: 'upcoming',  label: 'Upcoming' },
+  { key: 'past',      label: 'Past' },
+  { key: 'cancelled', label: 'Cancelled' }
+]
+
+export const DEFAULT_MEETING_FILTER = 'upcoming'
+
+export function availableModes(nativeCallsEnabled) {
+  return MEETING_MODES.filter((m) => !m.native || nativeCallsEnabled === true)
+}
+
+export function modeNeedsLink(mode) {
+  return MEETING_MODES.find((m) => m.value === mode)?.needs === 'link'
+}
+
+export function modeNeedsLocation(mode) {
+  return MEETING_MODES.find((m) => m.value === mode)?.needs === 'location'
+}
+
+// A phone meeting has no field of its own. The number comes off the mentor's
+// profile, which the paired counterpart can already read, rather than being
+// copied onto every meeting row where it would drift.
+export function modeUsesMentorPhone(mode) {
+  return mode === 'phone'
+}
+
+export function mentorPhone(mentor) {
+  if (!mentor) return null
+  const raw = mentor.whatsapp_phone || mentor.other_phone || null
+  return raw ? String(raw).trim() || null : null
+}
+
+/* ============ Column lists ============ */
+
+// Named explicitly and never spread back into a write.
+// meetings.actual_duration_minutes is a stored generated column, so any
+// payload that names it fails. Reads may select it; writes may not.
+const MEETING_FIELDS = `
+  id, pairing_id, scheduled_for, duration_minutes, mode, external_link, location,
+  status, completed_at, created_by, created_at,
+  actual_duration_minutes
+`
+
+const PAIRING_JOIN = `
+  pairing:pairings!meetings_pairing_id_fkey (
+    id, is_active, started_at, ended_at,
+    mentor:profiles!pairings_mentor_id_fkey ( id, full_name, email, photo_url, timezone, is_active, whatsapp_phone, other_phone ),
+    mentee:profiles!pairings_mentee_id_fkey ( id, full_name, email, photo_url, timezone, is_active, whatsapp_phone, other_phone )
+  )
+`
+
+/* ============ Reads ============ */
+
+// One list for every role. scope is 'upcoming', 'past', or 'cancelled'.
+// Upcoming means scheduled and not yet started; past means completed, or
+// scheduled and already behind us, because a meeting nobody marked complete
+// is still in the past.
+export async function fetchMeetings({ scope = DEFAULT_MEETING_FILTER, limit = 100 } = {}) {
+  const nowIso = new Date().toISOString()
+
+  let query = supabase
+    .from('meetings')
+    .select(`${MEETING_FIELDS}, ${PAIRING_JOIN}`)
+
+  if (scope === 'upcoming') {
+    query = query
+      .eq('status', MEETING_STATUS.SCHEDULED)
+      .gte('scheduled_for', nowIso)
+      .order('scheduled_for', { ascending: true })
+  } else if (scope === 'cancelled') {
+    query = query
+      .eq('status', MEETING_STATUS.CANCELLED)
+      .order('scheduled_for', { ascending: false })
+  } else {
+    query = query
+      .or(`status.eq.${MEETING_STATUS.COMPLETED},and(status.eq.${MEETING_STATUS.SCHEDULED},scheduled_for.lt.${nowIso})`)
+      .order('scheduled_for', { ascending: false })
+  }
+
+  const { data, error } = await query.limit(limit)
+  if (error) throw error
+  return (data ?? []).map(shape)
+}
+
+export async function fetchMeeting(id) {
+  const { data, error } = await supabase
+    .from('meetings')
+    .select(`${MEETING_FIELDS}, ${PAIRING_JOIN}`)
+    .eq('id', id)
+    .maybeSingle()
+
+  if (error) throw error
+  return data ? shape(data) : null
+}
+
+// The single soonest upcoming meeting the caller can see. Feeds
+// NextMeetingCard on the mentee dashboard.
+export async function fetchNextMeeting() {
+  const { data, error } = await supabase
+    .from('meetings')
+    .select(`${MEETING_FIELDS}, ${PAIRING_JOIN}`)
+    .eq('status', MEETING_STATUS.SCHEDULED)
+    .gte('scheduled_for', new Date().toISOString())
+    .order('scheduled_for', { ascending: true })
+    .limit(1)
+
+  if (error) throw error
+  const row = (data ?? [])[0]
+  return row ? shape(row) : null
+}
+
+// Pairings the caller may schedule against. RLS returns the admin every
+// pairing and a mentor only their own. Ended pairings are excluded: a meeting
+// under an ended pairing is a meeting that will not happen.
+export async function fetchSchedulablePairings() {
+  const { data, error } = await supabase
+    .from('pairings')
+    .select(`
+      id, started_at,
+      mentor:profiles!pairings_mentor_id_fkey ( id, full_name, timezone ),
+      mentee:profiles!pairings_mentee_id_fkey ( id, full_name, timezone )
+    `)
+    .eq('is_active', true)
+    .order('started_at', { ascending: false })
+
+  if (error) throw error
+  return data ?? []
+}
+
+/* ============ Writes ============ */
+
+// A mentor scheduling their own session is not an admin action, and
+// admin_actions exists to record admin writes. An admin scheduling into
+// someone else's pairing is exactly what the log is for, so the caller passes
+// its own role rather than this module guessing.
+function logIfAdmin(isAdmin, action, id, label, meta) {
+  if (isAdmin === true) logAdminAction(action, 'meetings', id, label, meta)
+}
+
+export async function createMeeting({
+  pairingId,
+  scheduledFor,
+  durationMinutes = DEFAULT_DURATION,
+  mode = 'external',
+  externalLink = null,
+  location = null,
+  createdBy = null,
+  asAdmin = false,
+  label = null
+}) {
+  const payload = {
+    pairing_id:       pairingId,
+    scheduled_for:    scheduledFor,
+    duration_minutes: durationMinutes ?? null,
+    mode,
+    // D20, extended to location. A stale Zoom link must not survive a switch
+    // to in-person, and a stale address must not survive a switch back.
+    external_link:    modeNeedsLink(mode)     ? (externalLink || null) : null,
+    location:         modeNeedsLocation(mode) ? (location || null)     : null,
+    created_by:       createdBy
+  }
+
+  const { data, error } = await supabase
+    .from('meetings')
+    .insert(payload)
+    .select(`${MEETING_FIELDS}, ${PAIRING_JOIN}`)
+    .single()
+
+  if (error) throw error
+  logIfAdmin(asAdmin, 'schedule_meeting', data.id, label)
+  return shape(data)
+}
+
+// Explicit allowlist. Never spread a fetched row into this: it carries
+// actual_duration_minutes, and naming a generated column in an update fails.
+const UPDATABLE = ['scheduled_for', 'duration_minutes', 'mode', 'external_link', 'location']
+
+export async function updateMeeting(id, patch = {}) {
+  const payload = {}
+  for (const key of UPDATABLE) {
+    if (key in patch) payload[key] = patch[key]
+  }
+  if ('mode' in payload) {
+    if (!modeNeedsLink(payload.mode))     payload.external_link = null
+    if (!modeNeedsLocation(payload.mode)) payload.location = null
+  }
+  if (Object.keys(payload).length === 0) return null
+
+  const { data, error } = await supabase
+    .from('meetings')
+    .update(payload)
+    .eq('id', id)
+    .select(`${MEETING_FIELDS}, ${PAIRING_JOIN}`)
+    .single()
+
+  if (error) throw error
+  return shape(data)
+}
+
+// Reschedule is an update plus a notice that names the old time, so it is its
+// own entry point rather than a flag on updateMeeting. Returns both rows so
+// the caller can pass the previous time to the notifier.
+export async function rescheduleMeeting(id, patch = {}, { asAdmin = false, label = null } = {}) {
+  const before = await fetchMeeting(id)
+  if (!before) throw new Error('Meeting not found')
+
+  const after = await updateMeeting(id, patch)
+  logIfAdmin(asAdmin, 'reschedule_meeting', id, label, {
+    from: before.scheduledFor,
+    to:   after?.scheduledFor ?? null
+  })
+
+  return { before, after }
+}
+
+// meetings_check requires completed_at when status is completed, so the two
+// move together in one statement or the write fails.
+export async function completeMeeting(id, { at = null, asAdmin = false, label = null } = {}) {
+  const { data, error } = await supabase
+    .from('meetings')
+    .update({
+      status:       MEETING_STATUS.COMPLETED,
+      completed_at: at ?? new Date().toISOString()
+    })
+    .eq('id', id)
+    .select(`${MEETING_FIELDS}, ${PAIRING_JOIN}`)
+    .single()
+
+  if (error) throw error
+  logIfAdmin(asAdmin, 'complete_meeting', id, label)
+  return shape(data)
+}
+
+// D16. The meetings_guard_completed trigger blocks this for anyone but an
+// admin once a meeting is completed. The UI does not offer it either, but the
+// database is what makes it true.
+export async function cancelMeeting(id, { asAdmin = false, label = null } = {}) {
+  const { data, error } = await supabase
+    .from('meetings')
+    .update({ status: MEETING_STATUS.CANCELLED })
+    .eq('id', id)
+    .select(`${MEETING_FIELDS}, ${PAIRING_JOIN}`)
+    .single()
+
+  if (error) throw error
+  logIfAdmin(asAdmin, 'cancel_meeting', id, label)
+  return shape(data)
+}
+
+// D17. Reopening a completed meeting is an admin correction, not a status
+// toggle anyone can reach. Clears completed_at in the same statement.
+export async function reopenMeeting(id, label = null) {
+  const { data, error } = await supabase
+    .from('meetings')
+    .update({ status: MEETING_STATUS.SCHEDULED, completed_at: null })
+    .eq('id', id)
+    .select(`${MEETING_FIELDS}, ${PAIRING_JOIN}`)
+    .single()
+
+  if (error) throw error
+  logAdminAction('reopen_meeting', 'meetings', id, label)
+  return shape(data)
+}
+
+// One notifier per domain, kind as a parameter. Adding a fourth kind later is
+// a copy block in the function, not a new deploy and a new invoke path here.
+// Best effort: a failed send must never read as a failed write.
+export async function sendMeetingEmail(meetingId, kind = 'scheduled', previousScheduledFor = null) {
+  try {
+    const { data, error } = await supabase.functions.invoke('meeting-notify', {
+      body: {
+        meeting_id:             meetingId,
+        kind,
+        previous_scheduled_for: previousScheduledFor
+      }
+    })
+    if (error) {
+      console.error('[meeting-notify] invoke error:', error)
+      return { sent: false, reason: 'invoke-failed' }
+    }
+    return data || { sent: false, reason: 'no-response' }
+  } catch (e) {
+    console.error('[meeting-notify] threw:', e)
+    return { sent: false, reason: 'threw' }
+  }
+}
+
+/* ============ Errors ============ */
+
+export function friendlyMeetingError(err) {
+  if (!err) return 'Something went wrong.'
+
+  const raw  = (err.message || '').trim()
+  const code = err.code || ''
+
+  if (/completed meeting cannot be reopened or cancelled/i.test(raw)) {
+    return 'That meeting is already recorded as completed. Only an admin can change it.'
+  }
+  if (code === '23514' && /duration_minutes/i.test(raw)) {
+    return `A meeting must run between ${DURATION_MIN} and ${DURATION_MAX} minutes.`
+  }
+  if (code === '23514' && /meetings_check\b/i.test(raw)) {
+    return 'A completed meeting needs a completion time. Reload and try again.'
+  }
+  if (code === '23514' && /mode/i.test(raw)) {
+    return 'That meeting type is not available.'
+  }
+  if (code === '23503') {
+    return 'That pairing no longer exists. Reload the page.'
+  }
+  if (code === '42501' || /permission denied|row-level security/i.test(raw)) {
+    return 'You do not have permission to change this meeting.'
+  }
+  if (/JWT|session/i.test(raw)) {
+    return 'Your session expired. Sign in again.'
+  }
+
+  return raw || 'Something went wrong.'
+}
+
+/* ============ Time helpers ============ */
+
+// datetime-local gives and takes a wall-clock string with no zone, so both
+// directions go through the browser's own offset rather than through toISOString.
+export function toLocalInputValue(iso) {
+  if (!iso) return ''
+  const d      = new Date(iso)
+  const offset = d.getTimezoneOffset() * 60000
+  return new Date(d.getTime() - offset).toISOString().slice(0, 16)
+}
+
+export function fromLocalInputValue(value) {
+  if (!value) return null
+  return new Date(value).toISOString()
+}
+
+// D19. Only rendered when the counterpart actually has a timezone set. Seven
+// of twelve profiles do, and telling a mentee their UK mentor is in Lagos is
+// worse than telling them nothing.
+export function counterpartTime(iso, timezone) {
+  if (!iso || !timezone) return null
+  try {
+    return new Intl.DateTimeFormat('en-GB', {
+      weekday: 'short', day: 'numeric', month: 'short',
+      hour: 'numeric', minute: '2-digit', hour12: true,
+      timeZone: timezone
+    })
+      .format(new Date(iso))
+      .replace(/\s*(am|pm)$/i, (_, m) => ` ${m.toUpperCase()}`)
+  } catch {
+    return null
+  }
+}
+
+// Same clock, viewer's own zone. Kept here so the detail view reads both
+// sides from one module.
+export function viewerTime(iso) {
+  return iso ? timeOfDay(iso) : null
+}
+
+export function isPast(iso) {
+  return Boolean(iso) && new Date(iso).getTime() < Date.now()
+}
+
+// When completion unlocks, said as time rather than narrated as a rule.
+// Returns null once the moment has passed, so the caller renders the control
+// instead. Beyond a fortnight it returns null too and the caller shows the
+// date, because "in 63 days" is noise.
+export function opensForCompletionIn(iso, now = new Date()) {
+  if (!iso) return null
+  const ms = new Date(iso).getTime() - now.getTime()
+  if (ms <= 0) return null
+
+  const mins = Math.round(ms / 60000)
+  if (mins < 60) return `in ${mins} min`
+
+  const hours = Math.round(mins / 60)
+  if (hours < 24) return `in ${hours} ${hours === 1 ? 'hour' : 'hours'}`
+
+  const days = Math.round(hours / 24)
+  if (days <= 14) return `in ${days} ${days === 1 ? 'day' : 'days'}`
+
+  return null
+}
+
+/* ============ Internals ============ */
+
+// Flattens the pairing join so callers read meeting.mentor rather than
+// meeting.pairing.mentor, and keeps the raw pairing for the detail view.
+function shape(row) {
+  const pairing = row.pairing ?? null
+  return {
+    id:              row.id,
+    pairingId:       row.pairing_id,
+    scheduledFor:    row.scheduled_for,
+    durationMinutes: row.duration_minutes,
+    mode:            row.mode,
+    externalLink:    row.external_link,
+    location:        row.location,
+    status:          row.status,
+    completedAt:     row.completed_at,
+    createdBy:       row.created_by,
+    createdAt:       row.created_at,
+    actualMinutes:   row.actual_duration_minutes,
+    pairingActive:   pairing?.is_active ?? null,
+    mentor:          pairing?.mentor ?? null,
+    mentee:          pairing?.mentee ?? null
+  }
+}
+
+/* ============ Carried from Block C ============ */
 
 // Upcoming scheduled meetings across all this mentor's active pairings.
 // Soonest first. Used by NextSessionsCard. Each meeting joined with the

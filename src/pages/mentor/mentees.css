@@ -1,0 +1,348 @@
+/* Mentor roster. Same row family as the pairings board so the two admin and
+   mentor list surfaces read as one system. Triage first: status decides order,
+   name breaks the tie. */
+
+.mentees-page {
+  max-width: 1040px;
+  padding: var(--tv-space-6) var(--tv-space-5) var(--tv-space-16);
+}
+
+/* ============ Head ============ */
+
+.mentees-page__head {
+  margin-bottom: var(--tv-space-5);
+}
+
+.mentees-page__eyebrow {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wider);
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+  margin: 0 0 var(--tv-space-2);
+}
+
+.mentees-page__title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-2xl);
+  letter-spacing: var(--tv-tracking-tight);
+  color: var(--tv-text);
+  margin: 0 0 var(--tv-space-2);
+}
+
+.mentees-page__lede {
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  margin: 0;
+  max-width: 62ch;
+}
+
+.mentees-page__alert {
+  padding: var(--tv-space-3) var(--tv-space-4);
+  margin-bottom: var(--tv-space-4);
+  background: var(--tv-error-bg);
+  color: var(--tv-error-text);
+  border-radius: var(--tv-radius-md);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+}
+
+/* ============ Filters ============ */
+
+.mentees-page__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tv-space-2);
+  margin-bottom: var(--tv-space-4);
+}
+
+.mentees-page__filter {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  min-height: 40px;
+  padding: var(--tv-space-2) var(--tv-space-3);
+  background: transparent;
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-pill);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-medium);
+  color: var(--tv-text-2);
+  cursor: pointer;
+  transition: border-color var(--tv-duration-fast) var(--tv-ease),
+              color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.mentees-page__filter:hover {
+  border-color: var(--tv-border-strong);
+  color: var(--tv-text);
+}
+
+.mentees-page__filter--active {
+  background: var(--tv-surface);
+  border-color: var(--tv-primary);
+  color: var(--tv-primary);
+}
+
+.mentees-page__filter-count {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+}
+
+.mentees-page__filter--active .mentees-page__filter-count { color: var(--tv-primary); }
+
+/* ============ Search ============ */
+
+.mentees-page__search {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  padding: 0 var(--tv-space-3);
+  margin-bottom: var(--tv-space-5);
+  background: var(--tv-surface);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  color: var(--tv-text-muted);
+}
+
+.mentees-page__search:focus-within {
+  border-color: var(--tv-primary);
+  box-shadow: var(--tv-shadow-focus);
+}
+
+.mentees-page__search-input {
+  flex: 1;
+  min-width: 0;
+  padding: var(--tv-space-3) 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text);
+}
+
+/* ============ List ============ */
+
+.mentees-page__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-3);
+}
+
+.mentees-page__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--tv-space-3);
+  padding: var(--tv-space-4);
+  background: var(--tv-surface);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-lg);
+}
+
+.mentees-page__row--skel {
+  display: block;
+  min-height: 92px;
+  background: var(--tv-canvas-app);
+  border-style: dashed;
+}
+
+@media (min-width: 960px) {
+  .mentees-page__row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) auto;
+    align-items: center;
+    gap: var(--tv-space-5);
+  }
+}
+
+/* ============ Person ============ */
+
+.mentees-page__person {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-3);
+  min-width: 0;
+}
+
+.mentees-page__person-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mentees-page__name {
+  margin: 0;
+  font-size: var(--tv-fs-base);
+  font-weight: var(--tv-fw-semibold);
+  color: var(--tv-text);
+  overflow-wrap: anywhere;
+}
+
+.mentees-page__email {
+  margin: 0;
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.mentees-page__avatar {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  overflow: hidden;
+  border-radius: var(--tv-radius-pill);
+  background: var(--tv-primary-soft);
+  color: var(--tv-primary-hover);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-semibold);
+}
+
+.mentees-page__avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ============ Detail ============ */
+
+.mentees-page__detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-2);
+  min-width: 0;
+}
+
+.mentees-page__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tv-space-1);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mentees-page__tag {
+  padding: 2px var(--tv-space-2);
+  background: var(--tv-primary-soft);
+  border-radius: var(--tv-radius-pill);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-primary-hover);
+}
+
+.mentees-page__meta {
+  margin: 0;
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  color: var(--tv-text-muted);
+}
+
+.mentees-page__open { color: var(--tv-accent-text); }
+
+/* ============ Status pill ============
+   Scoped to this page rather than reusing the global .status-pill from the
+   dashboard card, whose stylesheet is not guaranteed to be in this route's
+   chunk. Same values, no cross-file dependency. */
+
+.mentees-page__pill {
+  justify-self: start;
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tv-tracking-wide);
+  padding: 3px var(--tv-space-2);
+  border-radius: var(--tv-radius-pill);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.mentees-page__pill--new {
+  background: var(--tv-primary-soft);
+  color: var(--tv-primary);
+}
+
+.mentees-page__pill--on_track {
+  background: var(--tv-success-bg);
+  color: var(--tv-success-text);
+}
+
+.mentees-page__pill--follow_up {
+  background: var(--tv-warning-bg);
+  color: var(--tv-warning-text);
+}
+
+.mentees-page__pill--stalled {
+  background: var(--tv-canvas-app);
+  color: var(--tv-text-muted);
+  border: 1px solid var(--tv-border);
+  padding: 2px var(--tv-space-2);
+}
+
+/* ============ Empty ============ */
+
+.mentees-page__empty {
+  padding: var(--tv-space-10) var(--tv-space-5);
+  text-align: center;
+  background: var(--tv-surface);
+  border: 1px dashed var(--tv-border-strong);
+  border-radius: var(--tv-radius-lg);
+}
+
+.mentees-page__empty-title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-md);
+  color: var(--tv-text);
+  margin: 0 0 var(--tv-space-2);
+}
+
+.mentees-page__empty-body {
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  margin: 0 auto var(--tv-space-5);
+  max-width: 54ch;
+}
+
+.mentees-page__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  min-height: 44px;
+  padding: var(--tv-space-2) var(--tv-space-5);
+  background: var(--tv-primary);
+  color: var(--tv-text-inverse);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-semibold);
+  text-decoration: none;
+  transition: background var(--tv-duration-fast) var(--tv-ease);
+}
+
+/* The global a:hover rule outranks a single class, so the colour has to be
+   restated here or the label vanishes into the teal on hover. */
+.mentees-page__cta:hover,
+.mentees-page__cta:focus-visible {
+  background: var(--tv-primary-hover);
+  color: var(--tv-text-inverse);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mentees-page__filter,
+  .mentees-page__cta { transition: none; }
+}

@@ -1,5 +1,7 @@
+import { Link } from 'react-router-dom'
 import { Icon } from '@/components/shared/Icon/Icon'
 import { formatSessionTime, dateStub } from '@/lib/format'
+import { isPast } from '@/lib/meetings'
 import './nextSessionsCard.css'
 
 // Lead card: the answer to "what's next?". The soonest session sits in a
@@ -7,7 +9,7 @@ import './nextSessionsCard.css'
 // brand teal so the lead row carries weight without resorting to a pastel
 // icon system. Mode chips carry a small icon so the meeting mode is legible
 // at a glance.
-export function NextSessionsCard({ upcoming = [], loading }) {
+export function NextSessionsCard({ upcoming = [], loading, onComplete, busyId = null }) {
   if (loading) {
     return (
       <article className="next-sessions next-sessions--loading">
@@ -35,14 +37,24 @@ export function NextSessionsCard({ upcoming = [], loading }) {
       <Header />
 
       <div className="next-sessions__lead">
-        <SessionStub session={lead} variant="lead" />
+        <SessionStub
+          session={lead}
+          variant="lead"
+          onComplete={onComplete}
+          busy={busyId === lead.id}
+        />
       </div>
 
       {rest.length > 0 && (
         <ul className="next-sessions__rest">
           {rest.map((s) => (
             <li key={s.id} className="next-sessions__rest-item">
-              <SessionStub session={s} variant="compact" />
+              <SessionStub
+                session={s}
+                variant="compact"
+                onComplete={onComplete}
+                busy={busyId === s.id}
+              />
             </li>
           ))}
         </ul>
@@ -60,11 +72,14 @@ function Header() {
   )
 }
 
-function SessionStub({ session, variant }) {
+function SessionStub({ session, variant, onComplete, busy }) {
   const stub   = dateStub(session.scheduled_for)
   const when   = formatSessionTime(session.scheduled_for)
   const who    = session.mentee?.full_name ?? 'Mentee'
   const isLead = variant === 'lead'
+  // Marking complete before the session has happened is almost always a
+  // misclick, so the control appears only once the time has passed.
+  const canComplete = Boolean(onComplete) && isPast(session.scheduled_for)
 
   return (
     <div className={`session-stub session-stub--${variant}`}>
@@ -80,6 +95,19 @@ function SessionStub({ session, variant }) {
           <span>{when}</span>
           <ModeChip mode={session.mode} />
         </p>
+        <div className="session-stub__actions">
+          <Link className="session-stub__link" to={`/meetings/${session.id}`}>Open</Link>
+          {canComplete && (
+            <button
+              type="button"
+              className="session-stub__done"
+              onClick={() => onComplete(session)}
+              disabled={busy}
+            >
+              {busy ? 'Saving' : 'Mark completed'}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )

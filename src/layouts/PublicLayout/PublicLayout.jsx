@@ -20,18 +20,19 @@ const NAV_RIGHT = [
   { to: '/resources',    label: 'Resources' }
 ]
 
-// About dropdown children. All three are peer destinations; none is
+// About dropdown children. All four are peer destinations; none is
 // visually prioritized above the others.
 const ABOUT_ITEMS = [
   { to: '/about',    label: 'About',    caption: 'Who we are' },
   { to: '/team',     label: 'Team',     caption: 'The people who carry it' },
-  { to: '/outreach', label: 'Outreach', caption: 'In the community' }
+  { to: '/outreach', label: 'Outreach', caption: 'In the community' },
+  { to: '/partners', label: 'Partners', caption: 'Who we work with' }
 ]
 
 // Reach out dropdown children. Get Involved is marked primary so it
 // visually leads. Contact stays as the quiet default.
 const REACH_OUT_ITEMS = [
-  { to: '/get-involved', label: 'Get Involved', caption: 'Volunteer, sponsor, invest, or partner', primary: true },
+  { to: '/get-involved', label: 'Get Involved', caption: 'Volunteer, sponsor, donate, or partner', primary: true },
   { to: '/contact',      label: 'Contact' }
 ]
 

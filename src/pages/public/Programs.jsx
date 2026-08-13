@@ -12,7 +12,7 @@ const PROGRAMS = [
   {
     mark: 'A',
     title: 'Toolvine Family Meeting',
-    body: 'A monthly gathering where a guest speaker joins us to speak into the issues of life. Open to the whole community.',
+    body: 'Our monthly gathering. Guest speakers, mentoring interactions, discussions, prayer, and Q&A. Open to the whole community.',
     cadence: 'Monthly',
     audience: 'Community-wide'
   },
@@ -26,7 +26,7 @@ const PROGRAMS = [
   {
     mark: 'C',
     title: 'Toolvine Pillars Meeting',
-    body: "Every team leader brings the month's updates from their pillar. This is how the initiative stays connected to itself.",
+    body: "Every team leader brings the month's updates from their unit. This is how the initiative stays connected to itself.",
     cadence: 'Monthly',
     audience: 'Team leaders'
   },
