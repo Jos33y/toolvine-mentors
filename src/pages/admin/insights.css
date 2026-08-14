@@ -168,6 +168,15 @@
   text-transform: uppercase;
 }
 
+/* Explains a range that renders shorter than the pill claims, because
+   tracking started partway through the requested window. */
+.ins__chart-note {
+  margin: 0;
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+}
+
 .ins__chart-empty {
   display: flex;
   align-items: center;
@@ -182,12 +191,13 @@
   margin: 0;
 }
 
-/* ============ Two-column grid (paths + devices) ============ */
+/* ============ Two-column grid (paths + arrival) ============ */
 
 .ins__grid {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
   gap: var(--tv-space-4);
+  align-items: start;
 }
 
 /* ============ Top paths ============ */
@@ -275,7 +285,7 @@
 
 .ins__devices-row {
   display: grid;
-  grid-template-columns: 10px 1fr auto;
+  grid-template-columns: 10px 1fr auto auto;
   align-items: center;
   gap: var(--tv-space-2);
 }
@@ -292,11 +302,84 @@
   color: var(--tv-text);
 }
 
+/* Session count beside the share. A percentage alone hides how thin a
+   90 percent can be. */
+.ins__devices-count {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+}
+
 .ins__devices-percent {
   font-family: var(--tv-font-display);
   font-weight: var(--tv-fw-semibold);
   font-size: var(--tv-fs-sm);
   color: var(--tv-text);
+  min-width: 34px;
+  text-align: right;
+}
+
+/* ============ Sources ============ */
+
+.ins__sources {
+  border-top: 1px solid var(--tv-border);
+  padding-top: var(--tv-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-3);
+}
+
+.ins__sources-head {
+  margin: 0;
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tv-tracking-wider);
+  color: var(--tv-text-2);
+}
+
+.ins__sources-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-2);
+}
+
+.ins__sources-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--tv-space-3);
+  min-width: 0;
+}
+
+.ins__sources-label {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.ins__sources-count {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text);
+  flex-shrink: 0;
+}
+
+.ins__sources-note {
+  margin: 0;
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+  line-height: var(--tv-lh-normal, 1.5);
 }
 
 /* ============ Funnel ============ */
@@ -414,5 +497,13 @@
 
   .ins__donut {
     align-self: center;
+  }
+
+  .ins__paths-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .ins__paths-bar {
+    display: none;
   }
 }

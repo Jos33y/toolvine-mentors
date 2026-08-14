@@ -1,51 +1,34 @@
-import { useCallback, useEffect, useState } from 'react'
-import {
-  visitsLastNDays,
-  topPaths,
-  deviceSplit,
-  visitsByDay,
-  signupFunnel
-} from '@/lib/siteInsights'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { fetchSiteInsights, EMPTY_INSIGHTS } from '@/lib/siteInsights'
 
-// Powers SiteInsightsCard (compact preview) and /admin/insights (full view).
-// Defaults match the card display: last 7 days for headline numbers, top 3
-// paths, last 30 days for the chart. Pass overrides for the page.
-export function useSiteInsights({
-  headlineDays = 7,
-  chartDays    = 30,
-  pathsLimit   = 5
-} = {}) {
-  const [visits,     setVisits]     = useState(0)
-  const [paths,      setPaths]      = useState([])
-  const [devices,    setDevices]    = useState({ mobile: 0, tablet: 0, desktop: 0, unknown: 0, total: 0 })
-  const [series,     setSeries]     = useState([])
-  const [funnel,     setFunnel]     = useState({ visitors: 0, signups: 0, onboarded: 0 })
-  const [loading,    setLoading]    = useState(true)
-  const [error,      setError]      = useState(null)
+// Powers SiteInsightsCard (7 day preview) and /admin/insights (range pills).
+// Both callers pass `days`, which is the only knob that changes the window.
+export function useSiteInsights({ days = 30, pathsLimit = 10 } = {}) {
+  const [data,    setData]    = useState(EMPTY_INSIGHTS)
+  const [loading, setLoading] = useState(true)
+  const [error,   setError]   = useState(null)
+
+  // A slow response for an abandoned range must not overwrite a newer one.
+  const requestRef = useRef(0)
 
   const load = useCallback(async () => {
+    const ticket = ++requestRef.current
+    setLoading(true)
     setError(null)
+
     try {
-      const [v, p, d, s, f] = await Promise.all([
-        visitsLastNDays(headlineDays),
-        topPaths({ days: headlineDays, limit: pathsLimit }),
-        deviceSplit({ days: headlineDays }),
-        visitsByDay({ days: chartDays }),
-        signupFunnel({ days: chartDays })
-      ])
-      setVisits(v)
-      setPaths(p)
-      setDevices(d)
-      setSeries(s)
-      setFunnel(f)
+      const next = await fetchSiteInsights({ days, pathsLimit })
+      if (ticket !== requestRef.current) return
+      setData(next)
     } catch (e) {
+      if (ticket !== requestRef.current) return
       setError(e)
     } finally {
-      setLoading(false)
+      if (ticket === requestRef.current) setLoading(false)
     }
-  }, [headlineDays, chartDays, pathsLimit])
+  }, [days, pathsLimit])
 
   useEffect(() => { load() }, [load])
 
-  return { visits, paths, devices, series, funnel, loading, error, refetch: load }
+  return { ...data, loading, error, refetch: load }
 }

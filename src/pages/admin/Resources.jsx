@@ -11,6 +11,7 @@ import {
   updateResource,
   setResourceArchived,
   uploadResourceFile,
+  resourceFileProblem,
   tryRemoveResourceFile,
   resourceFileUrl,
   resourceSchema,
@@ -18,9 +19,14 @@ import {
   matchesSearch,
   chaptersOf,
   publishedLabel,
-  friendlyResourceError
+  friendlyResourceError,
+  ACCEPTED_FILE_ACCEPT
 } from '@/lib/resources'
 import './resources.css'
+
+// Stands in for the object path during pre-upload validation. Never stored:
+// the real path replaces it before anything reaches the database.
+const PENDING_PATH = 'pending-upload'
 
 const FILTERS = [
   { key: 'all',      label: 'All' },
@@ -175,21 +181,36 @@ export function Resources() {
 
     let uploadedPath = null
     try {
-      // Upload first so file_path is present before the schema sees the draft.
-      let values = { ...draft }
+      const values = { ...draft }
+
+      // Check the file locally first. Nothing is sent for a file the bucket
+      // was going to refuse anyway.
       if (values.type === 'file' && file) {
-        uploadedPath = await uploadResourceFile(values.title || 'resource', file)
-        values.file_path = uploadedPath
+        const problem = resourceFileProblem(file)
+        if (problem) {
+          setFieldErrors({ file_path: problem })
+          return
+        }
       }
 
-      const parsed = resourceSchema.safeParse(values)
-      if (!parsed.success) {
+      // Then the rest of the draft, standing in a placeholder for the path
+      // that only exists after the upload. Validating this late used to mean a
+      // cleared title cost a full 25MB round trip before anyone was told.
+      const precheck = resourceSchema.safeParse(
+        values.type === 'file' && file
+          ? { ...values, file_path: PENDING_PATH }
+          : values
+      )
+      if (!precheck.success) {
         const map = {}
-        for (const issue of parsed.error.issues) map[issue.path[0]] = issue.message
+        for (const issue of precheck.error.issues) map[issue.path[0]] = issue.message
         setFieldErrors(map)
-        // Nothing was written, so an object uploaded a moment ago is an orphan.
-        if (uploadedPath) await tryRemoveResourceFile(uploadedPath)
         return
+      }
+
+      if (values.type === 'file' && file) {
+        uploadedPath = await uploadResourceFile(values.title, file)
+        values.file_path = uploadedPath
       }
 
       if (editing) {
@@ -206,8 +227,16 @@ export function Resources() {
       closeForm()
       await load()
     } catch (e) {
-      if (uploadedPath) await tryRemoveResourceFile(uploadedPath)
-      setFormError(friendlyResourceError(e))
+      let message = friendlyResourceError(e)
+      if (uploadedPath) {
+        const removed = await tryRemoveResourceFile(uploadedPath)
+        // resources has no delete policy, so an object nobody knows about is
+        // one only a developer can reach. Naming the path beats losing it.
+        if (!removed) {
+          message += ` Nothing was saved, but the uploaded file could not be removed. Send this path to your developer: ${uploadedPath}`
+        }
+      }
+      setFormError(message)
     } finally {
       setSaving(false)
     }
@@ -529,6 +558,7 @@ function ResourceForm({
             id="res-file"
             type="file"
             className="admin-res__file-input"
+            accept={ACCEPTED_FILE_ACCEPT}
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           />
           <label className="admin-res__drop" htmlFor="res-file">

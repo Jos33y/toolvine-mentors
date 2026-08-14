@@ -3,11 +3,10 @@ import { useSiteInsights } from '@/hooks/useSiteInsights'
 import { Icon } from '@/components/shared/Icon/Icon'
 import './insights.css'
 
-// Full visitor analytics for /admin/insights. Date range pills drive the
-// hook's `days` param. Charts are inline SVG: no library, no bundle cost,
-// full brand control. Calm utility voice — flat hairlines, brand-colored
-// fills, no animation. Empty states handle the period before page tracking
-// has accumulated meaningful data.
+// Full visitor analytics for /admin/insights. Range pills drive the hook's
+// `days` param. Charts are inline SVG: no library, no bundle cost, full brand
+// control. Calm utility voice, flat hairlines, brand fills, no animation.
+// Empty states cover the period before a window has accumulated traffic.
 
 const RANGES = [
   { value: 7,  label: '7 days' },
@@ -17,13 +16,10 @@ const RANGES = [
 
 export function Insights() {
   const [days, setDays] = useState(30)
-  const { visits, topPaths, devices, series, funnel, loading, error } =
-    useSiteInsights({ days })
-
-  const totalVisits = visits?.current ?? 0
-  const prevVisits  = visits?.previous ?? 0
-  const seriesSafe  = series ?? []
-  const pathsSafe   = (topPaths ?? []).slice(0, 10)
+  const {
+    visits, visitors, paths, devices, sources, series, funnel,
+    seriesFrom, seriesTrimmed, loading, error
+  } = useSiteInsights({ days, pathsLimit: 10 })
 
   return (
     <section className="ins">
@@ -50,19 +46,25 @@ export function Insights() {
       ) : (
         <>
           <VisitsCard
-            total={totalVisits}
-            previous={prevVisits}
-            series={seriesSafe}
+            total={visits.current}
+            previous={visits.previous}
+            series={series}
             days={days}
             loading={loading}
+            seriesFrom={seriesFrom}
+            seriesTrimmed={seriesTrimmed}
           />
 
           <div className="ins__grid">
-            <PathsTable paths={pathsSafe} totalVisits={totalVisits} />
-            <DevicesPanel devices={devices} />
+            <PathsTable paths={paths} />
+            <ArrivalPanel
+              devices={devices}
+              sources={sources}
+              visitors={visitors.current}
+            />
           </div>
 
-          <FunnelPanel funnel={funnel} />
+          <FunnelPanel funnel={funnel} days={days} />
         </>
       )}
     </section>
@@ -71,16 +73,17 @@ export function Insights() {
 
 // ============ Visits card with line chart ============
 
-function VisitsCard({ total, previous, series, days, loading }) {
+function VisitsCard({ total, previous, series, days, loading, seriesFrom, seriesTrimmed }) {
   const delta     = total - previous
   const direction = delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat'
   const absDelta  = Math.abs(delta)
+  const hasSeries = series.some((p) => p.visits > 0)
 
   return (
     <article className="ins__visits">
       <div className="ins__visits-head">
         <div>
-          <p className="ins__panel-eyebrow">Visits</p>
+          <p className="ins__panel-eyebrow">Page views</p>
           <span className="ins__visits-value">{loading ? '…' : total}</span>
         </div>
         {previous > 0 && (
@@ -95,11 +98,19 @@ function VisitsCard({ total, previous, series, days, loading }) {
         )}
       </div>
 
-      {series.length > 0 ? (
-        <VisitsChart series={series} />
+      {hasSeries ? (
+        <>
+          <VisitsChart series={series} />
+          {seriesTrimmed && (
+            <p className="ins__chart-note">
+              Tracking began on {formatLongDate(seriesFrom)}. Days before that are
+              not shown.
+            </p>
+          )}
+        </>
       ) : (
         <div className="ins__chart-empty">
-          <p>No visits recorded in the last {days} days yet.</p>
+          <p>No page views recorded in the last {days} days yet.</p>
         </div>
       )}
     </article>
@@ -144,7 +155,7 @@ function VisitsChart({ series }) {
       className="ins__chart"
       preserveAspectRatio="none"
       role="img"
-      aria-label="Visits over time"
+      aria-label="Page views over time"
     >
       <defs>
         <linearGradient id="ins-visits-fill" x1="0" y1="0" x2="0" y2="1">
@@ -179,19 +190,23 @@ function VisitsChart({ series }) {
 
 // ============ Top paths table ============
 
-function PathsTable({ paths, totalVisits }) {
+// Bars scale to the busiest path, not to total views. Scaled to the total,
+// the leading page takes 40 percent and everything under it renders as the
+// minimum stub, which is a row of dots rather than a comparison.
+function PathsTable({ paths }) {
+  const max = paths.reduce((m, p) => Math.max(m, p.count), 0)
+
   return (
     <article className="ins__panel">
       <header className="ins__panel-head">
-        <p className="ins__panel-eyebrow">Top paths</p>
+        <p className="ins__panel-eyebrow">Top paths, signed out</p>
         <h2 className="ins__panel-title">Where attention is going</h2>
       </header>
 
       {paths.length > 0 ? (
         <ol className="ins__paths">
           {paths.map((p) => {
-            const percent =
-              totalVisits > 0 ? Math.round((p.count / totalVisits) * 100) : 0
+            const percent = max > 0 ? Math.round((p.count / max) * 100) : 0
             return (
               <li key={p.path} className="ins__paths-row">
                 <code className="ins__paths-path">{p.path}</code>
@@ -213,17 +228,19 @@ function PathsTable({ paths, totalVisits }) {
   )
 }
 
-// ============ Devices donut + legend ============
+// ============ Devices donut, legend, and sources ============
 
-function DevicesPanel({ devices }) {
-  const d = devices ?? {}
+// Counts sessions, not page views, so one person reading twenty pages counts
+// once. Sources sit under the donut: both answer how a visitor got here.
+function ArrivalPanel({ devices, sources, visitors }) {
   const segments = [
-    { key: 'mobile',  label: 'Mobile',  value: d.mobile  ?? 0, color: 'var(--tv-primary)' },
-    { key: 'desktop', label: 'Desktop', value: d.desktop ?? 0, color: 'var(--tv-accent)' },
-    { key: 'tablet',  label: 'Tablet',  value: d.tablet  ?? 0, color: 'var(--tv-text-muted)' }
+    { key: 'mobile',  label: 'Mobile',  value: devices.mobile,  color: 'var(--tv-primary)' },
+    { key: 'desktop', label: 'Desktop', value: devices.desktop, color: 'var(--tv-accent)' },
+    { key: 'tablet',  label: 'Tablet',  value: devices.tablet,  color: 'var(--tv-text-muted)' }
   ].filter((s) => s.value > 0)
 
-  const total = segments.reduce((sum, s) => sum + s.value, 0)
+  const total    = segments.reduce((sum, s) => sum + s.value, 0)
+  const hasDirect = sources.some((s) => s.source === 'direct')
 
   return (
     <article className="ins__panel">
@@ -244,6 +261,7 @@ function DevicesPanel({ devices }) {
                   aria-hidden="true"
                 />
                 <span className="ins__devices-label">{s.label}</span>
+                <span className="ins__devices-count">{s.value}</span>
                 <span className="ins__devices-percent">
                   {Math.round((s.value / total) * 100)}%
                 </span>
@@ -252,7 +270,31 @@ function DevicesPanel({ devices }) {
           </ul>
         </div>
       ) : (
-        <p className="ins__panel-empty">No device data yet.</p>
+        <p className="ins__panel-empty">
+          {visitors > 0
+            ? 'No device data recorded for these visits.'
+            : 'No device data yet.'}
+        </p>
+      )}
+
+      {sources.length > 0 && (
+        <div className="ins__sources">
+          <p className="ins__sources-head">Where they came from</p>
+          <ul className="ins__sources-list">
+            {sources.map((s) => (
+              <li key={s.source} className="ins__sources-row">
+                <span className="ins__sources-label">{s.label}</span>
+                <span className="ins__sources-count">{s.sessions}</span>
+              </li>
+            ))}
+          </ul>
+          {hasDirect && (
+            <p className="ins__sources-note">
+              Links opened from WhatsApp and other apps arrive without a source
+              and count as direct.
+            </p>
+          )}
+        </div>
       )}
     </article>
   )
@@ -304,20 +346,19 @@ function DonutChart({ segments, total }) {
 
 // ============ Funnel ============
 
-function FunnelPanel({ funnel }) {
-  // Stages render only when the lib exposes their values. Visits and
-  // sign-ups are the minimum; signupViews / verified / onboarded slot in
-  // when the lib is extended.
+// Every stage is a count within the window rather than a followed cohort, so
+// a stage can exceed the one above it. Drop-off is shown only when it is real.
+function FunnelPanel({ funnel, days }) {
   const stages = [
-    { key: 'visits',       label: 'Total visits',       value: funnel?.visits        ?? 0    },
-    { key: 'signupViews',  label: 'Sign-up page views', value: funnel?.signupViews   ?? null },
-    { key: 'signups',      label: 'Sign-ups',           value: funnel?.signups       ?? 0    },
-    { key: 'verified',     label: 'Email verified',     value: funnel?.verified      ?? null },
-    { key: 'onboarded',    label: 'Onboarded',          value: funnel?.onboarded     ?? null }
-  ].filter((s) => s.value !== null)
+    { key: 'visitors',    label: 'Visitors, signed out', value: funnel.visitors },
+    { key: 'signupViews', label: 'Reached sign-up',      value: funnel.signupViews },
+    { key: 'signups',     label: 'Created an account',   value: funnel.signups },
+    { key: 'verified',    label: 'Verified email',       value: funnel.verified },
+    { key: 'onboarded',   label: 'Completed onboarding', value: funnel.onboarded }
+  ]
 
-  const top = stages[0]?.value || 1
-  const hasData = (funnel?.visits ?? 0) > 0
+  const top     = stages[0].value || 1
+  const hasData = stages.some((s) => s.value > 0)
 
   return (
     <article className="ins__panel">
@@ -329,7 +370,7 @@ function FunnelPanel({ funnel }) {
       {hasData ? (
         <ol className="ins__funnel">
           {stages.map((s, i) => {
-            const percent = top > 0 ? (s.value / top) * 100 : 0
+            const percent = Math.min((s.value / top) * 100, 100)
             const dropoff = i > 0 ? stages[i - 1].value - s.value : null
             return (
               <li key={s.key} className="ins__funnel-stage">
@@ -351,7 +392,9 @@ function FunnelPanel({ funnel }) {
           })}
         </ol>
       ) : (
-        <p className="ins__panel-empty">No funnel data yet.</p>
+        <p className="ins__panel-empty">
+          No sign-up activity in the last {days} days yet.
+        </p>
       )}
     </article>
   )
@@ -392,4 +435,13 @@ function formatShortDate(iso) {
   const date = new Date(iso)
   if (isNaN(date.getTime())) return ''
   return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+}
+
+function formatLongDate(iso) {
+  if (!iso) return ''
+  const date = new Date(iso)
+  if (isNaN(date.getTime())) return ''
+  return date.toLocaleDateString('en-GB', {
+    day: 'numeric', month: 'long', year: 'numeric'
+  })
 }

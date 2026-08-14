@@ -8,21 +8,16 @@ import './siteInsightsCard.css'
 // between panels, no embedded boxes. The triplet answers one question:
 // where the public site is winning attention this week.
 export function SiteInsightsCard() {
-  const { visits, topPaths, funnel, loading } = useSiteInsights({ days: 7 })
+  const { visits, paths, funnel, loading } = useSiteInsights({ days: 7, pathsLimit: 3 })
 
-  // Defensive reads so the card renders cleanly while the hook is loading
-  // or while any single signal returns null.
-  const current   = visits?.current  ?? 0
-  const previous  = visits?.previous ?? 0
+  const current   = visits.current
+  const previous  = visits.previous
   const delta     = current - previous
   const direction = delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat'
   const absDelta  = Math.abs(delta)
 
-  const paths       = (topPaths ?? []).slice(0, 3)
-  const visitTotal  = funnel?.visits  ?? 0
-  const signupTotal = funnel?.signups ?? 0
-
-  const hasData = current > 0 || paths.length > 0 || visitTotal > 0
+  const topThree = paths.slice(0, 3)
+  const hasData  = current > 0 || topThree.length > 0 || funnel.visitors > 0
 
   return (
     <article className="admin-insights">
@@ -36,7 +31,7 @@ export function SiteInsightsCard() {
           <div className="admin-insights__panel">
             <span className="admin-insights__label">
               <Icon name="users" size={12} />
-              Visits this week
+              Page views this week
             </span>
             <span className="admin-insights__value">{loading ? '…' : current}</span>
             <span className={`admin-insights__delta admin-insights__delta--${direction}`}>
@@ -52,9 +47,9 @@ export function SiteInsightsCard() {
               <Icon name="dashboard" size={12} />
               Top paths
             </span>
-            {paths.length > 0 ? (
+            {topThree.length > 0 ? (
               <ul className="admin-insights__paths">
-                {paths.map((p) => (
+                {topThree.map((p) => (
                   <li key={p.path} className="admin-insights__path-row">
                     <code className="admin-insights__path">{p.path}</code>
                     <span className="admin-insights__path-count">{p.count}</span>
@@ -69,13 +64,13 @@ export function SiteInsightsCard() {
           <div className="admin-insights__panel">
             <span className="admin-insights__label">
               <Icon name="user" size={12} />
-              Visit to sign-up
+              Visitors to sign-ups
             </span>
             <span className="admin-insights__funnel">
-              <span className="admin-insights__funnel-num">{visitTotal}</span>
+              <span className="admin-insights__funnel-num">{funnel.visitors}</span>
               <FunnelArrow />
               <span className="admin-insights__funnel-num admin-insights__funnel-num--primary">
-                {signupTotal}
+                {funnel.signups}
               </span>
             </span>
             <span className="admin-insights__delta admin-insights__delta--flat">

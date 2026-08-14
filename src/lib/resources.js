@@ -8,9 +8,31 @@ const SIGNED_URL_SECONDS = 120
 
 const SELECT = 'id, title, description, category, type, file_path, external_url, youtube_id, is_archived, published_on, uploaded_by, created_at, updated_at'
 
-// Both execute on the storage origin even when reached through a signed URL.
-const BLOCKED_EXTENSIONS = ['svg', 'html', 'htm', 'xhtml', 'svgz']
-const BLOCKED_TYPES = ['image/svg+xml', 'text/html', 'application/xhtml+xml']
+// Mirrors allowed_mime_types on the resources bucket. A blocklist here let a
+// .txt or .zip reach storage and come back with a message written for an API.
+// SVG and HTML stay out because both execute on the storage origin even when
+// reached through a signed URL.
+const ACCEPTED_FILES = [
+  { mime: 'application/pdf', ext: ['pdf'] },
+  { mime: 'image/jpeg', ext: ['jpg', 'jpeg'] },
+  { mime: 'image/png', ext: ['png'] },
+  { mime: 'image/webp', ext: ['webp'] },
+  { mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', ext: ['docx'] },
+  { mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', ext: ['xlsx'] },
+  { mime: 'application/vnd.openxmlformats-officedocument.presentationml.presentation', ext: ['pptx'] },
+  { mime: 'audio/mpeg', ext: ['mp3'] },
+  { mime: 'audio/mp4', ext: ['m4a'] },
+  { mime: 'video/mp4', ext: ['mp4'] }
+]
+
+const ACCEPTED_TYPE_TEXT =
+  'The library takes PDF, Word, Excel, PowerPoint, JPEG, PNG, WebP, MP3, M4A, and MP4.'
+
+// Feeds the file input's accept attribute, so the picker filters before a
+// person can choose something that was never going to work.
+export const ACCEPTED_FILE_ACCEPT = ACCEPTED_FILES
+  .flatMap((entry) => [entry.mime, ...entry.ext.map((e) => '.' + e)])
+  .join(',')
 
 /* ============ Chapters ============ */
 
@@ -351,17 +373,31 @@ async function setExtraChapters(resourceId, leadCategory, chapters) {
 
 // D53. The path carries nothing that can change. A category in the path would
 // lie the first time somebody corrects a miscategorised upload.
-export async function uploadResourceFile(title, file) {
-  if (!file) throw new Error('Choose a file to upload.')
+// Separated from the upload so the form can refuse a file before it commits to
+// sending anything. Returns a message, or null when the file is fine.
+export function resourceFileProblem(file) {
+  if (!file) return 'Choose a file to upload.'
 
   const ext = extensionOf(file.name)
+  const match = ACCEPTED_FILES.find(
+    (entry) => entry.mime === file.type || entry.ext.includes(ext)
+  )
 
-  if (BLOCKED_TYPES.includes(file.type) || BLOCKED_EXTENSIONS.includes(ext)) {
-    throw new Error('That file type is not accepted. Export it as a PDF instead.')
-  }
+  if (!match) return `That file type is not accepted. ${ACCEPTED_TYPE_TEXT}`
   if (file.size > MAX_INPUT_BYTES) {
-    throw new Error('That file is over 25MB. Try a smaller one.')
+    return `That file is ${humanBytes(file.size)}. The limit is 25MB.`
   }
+  return null
+}
+
+export async function uploadResourceFile(title, file) {
+  const problem = resourceFileProblem(file)
+  if (problem) throw new Error(problem)
+
+  const ext = extensionOf(file.name)
+  const match = ACCEPTED_FILES.find(
+    (entry) => entry.mime === file.type || entry.ext.includes(ext)
+  )
 
   // A stale token is a known cause of storage rejections, so the session is
   // refreshed before the call rather than after it fails.
@@ -369,8 +405,14 @@ export async function uploadResourceFile(title, file) {
 
   const path = `library/${slugify(title)}-${Date.now()}${ext ? '.' + ext : ''}`
 
+  // Never octet-stream. The bucket checks this string against its allowlist,
+  // and some browsers hand back an empty file.type for docx and m4a.
+  const contentType = ACCEPTED_FILES.some((entry) => entry.mime === file.type)
+    ? file.type
+    : match.mime
+
   const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
-    contentType: file.type || 'application/octet-stream',
+    contentType,
     cacheControl: '3600',
     upsert: false
   })
@@ -392,10 +434,23 @@ export async function resourceFileUrl(filePath) {
   return data?.signedUrl ?? null
 }
 
-// Best effort. A failed delete must not roll back a row change that succeeded.
+// Best effort, but not silent. remove() returns an error rather than throwing,
+// so a bare try/catch here could never fire and a failed cleanup left an object
+// nobody could see or reach. Returns true only when the object is gone.
 export async function tryRemoveResourceFile(filePath) {
-  if (!filePath) return
-  try { await supabase.storage.from(BUCKET).remove([filePath]) } catch { /* ignore */ }
+  if (!filePath) return true
+
+  try {
+    const { error } = await supabase.storage.from(BUCKET).remove([filePath])
+    if (error) {
+      console.warn('[resources] file left in storage:', filePath, error.message)
+      return false
+    }
+    return true
+  } catch (e) {
+    console.warn('[resources] file left in storage:', filePath, e?.message)
+    return false
+  }
 }
 
 /* ============ Helpers ============ */
@@ -462,6 +517,12 @@ function extensionOf(filename) {
   return match ? match[1].toLowerCase() : ''
 }
 
+function humanBytes(bytes) {
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)}MB`
+  if (bytes >= 1024) return `${Math.round(bytes / 1024)}KB`
+  return `${bytes} bytes`
+}
+
 function slugify(value) {
   return (value ?? '')
     .toLowerCase()
@@ -494,7 +555,12 @@ export function friendlyResourceError(err) {
     return 'Only an administrator can add to the library.'
   }
   if (/exceeded the maximum allowed size|payload too large/i.test(message)) {
-    return 'That file is too large for the library.'
+    return 'That file is over the 25MB limit.'
+  }
+  // The bucket rejects on its own allowlist. Reached only when a browser
+  // reported a type the client accepted and storage did not.
+  if (/mime type|invalid_mime|is not supported/i.test(message)) {
+    return `That file type is not accepted. ${ACCEPTED_TYPE_TEXT}`
   }
   if (/object not found|not_found/i.test(message)) {
     return 'That file is no longer in storage. Upload it again.'
