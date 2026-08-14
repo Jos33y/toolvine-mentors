@@ -32,6 +32,9 @@ const PATHS = {
   search:      <><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></>,
   plus:        <><path d="M12 5v14"/><path d="M5 12h14"/></>,
   alert:       <><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></>,
+  // A bell, not the alert circle. A warning glyph on the topbar says
+  // something is wrong rather than something happened.
+  bell:        <><path d="M18 8.5a6 6 0 1 0-12 0c0 5-2.4 6.4-2.4 6.4h16.8S18 13.5 18 8.5Z"/><path d="M10.2 18.5a2 2 0 0 0 3.6 0"/></>,
   info:        <><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></>,
   eye:         <><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></>,
   edit:        <><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></>,
@@ -58,7 +61,18 @@ const PATHS = {
   youtube:     <><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 5 3-5 3Z"/></>,
   tiktok:      <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/>,
   x:           <path d="M4 4l7 8.5L4 21h2l5.5-6.8L15 21h5l-7.2-8.7L20 4h-2l-5.3 6.5L9 4Z"/>,
-  externalLink:<><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></>
+  externalLink:<><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></>,
+
+  // Chapter marks. Drawn for the taxonomy and checked at 18px, which is where
+  // they actually sit on a card. Candidates that failed that test: a flame and
+  // a lamp both read as droplets, praying hands read as two leaves, stacked
+  // coins read as a database cylinder, and ascending steps read as a bar chart.
+  activity:    <path d="M3 12h4l3-8 4 16 3-8h4"/>,
+  briefcase:   <><rect x="2.5" y="7" width="19" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><path d="M2.5 12.5h19"/></>,
+  sunrise:     <><path d="M3 18h18"/><path d="M6.5 18a5.5 5.5 0 0 1 11 0"/><path d="M12 4v2.5M5 7l1.6 1.6M19 7l-1.6 1.6M2.5 13H4M20 13h1.5"/></>,
+  mentoring:   <><circle cx="8" cy="7" r="2.6"/><path d="M3.5 20v-2.2A4.5 4.5 0 0 1 8 13.3a4.5 4.5 0 0 1 4.5 4.5V20"/><circle cx="17" cy="9.5" r="2.1"/><path d="M14.6 20v-1.6a3.4 3.4 0 0 1 5.9-2.3"/></>,
+  banknote:    <><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 9.5v5M18 9.5v5"/></>,
+  newspaper:   <><path d="M17 20H5a2 2 0 0 1-2-2V6a1 1 0 0 1 1-1h13a1 1 0 0 1 1 1v12a2 2 0 0 0 2 2 2 2 0 0 0 2-2V9h-4"/><path d="M7 9h6M7 13h6M7 17h4"/></>
 }
 
 export function Icon({ name, size = 20, strokeWidth = STROKE_DEFAULT, color = 'currentColor', className, label }) {

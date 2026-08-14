@@ -73,3 +73,33 @@
 @media (max-width: 640px) {
   .res-preview { padding: var(--tv-space-5); }
 }
+
+/* Skeleton rows hold the list height while categories load, so the card does
+   not resize under whatever sits beneath it on the dashboard. */
+.res-preview__item--skel {
+  height: 1.1em;
+  border-radius: var(--tv-radius-sm);
+  background: var(--tv-border);
+  padding-left: 0;
+}
+
+.res-preview__item--skel::before { display: none; }
+
+.res-preview__link {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  margin-top: var(--tv-space-1);
+  min-height: 44px;
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-semibold);
+  color: var(--tv-primary);
+  transition: gap var(--tv-duration-fast) var(--tv-ease);
+}
+
+.res-preview__link:hover {
+  color: var(--tv-primary-hover);
+  gap: var(--tv-space-3);
+}

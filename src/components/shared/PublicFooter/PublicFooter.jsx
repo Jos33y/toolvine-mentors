@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { Logo } from '@/components/shared/Logo/Logo'
 import { Icon } from '@/components/shared/Icon/Icon'
 import { SOCIALS } from '@/lib/socials'
+import { fetchPublicNewsletters, publishedLabel } from '@/lib/resources'
 import './PublicFooter.css'
 
 /* ============ Per-page content ============ */
@@ -20,13 +21,12 @@ function getAntiphon(path) {
   return ANTIPHONS[Math.abs(hash) % ANTIPHONS.length]
 }
 
-const SIGNALS = [
-  '127 pairs walking together',
-  'Family Meeting \u00b7 Sept 12 \u00b7 7pm WAT',
-  'Vinethoughts Issue 06 \u00b7 Summer 2026',
-  'Reading from Proverbs this season',
-  '1,840 meetings logged in 2025',
-]
+// The pulse strip used to rotate five hardcoded lines. Four were untrue: there
+// were 127 pairs and 1,840 meetings logged in a year the platform did not
+// exist, a Family Meeting date nobody had given us, and a Vinethoughts issue
+// number that did not match the issue. It now carries the one public fact that
+// is true and keeps itself true, which is what a live strip was pretending to
+// be. When Volume 8 is published the footer changes on its own.
 
 /* ============ Drift particle factory ============ */
 
@@ -53,8 +53,7 @@ export function PublicFooter() {
   const inViewRef = useRef(false)
 
   const [isStatic, setIsStatic] = useState(false)
-  const [signalIdx, setSignalIdx] = useState(0)
-  const [fading, setFading] = useState(false)
+  const [latest, setLatest] = useState(null)
 
   const antiphon = getAntiphon(pathname)
 
@@ -129,18 +128,16 @@ export function PublicFooter() {
     return () => { cancelAnimationFrame(raf); ro.disconnect() }
   }, [isStatic])
 
-  // Pulse strip cycling
+  // Latest issue for the pulse strip. Readable without an account through the
+  // anon policy on resources. Best effort: a failure costs one line and the
+  // strip is simply absent.
   useEffect(() => {
-    if (isStatic) return
-    const id = setInterval(() => {
-      setFading(true)
-      setTimeout(() => {
-        setSignalIdx((i) => (i + 1) % SIGNALS.length)
-        setFading(false)
-      }, 400)
-    }, 6000)
-    return () => clearInterval(id)
-  }, [isStatic])
+    let cancelled = false
+    fetchPublicNewsletters()
+      .then((rows) => { if (!cancelled) setLatest(rows[0] ?? null) })
+      .catch(() => { if (!cancelled) setLatest(null) })
+    return () => { cancelled = true }
+  }, [])
 
   // Cursor proximity on mark (hover devices only)
   useEffect(() => {
@@ -148,7 +145,19 @@ export function PublicFooter() {
     const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches
     if (!canHover) return
 
+    let queued = false
+    let lastEvent = null
+
     function handleMouse(e) {
+      lastEvent = e
+      if (queued) return
+      queued = true
+      requestAnimationFrame(() => { queued = false; apply(lastEvent) })
+    }
+
+    // getBoundingClientRect forces layout, so it runs once a frame rather than
+    // once per mousemove.
+    function apply(e) {
       const mark = markRef.current
       if (!mark) return
       const rect = mark.getBoundingClientRect()
@@ -198,14 +207,18 @@ export function PublicFooter() {
           </div>
         </div>
 
-        {/* Layer 5: Pulse strip */}
-        <div className="pf__pulse" aria-live="polite">
-          <span className="pf__pulse-rule" aria-hidden="true" />
-          <p className={`pf__signal${fading ? ' pf__signal--out' : ''}`}>
-            {SIGNALS[signalIdx]}
-          </p>
-          <span className="pf__pulse-rule" aria-hidden="true" />
-        </div>
+        {/* Layer 5: Pulse strip. No aria-live: it no longer changes while the
+            page is open, and announcing a static line every render is noise. */}
+        {latest && (
+          <div className="pf__pulse">
+            <span className="pf__pulse-rule" aria-hidden="true" />
+            <Link to="/resources" className="pf__signal">
+              {latest.title}
+              {publishedLabel(latest) && ` · ${publishedLabel(latest)}`}
+            </Link>
+            <span className="pf__pulse-rule" aria-hidden="true" />
+          </div>
+        )}
 
         {/* Layer 6: Nav columns */}
         <nav className="pf__nav" aria-label="Footer">

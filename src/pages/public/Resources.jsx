@@ -1,190 +1,178 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Logo } from '@/components/shared/Logo/Logo'
 import { RevealOnScroll } from '@/components/shared/RevealOnScroll/RevealOnScroll'
+import { Icon } from '@/components/shared/Icon/Icon'
+import { fetchPublicNewsletters, publishedLabel } from '@/lib/resources'
+import { useAuth } from '@/stores/useAuth'
+import { chapterOf } from '@/lib/chapters'
 import './Resources.css'
 
 /* ============ Data ============ */
-/* Sample titles calibrated to brand voice. Replace with real
-   curated content once the library is seeded post-launch. */
 
-const FEATURED = {
-  coverTag: 'BOOK REVIEW',
-  coverTitle: 'The Fourth Dimension',
-  coverAuthor: 'David Yonggi Cho',
-  categoryTag: 'LEADERSHIP & MENTORSHIP',
-  title: 'The Fourth Dimension, reviewed',
-  author: 'Mentor Samuel Asawole',
-  excerpt:
-    'A book that reshapes how you think about prayer, purpose, and the unseen dimensions of leadership. Mentor Asawole unpacks Cho\u2019s framework and asks what it means for a mentor walking alongside someone younger in faith.'
-}
+/* Labels and descriptions are copied verbatim from mentoring_categories in the
+   database, which is the source of truth. They are not fetched: that table is
+   readable by authenticated users only, and this page serves visitors who have
+   no account yet. If a category is edited there, edit it here too. */
 
 const CATEGORIES = [
   {
-    id: 'spiritual',
-    title: 'Spiritual & Ministry',
-    description: 'Devotional reflections, prayer guides, and ministry essays.',
-    accent: 'var(--tv-primary)',
-    count: 28,
-    resources: ['The Posture of Pilate', 'Walking in the Spirit', 'Prayer as Daily Practice']
+    id: 'spiritual_ministry',
+    title: 'Spiritual / Ministry',
+    description: 'Walking with God, prayer, devotion, ministry calling.'
   },
   {
-    id: 'professional',
-    title: 'Professional & Careers',
-    description: 'Career transitions, workplace ethics, calling and craft.',
-    accent: 'var(--tv-accent)',
-    count: 22,
-    resources: ['Leaving the Job You Built', 'Ethics at the Crossroad', 'The Calling Behind the Career']
+    id: 'professional_careers',
+    title: 'Professional / Careers',
+    description: 'Work decisions, career growth, vocation, the workplace.'
   },
   {
-    id: 'relationship',
-    title: 'Relationship & Marriage',
-    description: 'What healthy relationships ask of us, in love and in season.',
-    accent: 'var(--tv-primary)',
-    count: 16,
-    resources: ['The First Three Years', 'Learning to Listen Again', 'What Covenant Asks of Us']
+    id: 'relationship_marriage',
+    title: 'Relationship / Marriage',
+    description: 'Singleness, dating, marriage, family, parenting.'
   },
   {
-    id: 'leadership',
-    title: 'Leadership & Mentorship',
-    description: 'The slow work of guiding, building, and being built.',
-    accent: 'var(--tv-accent)',
-    count: 24,
-    resources: ['Slow Authority', 'Teaching Without Talking', 'The Mentor\u2019s Posture']
+    id: 'leadership_mentorship',
+    title: 'Leadership / Mentorship',
+    description: 'Leading others, building teams, raising the next generation.'
   },
   {
-    id: 'health',
-    title: 'Health & Fitness',
-    description: 'The body as a discipline, not a project.',
-    accent: 'var(--tv-primary)',
-    count: 11,
-    resources: ['Discipline of the Body', 'Rest as Resistance', 'The Stewardship of Health']
+    id: 'health_fitness',
+    title: 'Health / Fitness',
+    description: 'Physical health, mental wellbeing, rhythms of rest.'
   },
   {
-    id: 'finance',
-    title: 'Finance & Other',
-    description: 'Money, generosity, and the things money does not buy.',
-    accent: 'var(--tv-accent)',
-    count: 14,
-    resources: ['What You Earn, What You Become', 'Generosity Before Margin', 'Tithing and the Modern Believer']
+    id: 'finance_others',
+    title: 'Finance / Others',
+    description: 'Money, stewardship, generosity, and topics that do not fit elsewhere.'
   }
-]
-
-const TOTAL = CATEGORIES.reduce((s, c) => s + c.count, 0)
-
-const STATS = [
-  { value: '127', label: 'Members reading' },
-  { value: '14', label: 'Contributing authors' },
-  { value: '6', label: 'Chapters, growing' }
 ]
 
 /* ============ Component ============ */
 
 export function Resources() {
+  const [letters, setLetters] = useState([])
+  const [loaded,  setLoaded]  = useState(false)
+
+  // The nav already renders Dashboard rather than Sign in for a signed-in
+  // visitor. Without this the page told that same person to create the account
+  // they were reading it with, twice.
+  const profile = useAuth((s) => s.profile)
+  const signedIn = Boolean(profile)
+
+  // The one shelf a visitor can read without an account. Everything else in the
+  // library needs a sign-in, which is what the anon policy on resources allows.
+  useEffect(() => {
+    let cancelled = false
+    fetchPublicNewsletters()
+      .then((rows) => { if (!cancelled) setLetters(rows) })
+      .catch(() => { if (!cancelled) setLetters([]) })
+      .finally(() => { if (!cancelled) setLoaded(true) })
+    return () => { cancelled = true }
+  }, [])
+
   return (
     <div className="resources">
       <div className="resources__atmosphere" aria-hidden="true" />
 
-      {/* ============ Hero — short, punchy ============ */}
+      {/* ============ Hero ============ */}
       <header className="resources__hero">
         <div className="resources__watermark" aria-hidden="true">
           <Logo variant="mark" size={400} />
         </div>
         <p className="resources__eyebrow">THE LIBRARY</p>
         <h1 className="resources__title">Built by mentors. Ready when you are.</h1>
-        <p className="resources__hero-meta">
-          {TOTAL} RESOURCES&nbsp;&nbsp;&middot;&nbsp;&nbsp;6 CHAPTERS
-        </p>
-        <Link to="/auth/sign-up" className="resources__hero-link">
-          Create your account to browse
+        <p className="resources__hero-meta">OPEN TO EVERY MEMBER</p>
+        <Link to={signedIn ? '/library' : '/auth/sign-up'} className="resources__hero-link">
+          {signedIn ? 'Open the library' : 'Create your account to browse'}
           <span aria-hidden="true">&rarr;</span>
         </Link>
       </header>
 
-      {/* ============ Featured resource ============ */}
-      <section className="resources__featured" aria-label="Featured resource">
-        <RevealOnScroll threshold={0.15}>
-          <div className="resources__featured-card">
-            <div className="resources__featured-cover">
-              <div className="resources__featured-cover-wm" aria-hidden="true">
-                <Logo variant="mark-light" size={200} />
-              </div>
-              <p className="resources__featured-cover-tag">{FEATURED.coverTag}</p>
-              <h3 className="resources__featured-cover-title">{FEATURED.coverTitle}</h3>
-              <p className="resources__featured-cover-author">{FEATURED.coverAuthor}</p>
-            </div>
-            <div className="resources__featured-content">
-              <p className="resources__featured-tag">{FEATURED.categoryTag}</p>
-              <h2 className="resources__featured-content-title">
-                <em>{FEATURED.coverTitle}</em>, reviewed
-              </h2>
-              <p className="resources__featured-author">{FEATURED.author}</p>
-              <p className="resources__featured-excerpt">{FEATURED.excerpt}</p>
-              <Link to="/auth/sign-up" className="resources__featured-link">
-                Join to read
-                <span aria-hidden="true">&rarr;</span>
-              </Link>
-            </div>
+      {/* ============ Newsletter ============ */}
+      {loaded && letters.length > 0 && (
+        <section className="resources__letters" aria-label="Vinethoughts">
+          <div className="resources__letters-head">
+            <p className="resources__letters-eyebrow">VINETHOUGHTS</p>
+            <h2 className="resources__letters-title">Our letter to the community</h2>
+            <p className="resources__letters-sub">
+              Interviews, reflections, and testimonies, published each quarter. Free to read,
+              no account needed.
+            </p>
           </div>
-        </RevealOnScroll>
-      </section>
+
+          <ul className="resources__letter-list">
+            {letters.map((letter, i) => (
+              <li key={letter.id} className={'resources__letter' + (i === 0 ? ' resources__letter--latest' : '')}>
+                <div className="resources__letter-body">
+                  {i === 0 && <p className="resources__letter-tag">Latest issue</p>}
+                  <h3 className="resources__letter-title">{letter.title}</h3>
+                  {publishedLabel(letter) && (
+                    <p className="resources__letter-when">{publishedLabel(letter)}</p>
+                  )}
+                  {i === 0 && letter.description && (
+                    <p className="resources__letter-desc">{letter.description}</p>
+                  )}
+                </div>
+                {letter.external_url && (
+                  <a
+                    className="resources__letter-link"
+                    href={letter.external_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Read it
+                    <Icon name="externalLink" size={14} />
+                  </a>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* ============ Category grid ============ */}
       <section className="resources__grid" aria-label="Browse by chapter">
         <div className="resources__grid-header">
           <h2 className="resources__grid-title">Six chapters</h2>
-          <p className="resources__grid-sub">Browse by what matters to you.</p>
+          <p className="resources__grid-sub">
+            Every resource lands in one of these. Our team adds what is worth keeping,
+            so the shelf stays short and stays useful.
+          </p>
         </div>
         <div className="resources__cards">
-          {CATEGORIES.map((cat, i) => (
-            <RevealOnScroll key={cat.id} delay={i * 60} threshold={0.12}>
-              <article
-                className="resources__card"
-                style={{ '--card-accent': cat.accent }}
-              >
-                <div className="resources__card-head">
+          {CATEGORIES.map((cat, i) => {
+            const { icon, tone } = chapterOf(cat.id)
+            return (
+              <RevealOnScroll key={cat.id} delay={i * 60} threshold={0.12}>
+                <article className={`resources__card resources__card--${tone}`}>
+                  <span className="resources__card-mark" aria-hidden="true">
+                    <Icon name={icon} size={28} />
+                  </span>
                   <h3 className="resources__card-title">{cat.title}</h3>
-                  <span className="resources__card-count">{cat.count}</span>
-                </div>
-                <div className="resources__card-rule" aria-hidden="true" />
-                <ul className="resources__card-list">
-                  {cat.resources.map((r) => (
-                    <li key={r} className="resources__card-item">{r}</li>
-                  ))}
-                </ul>
-                <p className="resources__card-desc">{cat.description}</p>
-              </article>
-            </RevealOnScroll>
-          ))}
+                  <p className="resources__card-desc">{cat.description}</p>
+                </article>
+              </RevealOnScroll>
+            )
+          })}
         </div>
       </section>
 
-      {/* ============ Social proof ============ */}
-      <section className="resources__proof" aria-label="Community numbers">
-        <RevealOnScroll threshold={0.3}>
-          <div className="resources__proof-inner">
-            {STATS.map((s) => (
-              <div className="resources__stat" key={s.label}>
-                <span className="resources__stat-number">{s.value}</span>
-                <span className="resources__stat-label">{s.label}</span>
-              </div>
-            ))}
-          </div>
-        </RevealOnScroll>
-      </section>
-
-      {/* ============ CTA — dark section ============ */}
+      {/* ============ CTA ============ */}
       <section className="resources__cta">
         <div className="resources__cta-grain" aria-hidden="true" />
         <div className="resources__cta-inner">
-          <p className="resources__cta-asterism" aria-hidden="true">⁂</p>
+          <p className="resources__cta-asterism" aria-hidden="true">&#8258;</p>
           <h2 className="resources__cta-title">
             <em>Start reading.</em>
           </h2>
           <p className="resources__cta-body">
-            Create your account. The library opens with it.
+            {signedIn
+              ? 'Everything above, and the rest of the shelf, is waiting.'
+              : 'Create your account. The library opens with it.'}
           </p>
-          <Link to="/auth/sign-up" className="resources__cta-button">
-            Create your account
+          <Link to={signedIn ? '/library' : '/auth/sign-up'} className="resources__cta-button">
+            {signedIn ? 'Open the library' : 'Create your account'}
             <span aria-hidden="true">&rarr;</span>
           </Link>
         </div>

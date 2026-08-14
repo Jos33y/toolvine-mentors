@@ -1,6 +1,12 @@
 /* Resources. Built by mentors. Ready when you are.
-   Conversion surface: featured resource, visual category grid,
-   social proof, dark CTA. Not a catalog — a storefront. */
+
+   Conversion surface: hero, category grid, dark CTA. A storefront rather than
+   a catalog, which is why it names the six areas and not their contents.
+
+   The featured-resource card and the social-proof band were removed. Both
+   carried invented figures: a book review attributed to a named mentor who
+   never wrote it, a count of 115 resources against an empty table, and 127
+   members reading. Nothing invented reaches a public surface. */
 
 .resources {
   position: relative;
@@ -31,7 +37,7 @@
   mix-blend-mode: soft-light;
 }
 
-/* ============ Hero — short, punchy ============ */
+/* ============ Hero ============ */
 
 .resources__hero {
   position: relative;
@@ -115,163 +121,137 @@
   color: var(--tv-primary-hover);
 }
 
-/* ============ Featured resource ============ */
+/* ============ Newsletter ============ */
 
-.resources__featured {
-  position: relative;
-  z-index: 1;
+/* The one shelf a visitor can read. Real rows fetched through the anon policy,
+   so it grows on its own as volumes are published. */
+
+.resources__letters {
   max-width: var(--tv-content-max);
   margin: 0 auto;
-  padding: 0 var(--tv-space-6) clamp(var(--tv-space-12), 6vw, var(--tv-space-16));
+  padding: 0 var(--tv-space-6) var(--tv-space-16);
 }
 
-.resources__featured-card {
-  display: grid;
-  grid-template-columns: 1fr;
-  background: var(--tv-surface);
-  border: 1px solid var(--tv-border);
-  border-radius: var(--tv-radius-lg);
-  overflow: hidden;
-}
+.resources__letters-head { margin-bottom: var(--tv-space-8); max-width: 60ch; }
 
-@media (min-width: 760px) {
-  .resources__featured-card {
-    grid-template-columns: 5fr 7fr;
-  }
-}
-
-/* Book cover visual — teal block, no real image needed */
-
-.resources__featured-cover {
-  position: relative;
-  background: var(--tv-primary);
-  padding: clamp(var(--tv-space-8), 5vw, var(--tv-space-12));
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  min-height: 280px;
-  overflow: hidden;
-}
-
-.resources__featured-cover-wm {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: clamp(140px, 50%, 220px);
-  opacity: 0.1;
-  pointer-events: none;
-}
-
-.resources__featured-cover-wm img,
-.resources__featured-cover-wm svg {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-.resources__featured-cover-tag {
-  font-family: var(--tv-font-mono);
-  font-size: 0.6875rem;
-  letter-spacing: var(--tv-tracking-wider);
-  text-transform: uppercase;
-  color: var(--tv-primary-softer);
-  margin: 0 0 var(--tv-space-4);
-  position: relative;
-  z-index: 1;
-}
-
-.resources__featured-cover-title {
-  font-family: var(--tv-font-serif);
-  font-style: italic;
-  font-weight: 500;
-  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  color: var(--tv-text-inverse);
-  margin: 0;
-  position: relative;
-  z-index: 1;
-}
-
-.resources__featured-cover-author {
+.resources__letters-eyebrow {
   font-family: var(--tv-font-mono);
   font-size: var(--tv-fs-xs);
-  letter-spacing: var(--tv-tracking-wide);
-  color: var(--tv-primary-softer);
-  margin: var(--tv-space-3) 0 0;
-  position: relative;
-  z-index: 1;
-}
-
-/* Featured content column */
-
-.resources__featured-content {
-  padding: clamp(var(--tv-space-6), 4vw, var(--tv-space-10));
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.resources__featured-tag {
-  font-family: var(--tv-font-mono);
-  font-size: 0.6875rem;
   letter-spacing: var(--tv-tracking-wider);
-  text-transform: uppercase;
   color: var(--tv-accent-text);
-  margin: 0 0 var(--tv-space-4);
+  margin: 0 0 var(--tv-space-3);
 }
 
-.resources__featured-content-title {
+.resources__letters-title {
   font-family: var(--tv-font-display);
   font-weight: var(--tv-fw-semibold);
-  font-size: clamp(1.5rem, 3vw, 2rem);
-  line-height: 1.2;
-  letter-spacing: -0.015em;
+  font-size: var(--tv-fs-2xl);
+  letter-spacing: var(--tv-tracking-tight);
+  line-height: var(--tv-lh-tight);
   color: var(--tv-text);
   margin: 0 0 var(--tv-space-3);
 }
 
-.resources__featured-content-title em {
-  font-family: var(--tv-font-serif);
-  font-style: italic;
-  font-weight: 500;
-  color: var(--tv-primary);
+.resources__letters-sub {
+  font-size: var(--tv-fs-base);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  margin: 0;
 }
 
-.resources__featured-author {
+.resources__letter-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: var(--tv-border-width) solid var(--tv-border);
+}
+
+.resources__letter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-3);
+  padding: var(--tv-space-4) 0;
+  border-bottom: var(--tv-border-width) solid var(--tv-border);
+}
+
+/* Only the newest issue carries its blurb, so the tag on it means something. */
+.resources__letter--latest { padding: var(--tv-space-6) 0 var(--tv-space-8); }
+
+/* The newest issue carries the weight. The back issues are a list. */
+.resources__letter--latest .resources__letter-title { font-size: var(--tv-fs-xl); }
+
+.resources__letter-tag {
+  display: inline-block;
+  align-self: flex-start;
+  padding: var(--tv-space-1) var(--tv-space-3);
+  margin: 0 0 var(--tv-space-3);
+  border-radius: var(--tv-radius-pill);
+  background: var(--tv-accent-soft);
+  color: var(--tv-accent-text);
   font-family: var(--tv-font-mono);
   font-size: var(--tv-fs-xs);
   letter-spacing: var(--tv-tracking-wide);
-  text-transform: uppercase;
-  color: var(--tv-text-muted);
-  margin: 0 0 var(--tv-space-5);
 }
 
-.resources__featured-excerpt {
-  font-family: var(--tv-font-body);
-  font-size: var(--tv-fs-base);
-  line-height: 1.65;
-  color: var(--tv-text-2);
-  margin: 0 0 var(--tv-space-6);
-  max-width: 48ch;
-}
-
-.resources__featured-link {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--tv-space-2);
+.resources__letter-title {
   font-family: var(--tv-font-display);
   font-weight: var(--tv-fw-semibold);
-  font-size: var(--tv-fs-sm);
-  color: var(--tv-primary);
-  text-decoration: none;
-  transition: gap var(--tv-duration) var(--tv-ease), color var(--tv-duration) var(--tv-ease);
+  font-size: var(--tv-fs-lg);
+  line-height: var(--tv-lh-snug);
+  color: var(--tv-text);
+  margin: 0 0 var(--tv-space-2);
 }
 
-.resources__featured-link:hover {
-  gap: var(--tv-space-3);
-  color: var(--tv-primary-hover);
+.resources__letter-when {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  color: var(--tv-text-muted);
+  margin: 0 0 var(--tv-space-2);
+}
+
+.resources__letter-desc {
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  margin: 0;
+  max-width: 68ch;
+}
+
+.resources__letter-link {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: var(--tv-space-2);
+  padding: var(--tv-space-3) var(--tv-space-5);
+  min-height: 44px;
+  border: var(--tv-border-width) solid var(--tv-primary);
+  border-radius: var(--tv-radius-pill);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-semibold);
+  color: var(--tv-primary);
+  white-space: nowrap;
+  transition: background var(--tv-duration-fast) var(--tv-ease),
+              color var(--tv-duration-fast) var(--tv-ease);
+}
+
+/* base.css sets a:hover to primary-hover, which outranks a single class. */
+.resources__letter-link:hover,
+a.resources__letter-link:hover {
+  background: var(--tv-primary);
+  color: var(--tv-text-inverse);
+}
+
+@media (min-width: 760px) {
+  .resources__letter {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--tv-space-8);
+  }
+
+  .resources__letter-body { flex: 1; min-width: 0; }
 }
 
 /* ============ Category grid ============ */
@@ -325,25 +305,28 @@
 /* Individual card */
 
 .resources__card {
+  --chapter-ink: var(--tv-primary);
+  --chapter-ground: var(--tv-primary-soft);
   position: relative;
   background: var(--tv-surface);
   border: 1px solid var(--tv-border);
   border-radius: var(--tv-radius-lg);
   padding: var(--tv-space-6);
-  padding-left: calc(var(--tv-space-6) + 3px);
   overflow: hidden;
   transition: transform 300ms var(--tv-ease), box-shadow 300ms var(--tv-ease);
 }
 
-/* Left accent bar */
+.resources__card--teal  { --chapter-ink: var(--tv-primary);     --chapter-ground: var(--tv-primary-soft); }
+.resources__card--amber { --chapter-ink: var(--tv-accent-text); --chapter-ground: var(--tv-accent-soft); }
+
+/* A rule in the chapter's ink across the top, matching the tiles inside the
+   library. One taxonomy, one treatment, whichever side of the sign-in you are on. */
 .resources__card::before {
   content: '';
   position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: var(--card-accent, var(--tv-primary));
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: var(--chapter-ink);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -353,150 +336,37 @@
   }
 }
 
-.resources__card-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--tv-space-3);
+.resources__card-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: var(--tv-space-4);
+  border-radius: var(--tv-radius-md);
+  background: var(--chapter-ground);
+  color: var(--chapter-ink);
 }
 
 .resources__card-title {
   font-family: var(--tv-font-display);
   font-weight: var(--tv-fw-semibold);
   font-size: var(--tv-fs-md);
-  line-height: 1.25;
+  line-height: var(--tv-lh-snug);
   letter-spacing: -0.01em;
   color: var(--tv-text);
-  margin: 0;
+  margin: 0 0 var(--tv-space-2);
 }
-
-.resources__card-count {
-  flex-shrink: 0;
-  font-family: var(--tv-font-mono);
-  font-size: var(--tv-fs-xs);
-  letter-spacing: var(--tv-tracking-wide);
-  color: var(--tv-text-muted);
-  background: var(--tv-canvas-brand);
-  padding: 4px 10px;
-  border-radius: var(--tv-radius-pill);
-  white-space: nowrap;
-}
-
-.resources__card-rule {
-  height: 1px;
-  background: var(--tv-border);
-  margin: var(--tv-space-4) 0;
-}
-
-.resources__card-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--tv-space-3);
-}
-
-.resources__card-item {
-  font-family: var(--tv-font-serif);
-  font-style: italic;
-  font-size: var(--tv-fs-sm);
-  line-height: 1.4;
-  color: var(--tv-text-2);
-  padding-left: var(--tv-space-4);
-  position: relative;
-}
-
-.resources__card-item::before {
-  content: '\00B7';
-  position: absolute;
-  left: 0;
-  color: var(--card-accent, var(--tv-primary));
-  font-style: normal;
-  font-weight: var(--tv-fw-bold);
-}
-
-/* Description reveals on hover (desktop) or always shows (touch). */
 
 .resources__card-desc {
   font-family: var(--tv-font-body);
   font-size: var(--tv-fs-sm);
-  line-height: 1.55;
-  color: var(--tv-text-muted);
-  max-width: 36ch;
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
   margin: 0;
-  max-height: 0;
-  overflow: hidden;
-  opacity: 0;
-  transition: max-height 400ms var(--tv-ease), opacity 300ms var(--tv-ease), margin-top 300ms var(--tv-ease);
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .resources__card:hover .resources__card-desc {
-    max-height: 100px;
-    opacity: 1;
-    margin-top: var(--tv-space-4);
-  }
-}
-
-/* Touch devices: always show description. */
-@media (hover: none) {
-  .resources__card-desc {
-    max-height: none;
-    opacity: 1;
-    margin-top: var(--tv-space-4);
-  }
-}
-
-/* ============ Social proof ============ */
-
-.resources__proof {
-  position: relative;
-  z-index: 1;
-  max-width: var(--tv-content-max);
-  margin: 0 auto;
-  padding:
-    clamp(var(--tv-space-10), 6vw, var(--tv-space-16))
-    var(--tv-space-6);
-  border-top: 1px solid var(--tv-border);
-  border-bottom: 1px solid var(--tv-border);
-}
-
-.resources__proof-inner {
-  display: flex;
-  justify-content: center;
-  gap: clamp(var(--tv-space-10), 8vw, var(--tv-space-20));
-  flex-wrap: wrap;
-}
-
-.resources__stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--tv-space-2);
-  min-width: 120px;
-}
-
-.resources__stat-number {
-  font-family: var(--tv-font-serif);
-  font-style: italic;
-  font-weight: 500;
-  font-size: clamp(2.5rem, 5vw, 4rem);
-  color: var(--tv-accent-text);
-  line-height: 1;
-  letter-spacing: -0.02em;
-}
-
-.resources__stat-label {
-  font-family: var(--tv-font-mono);
-  font-size: var(--tv-fs-xs);
-  letter-spacing: var(--tv-tracking-wider);
-  text-transform: uppercase;
-  color: var(--tv-text-muted);
-  text-align: center;
-}
-
-/* ============ CTA — dark section ============ */
+/* ============ CTA, dark section ============ */
 
 .resources__cta {
   position: relative;
@@ -592,18 +462,6 @@
     padding-top: var(--tv-space-10);
   }
 
-  .resources__featured-cover {
-    min-height: 240px;
-  }
-
-  .resources__proof-inner {
-    gap: var(--tv-space-8);
-  }
-
-  .resources__stat {
-    min-width: 100px;
-  }
-
   .resources__cta-button {
     min-width: 0;
     width: 100%;
@@ -617,14 +475,7 @@
   .resources__card {
     transition: none;
   }
-  .resources__card-desc {
-    max-height: none;
-    opacity: 1;
-    margin-top: var(--tv-space-4);
-    transition: none;
-  }
   .resources__hero-link,
-  .resources__featured-link,
   .resources__cta-button {
     transition: none;
   }

@@ -1,0 +1,577 @@
+/* Member library. Working surface, cool canvas, low motion.
+
+   Card chrome, the grid, and the empty state come from page.css primitives.
+   What lives here is only what the library adds: the filter rail, the kind and
+   category marks on a card, and the video facade.
+
+   Colour rules followed from variables.css rather than from token names:
+   primary-soft is the pill fill (primary-softer is dark-background only), and
+   form controls take border-input, which carries the 3:1 floor that border
+   does not. */
+
+.library {
+  max-width: var(--tv-content-max);
+  padding: var(--tv-space-6) var(--tv-space-5) var(--tv-space-16);
+}
+
+/* ============ Head ============ */
+
+.library__alert {
+  padding: var(--tv-space-3) var(--tv-space-4);
+  border: 1px solid var(--tv-error);
+  background: var(--tv-error-bg);
+  color: var(--tv-error-text);
+  border-radius: var(--tv-radius-md);
+  font-size: var(--tv-fs-sm);
+  margin-bottom: var(--tv-space-4);
+}
+
+/* ============ Filters ============ */
+
+/* Two rails doing different jobs. Kind sits with search on the top line;
+   chapters get a label of their own so the shapes are not two unlabelled
+   groups of pills stacked on each other. */
+
+.library__filters {
+  padding: var(--tv-space-4);
+  margin-bottom: var(--tv-space-6);
+  background: var(--tv-surface);
+  border: var(--tv-border-width) solid var(--tv-border);
+  border-radius: var(--tv-radius-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-4);
+}
+
+.library__row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-3);
+}
+
+.library__row--chapters {
+  padding-top: var(--tv-space-4);
+  border-top: var(--tv-border-width) solid var(--tv-border);
+}
+
+.library__rail-label {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tv-tracking-wider);
+  color: var(--tv-text-muted);
+}
+
+.library__search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.library__search-icon {
+  position: absolute;
+  left: var(--tv-space-3);
+  color: var(--tv-text-muted);
+  pointer-events: none;
+}
+
+/* border-input, not border. A 1.23:1 hairline round a text field is decoration,
+   not an affordance, and sits below the 3:1 floor for a form control. */
+.library__search-input {
+  width: 100%;
+  padding: var(--tv-space-3) var(--tv-space-3) var(--tv-space-3) var(--tv-space-10);
+  border: var(--tv-border-width) solid var(--tv-border-input);
+  border-radius: var(--tv-radius-md);
+  background: var(--tv-surface);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text);
+  min-height: 44px;
+}
+
+.library__search-input::placeholder { color: var(--tv-text-muted); }
+
+.library__kinds,
+.library__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tv-space-2);
+}
+
+.library__kind,
+.library__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  padding: var(--tv-space-2) var(--tv-space-4);
+  min-height: 44px;
+  border: var(--tv-border-width) solid var(--tv-border-strong);
+  background: var(--tv-surface);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-medium);
+  color: var(--tv-text-2);
+  cursor: pointer;
+  transition: border-color var(--tv-duration-fast) var(--tv-ease),
+              color var(--tv-duration-fast) var(--tv-ease),
+              background var(--tv-duration-fast) var(--tv-ease);
+}
+
+.library__kind { border-radius: var(--tv-radius-pill); }
+.library__chip { border-radius: var(--tv-radius-md); padding-inline: var(--tv-space-3); }
+
+.library__kind:hover,
+.library__chip:hover:not(:disabled) {
+  border-color: var(--tv-text-muted);
+  color: var(--tv-text);
+}
+
+/* primary on primary-soft is 4.86:1. primary-softer is dark-background only. */
+.library__kind--active,
+.library__chip--active {
+  border-color: var(--tv-primary);
+  background: var(--tv-primary-soft);
+  color: var(--tv-primary);
+  font-weight: var(--tv-fw-semibold);
+}
+
+/* A chapter holding nothing is shown and disabled rather than hidden. A
+   filtered list looks like missing data; a listed row teaches the shelf. */
+.library__chip--empty:disabled {
+  border-color: var(--tv-border);
+  color: var(--tv-text-muted);
+  cursor: default;
+}
+
+.library__chip-icon {
+  color: var(--chapter-ink, var(--tv-text-muted));
+  flex-shrink: 0;
+}
+
+/* The personal chip is not a chapter, so it takes the accent rather than a
+   chapter ink. It sits first in the rail and should not read as a seventh. */
+.library__chip--mine {
+  --chapter-ink: var(--tv-accent-text);
+  --chapter-ground: var(--tv-accent-soft);
+  border-color: var(--tv-accent-text);
+  color: var(--tv-accent-text);
+}
+
+.library__chip--mine .library__chip-icon { color: var(--tv-accent-text); }
+
+.library__chip--teal  { --chapter-ink: var(--tv-primary);     --chapter-ground: var(--tv-primary-soft); }
+.library__chip--amber { --chapter-ink: var(--tv-accent-text); --chapter-ground: var(--tv-accent-soft); }
+
+.library__chip--active {
+  border-color: var(--chapter-ink, var(--tv-primary));
+  background: var(--chapter-ground, var(--tv-primary-soft));
+  color: var(--chapter-ink, var(--tv-primary));
+}
+
+.library__chip--empty:disabled .library__chip-icon { color: var(--tv-text-muted); }
+
+.library__chip-count {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+}
+
+.library__chip--active .library__chip-count { color: var(--chapter-ink, var(--tv-primary)); }
+
+/* ============ Grid ============ */
+
+/* Not .card-grid: that primitive goes straight from one column to three at
+   760px, and three resource cards on a 768 tablet is too tight. Two at 760,
+   three at 960. */
+.library__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--tv-space-4);
+  /* Without this a card stretches to its tallest neighbour, and a link card
+     beside two videos becomes a third of a card of white space. The clamps
+     keep heights close; nothing needs padding out to match. */
+  align-items: start;
+}
+
+/* Composed with .card from page.css, which owns the surface, border, radius,
+   and padding. This adds only the column behaviour a resource card needs. */
+.library__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-3);
+  cursor: pointer;
+  transition: border-color var(--tv-duration-fast) var(--tv-ease),
+              box-shadow var(--tv-duration-fast) var(--tv-ease);
+}
+
+.library__card:hover {
+  border-color: var(--tv-primary);
+  box-shadow: var(--tv-shadow-lg);
+}
+
+/* The title is the accessible control. The click handler on the card is a
+   convenience for pointers, not the only way in. */
+.library__card-button {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.library__card--skel {
+  min-height: 168px;
+  background: var(--tv-canvas-app);
+  border-style: dashed;
+}
+
+.library__card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--tv-space-2);
+}
+
+.library__kind-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-1);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  color: var(--tv-text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--tv-tracking-wide);
+}
+
+/* Same mark and ink the chapter carries on its chip and its tile, so a reader
+   learns the six once and recognises them everywhere. */
+.library__category {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-1);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-medium);
+  color: var(--chapter-ink, var(--tv-text-2));
+  background: var(--chapter-ground, transparent);
+  padding: var(--tv-space-1) var(--tv-space-3) var(--tv-space-1) var(--tv-space-2);
+  border-radius: var(--tv-radius-pill);
+  white-space: nowrap;
+}
+
+.library__category-more {
+  padding-left: var(--tv-space-1);
+  margin-left: var(--tv-space-1);
+  border-left: var(--tv-border-width) solid currentColor;
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  opacity: 0.75;
+}
+
+.library__category--teal  { --chapter-ink: var(--tv-primary);     --chapter-ground: var(--tv-primary-soft); }
+.library__category--amber { --chapter-ink: var(--tv-accent-text); --chapter-ground: var(--tv-accent-soft); }
+
+.library__card-title {
+  line-height: var(--tv-lh-snug);
+  margin-bottom: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.library__card-desc {
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.library__card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tv-space-2);
+  padding-top: var(--tv-space-1);
+}
+
+/* ============ Source line ============ */
+
+/* A video has a thumbnail. A file and a link say what they are instead, so
+   every card carries something concrete beneath the summary. */
+.library__source {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  margin: 0;
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  color: var(--tv-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.library__source-tag {
+  padding: 2px var(--tv-space-2);
+  border: var(--tv-border-width) solid var(--tv-border-strong);
+  border-radius: var(--tv-radius-sm);
+  color: var(--tv-text-2);
+  letter-spacing: var(--tv-tracking-wider);
+}
+
+/* ============ Open control ============ */
+
+.library__open {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  padding: var(--tv-space-2) var(--tv-space-4);
+  min-height: 44px;
+  border: var(--tv-border-width) solid var(--tv-primary);
+  border-radius: var(--tv-radius-md);
+  background: var(--tv-primary);
+  color: var(--tv-text-inverse);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-semibold);
+  cursor: pointer;
+  transition: background var(--tv-duration-fast) var(--tv-ease);
+}
+
+/* base.css sets a:hover to primary-hover, which outranks a single class and
+   leaves a filled anchor with teal text on teal. Already fixed twice elsewhere. */
+.library__open:hover,
+a.library__open:hover {
+  background: var(--tv-primary-hover);
+  border-color: var(--tv-primary-hover);
+  color: var(--tv-text-inverse);
+}
+
+/* Neutral when disabled, never a washed-out brand colour. */
+.library__open--quiet {
+  background: transparent;
+  border-color: var(--tv-border-strong);
+  color: var(--tv-text-2);
+}
+
+.library__open--quiet:hover {
+  background: transparent;
+  border-color: var(--tv-primary);
+  color: var(--tv-primary);
+}
+
+.library__open:disabled {
+  background: var(--tv-border);
+  border-color: var(--tv-border);
+  color: var(--tv-text-muted);
+  cursor: default;
+}
+
+/* ============ Thumbnail ============ */
+
+/* A still, not a player. One iframe at a time lives in the detail panel, which
+   is also what stops the grid pulling a YouTube player per card. */
+.library__thumb {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--tv-radius-md);
+  overflow: hidden;
+  background: var(--tv-canvas-app);
+}
+
+.library__thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.library__thumb-play {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--tv-radius-pill);
+  background: var(--tv-surface);
+  color: var(--tv-primary);
+  box-shadow: var(--tv-shadow-lg);
+  transition: transform var(--tv-duration-fast) var(--tv-ease);
+}
+
+.library__card:hover .library__thumb-play { transform: scale(1.06); }
+
+/* ============ Empty shelf ============ */
+
+/* An empty library is a shelf being built. It gets real content, the six
+   chapters and their descriptions, rather than an icon in a circle. */
+
+.library__opening { max-width: none; }
+
+.library__opening-head { margin-bottom: var(--tv-space-6); }
+
+.library__opening-title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-lg);
+  line-height: var(--tv-lh-snug);
+  color: var(--tv-text);
+  margin: 0 0 var(--tv-space-2);
+}
+
+.library__opening-sub {
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  margin: 0;
+  max-width: 64ch;
+}
+
+.library__chapters {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--tv-space-4);
+}
+
+/* Ground and rule are tinted from the chapter's own ink, so the six read as a
+   set with six members rather than six copies of one card. */
+.library__chapter {
+  --chapter-ink: var(--tv-primary);
+  --chapter-ground: var(--tv-primary-soft);
+  position: relative;
+  padding: var(--tv-space-5);
+  padding-top: var(--tv-space-6);
+  background: var(--tv-surface);
+  border: var(--tv-border-width) solid var(--tv-border);
+  border-radius: var(--tv-radius-lg);
+  overflow: hidden;
+}
+
+.library__chapter--teal  { --chapter-ink: var(--tv-primary);     --chapter-ground: var(--tv-primary-soft); }
+.library__chapter--amber { --chapter-ink: var(--tv-accent-text); --chapter-ground: var(--tv-accent-soft); }
+
+/* A rule across the top in the chapter's ink. Flat, no gradient, no glow. */
+.library__chapter::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: var(--chapter-ink);
+}
+
+.library__chapter-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: var(--tv-space-4);
+  border-radius: var(--tv-radius-md);
+  background: var(--chapter-ground);
+  color: var(--chapter-ink);
+}
+
+.library__chapter-num {
+  position: absolute;
+  top: var(--tv-space-5);
+  right: var(--tv-space-5);
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  color: var(--tv-text-muted);
+}
+
+.library__chapter-title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-md);
+  line-height: var(--tv-lh-snug);
+  color: var(--tv-text);
+  margin: 0 0 var(--tv-space-2);
+}
+
+.library__chapter-desc {
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  margin: 0;
+}
+
+/* ============ No match ============ */
+
+/* Only reachable when rows exist and the filter excludes them, so the action
+   is a real way out rather than a dead end. */
+
+.library__nomatch {
+  padding: var(--tv-space-10) var(--tv-space-6);
+  border: var(--tv-border-width) dashed var(--tv-border-strong);
+  border-radius: var(--tv-radius-lg);
+  text-align: center;
+}
+
+.library__nomatch-title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-md);
+  color: var(--tv-text);
+  margin: 0 0 var(--tv-space-2);
+}
+
+.library__nomatch-body {
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  margin: 0 auto var(--tv-space-6);
+  max-width: 46ch;
+}
+
+.library__nomatch .library__open { margin: 0 auto; }
+
+/* ============ Breakpoints ============ */
+
+@media (min-width: 760px) {
+  .library__row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .library__row--chapters { align-items: baseline; }
+
+  .library__search { flex: 0 1 360px; }
+
+  .library__chips { flex: 1; justify-content: flex-end; }
+
+  .library__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .library__chapters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 960px) {
+  .library { padding: var(--tv-space-8) var(--tv-space-6) var(--tv-space-20); }
+
+  .library__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+  .library__chapters { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* variables.css already zeroes every duration under this query, so only the
+   transform needs removing. */
+@media (prefers-reduced-motion: reduce) {
+  .library__card:hover .library__thumb-play { transform: none; }
+}

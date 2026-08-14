@@ -1,0 +1,254 @@
+/* ResourceDetail. Side drawer on desktop, bottom sheet on a phone. Geometry,
+   timings, and z-index match UserDetailDrawer so the two panels in the product
+   behave identically rather than each answering the same questions its own way.
+
+   The card carries a clamped summary; the full record lives here, which is what
+   keeps every card in the grid the same height however much anyone wrote. */
+
+.rdd__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  z-index: 100;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 240ms var(--tv-ease);
+}
+
+.rdd__backdrop--open { opacity: 1; }
+
+.rdd {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(520px, 100vw);
+  z-index: 110;
+  background: var(--tv-surface);
+  border-left: 1px solid var(--tv-border);
+  box-shadow: -10px 0 28px rgba(15, 23, 42, 0.08);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  /* Reserves the track, so the body does not shift sideways when a long
+     description makes the scrollbar appear. */
+  scrollbar-gutter: stable;
+  transform: translateX(100%);
+  transition: transform 240ms var(--tv-ease);
+}
+
+.rdd--open { transform: translateX(0); }
+
+/* ============ Head ============ */
+
+.rdd__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--tv-space-3);
+  padding: var(--tv-space-4) var(--tv-space-5);
+  border-bottom: 1px solid var(--tv-border);
+  position: sticky;
+  top: 0;
+  background: var(--tv-surface);
+  z-index: 1;
+}
+
+.rdd__kind {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tv-tracking-wide);
+  color: var(--tv-text-muted);
+}
+
+.rdd__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-right: calc(var(--tv-space-3) * -1);
+  border: 0;
+  background: none;
+  border-radius: var(--tv-radius-md);
+  color: var(--tv-text-2);
+  cursor: pointer;
+  transition: background var(--tv-duration-fast) var(--tv-ease),
+              color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.rdd__close:hover { background: var(--tv-canvas-app); color: var(--tv-text); }
+
+/* ============ Body ============ */
+
+.rdd__body {
+  flex: 1;
+  padding: var(--tv-space-5);
+}
+
+.rdd__chapters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tv-space-2);
+  margin-bottom: var(--tv-space-4);
+}
+
+/* Every chapter is named here, where there is room, rather than compressed to
+   a count as it is on the card. */
+.rdd__chapter {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-1);
+  padding: var(--tv-space-1) var(--tv-space-3) var(--tv-space-1) var(--tv-space-2);
+  border-radius: var(--tv-radius-pill);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-medium);
+  color: var(--chapter-ink);
+  background: var(--chapter-ground);
+  white-space: nowrap;
+}
+
+.rdd__chapter--teal  { --chapter-ink: var(--tv-primary);     --chapter-ground: var(--tv-primary-soft); }
+.rdd__chapter--amber { --chapter-ink: var(--tv-accent-text); --chapter-ground: var(--tv-accent-soft); }
+
+.rdd__title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-xl);
+  line-height: var(--tv-lh-snug);
+  letter-spacing: var(--tv-tracking-tight);
+  color: var(--tv-text);
+  margin: 0 0 var(--tv-space-2);
+}
+
+.rdd__when {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  color: var(--tv-text-muted);
+  margin: 0 0 var(--tv-space-5);
+}
+
+.rdd__video {
+  aspect-ratio: 16 / 9;
+  margin-bottom: var(--tv-space-5);
+  border-radius: var(--tv-radius-md);
+  overflow: hidden;
+  background: var(--tv-canvas-app);
+}
+
+.rdd__video-frame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+/* No clamp. The whole point of the panel is that nothing is cut off. */
+.rdd__desc {
+  font-size: var(--tv-fs-base);
+  line-height: var(--tv-lh-relaxed);
+  color: var(--tv-text-2);
+  margin: 0;
+}
+
+/* ============ Foot ============ */
+
+.rdd__foot {
+  position: sticky;
+  bottom: 0;
+  padding: var(--tv-space-4) var(--tv-space-5);
+  padding-bottom: calc(var(--tv-space-4) + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--tv-border);
+  background: var(--tv-surface);
+}
+
+.rdd__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--tv-space-2);
+  width: 100%;
+  padding: var(--tv-space-3) var(--tv-space-5);
+  min-height: 48px;
+  border: var(--tv-border-width) solid var(--tv-primary);
+  border-radius: var(--tv-radius-md);
+  background: var(--tv-primary);
+  color: var(--tv-text-inverse);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-semibold);
+  cursor: pointer;
+  transition: background var(--tv-duration-fast) var(--tv-ease);
+}
+
+/* base.css sets a:hover to primary-hover, which outranks a single class and
+   would leave a filled anchor with teal text on teal. */
+.rdd__action:hover,
+a.rdd__action:hover {
+  background: var(--tv-primary-hover);
+  border-color: var(--tv-primary-hover);
+  color: var(--tv-text-inverse);
+}
+
+/* The video already played in the panel, so leaving for YouTube is the quieter
+   of the two things a reader might do. */
+.rdd__action--quiet {
+  background: transparent;
+  border-color: var(--tv-border-strong);
+  color: var(--tv-text-2);
+}
+
+.rdd__action--quiet:hover,
+a.rdd__action--quiet:hover {
+  background: transparent;
+  border-color: var(--tv-primary);
+  color: var(--tv-primary);
+}
+
+/* Neutral when disabled, never a washed-out brand colour. */
+.rdd__action:disabled {
+  background: var(--tv-border);
+  border-color: var(--tv-border);
+  color: var(--tv-text-muted);
+  cursor: default;
+}
+
+.rdd__note {
+  font-size: var(--tv-fs-xs);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-muted);
+  margin: var(--tv-space-2) 0 0;
+  text-align: center;
+}
+
+.rdd__error {
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-error-text);
+  margin: 0 0 var(--tv-space-2);
+}
+
+/* ============ Phone ============ */
+
+@media (max-width: 760px) {
+  .rdd {
+    width: 100vw;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    height: 90dvh;
+    border-left: none;
+    border-top: 1px solid var(--tv-border);
+    border-radius: var(--tv-radius-lg) var(--tv-radius-lg) 0 0;
+    box-shadow: 0 -10px 28px rgba(15, 23, 42, 0.12);
+    transform: translateY(100%);
+  }
+
+  .rdd--open { transform: translateY(0); }
+}

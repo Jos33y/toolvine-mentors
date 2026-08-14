@@ -6,6 +6,8 @@ import { Logo } from '@/components/shared/Logo/Logo'
 import { Icon } from '@/components/shared/Icon/Icon'
 import { OnboardingBanner } from '@/components/shared/OnboardingBanner/OnboardingBanner'
 import { VerifyEmailBanner } from '@/components/shared/VerifyEmailBanner/VerifyEmailBanner'
+import { NotificationBell } from '@/components/shared/NotificationBell/NotificationBell'
+import { useNotifications } from '@/hooks/useNotifications'
 import './AppShell.css'
 
 // NAV_ITEMS is the registry. Display order is then overridden per role via
@@ -13,9 +15,19 @@ import './AppShell.css'
 // tab bar. Resolved orderings:
 //
 //   Admin:  Dashboard · Users · Pairings · Activity ·
-//           [Mentees · Meetings · Submissions · Insights · Profile in More]
-//   Mentor: Dashboard · Mentees · Meetings · Profile
-//   Mentee: Dashboard · My Mentor · Meetings · Profile
+//           [Mentees · Meetings · Library · Submissions · Insights ·
+//            Resources · Profile in More]
+//   Mentor: Dashboard · Mentees · Meetings · Profile · [Library, Notifications in More]
+//   Mentee: Dashboard · My Mentor · Meetings · Profile · [Library, Notifications in More]
+//
+// Notifications stays out of the tab bar too. The bell sits in the topbar on
+// every screen and is the primary way in; the page is where somebody goes to
+// read back through, which is not a daily action.
+//
+// Library stays out of the tab bar on every role, D51. It is where somebody
+// goes when a mentor points them at something, not a daily surface, and
+// displacing Profile would pull it further from the onboarding nudge that
+// asks people to finish it.
 //
 // Profile sits at the end across all roles. Submissions moves to More for
 // admin since contact submissions arrive infrequently and Activity/Users/
@@ -29,6 +41,7 @@ const NAV_ITEMS = [
 
   // Shared by every signed-in user.
   { to: '/meetings',  label: 'Meetings',  icon: 'meetings',  allow: null },
+  { to: '/library',   label: 'Library',   icon: 'resources', allow: null },
 
   // Admin tools fill the slots between Meetings and Profile so admin's
   // mobile tab bar carries platform-running shortcuts, not settings.
@@ -39,9 +52,12 @@ const NAV_ITEMS = [
   { to: '/admin/insights',     label: 'Insights',    icon: 'eye',      allow: [ROLES.ADMIN] },
   { to: '/admin/invites',      label: 'Invites',     icon: 'mail',      allow: [ROLES.ADMIN] },
   { to: '/admin/partners',     label: 'Partners',    icon: 'handshake', allow: [ROLES.ADMIN] },
+  { to: '/admin/resources',    label: 'Resources',   icon: 'bookOpen',  allow: [ROLES.ADMIN] },
 
-  // Profile last. Low-frequency, settings-tier.
-  { to: '/profile',   label: 'Profile',   icon: 'user',      allow: null }
+  // Notifications and Profile last. Both low-frequency and settings-tier:
+  // the bell in the topbar is the way into notifications day to day.
+  { to: '/notifications', label: 'Notifications', icon: 'bell', allow: null },
+  { to: '/profile',       label: 'Profile',       icon: 'user', allow: null }
 ]
 
 // Mobile bottom tab bar capacity. Items beyond this index move to the More
@@ -101,6 +117,11 @@ export function AppShell() {
 
     return [...prioritized, ...remaining]
   }, [roles])
+
+  // One notifications subscription for the whole app. The bell reads it here
+  // and the page reads it through the outlet, rather than each opening a
+  // channel of its own.
+  const notifications = useNotifications({ enabled: Boolean(profile) })
 
   // Page title for the topbar. Derived from the active route. We sort by `to`
   // length so '/mentees' beats '/' when both prefix-match an item.
@@ -175,13 +196,19 @@ export function AppShell() {
       <div className="shell-main">
         <header className="shell-topbar">
           <h1 className="shell-topbar-title">{pageTitle}</h1>
+          <NotificationBell
+            items={notifications.items}
+            unread={notifications.unread}
+            onReadOne={notifications.readOne}
+            onReadAll={notifications.readAll}
+          />
         </header>
 
         <VerifyEmailBanner />
         <OnboardingBanner />
 
         <main id="main" className="shell-content" tabIndex={-1}>
-          <Outlet />
+          <Outlet context={{ notifications }} />
         </main>
       </div>
 

@@ -1,0 +1,199 @@
+/* Notifications page. Working surface, cool canvas, low motion.
+
+   Grouped by day rather than shown flat. A relative time on every row of forty
+   tells a reader less than three headings do. */
+
+.notifs {
+  max-width: 760px;
+  padding: var(--tv-space-6) var(--tv-space-5) var(--tv-space-16);
+}
+
+/* ============ Controls ============ */
+
+.notifs__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--tv-space-3);
+  margin-bottom: var(--tv-space-5);
+  padding-bottom: var(--tv-space-4);
+  border-bottom: var(--tv-border-width) solid var(--tv-border);
+}
+
+.notifs__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tv-space-2);
+}
+
+.notifs__filter {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  padding: var(--tv-space-2) var(--tv-space-4);
+  min-height: 44px;
+  background: var(--tv-surface);
+  border: var(--tv-border-width) solid var(--tv-border-strong);
+  border-radius: var(--tv-radius-pill);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-medium);
+  color: var(--tv-text-2);
+  cursor: pointer;
+  transition: border-color var(--tv-duration-fast) var(--tv-ease),
+              color var(--tv-duration-fast) var(--tv-ease),
+              background var(--tv-duration-fast) var(--tv-ease);
+}
+
+.notifs__filter:hover { border-color: var(--tv-text-muted); color: var(--tv-text); }
+
+/* primary on primary-soft is 4.86:1. */
+.notifs__filter--active {
+  border-color: var(--tv-primary);
+  background: var(--tv-primary-soft);
+  color: var(--tv-primary);
+  font-weight: var(--tv-fw-semibold);
+}
+
+.notifs__filter-count {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-accent-text);
+}
+
+.notifs__mark {
+  border: 0;
+  background: none;
+  padding: var(--tv-space-2) 0;
+  min-height: 44px;
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-medium);
+  color: var(--tv-primary);
+  cursor: pointer;
+}
+
+.notifs__mark:hover { color: var(--tv-primary-hover); text-decoration: underline; }
+
+/* ============ Groups ============ */
+
+.notifs__group { margin-bottom: var(--tv-space-6); }
+
+.notifs__day {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tv-tracking-wider);
+  color: var(--tv-text-muted);
+  margin: 0 0 var(--tv-space-3);
+}
+
+.notifs__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-2);
+}
+
+/* ============ Row ============ */
+
+.notifs__row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--tv-space-3);
+  padding: var(--tv-space-4);
+  background: var(--tv-surface);
+  border: var(--tv-border-width) solid var(--tv-border);
+  border-radius: var(--tv-radius-lg);
+  color: inherit;
+  transition: border-color var(--tv-duration-fast) var(--tv-ease);
+}
+
+a.notifs__row:hover { border-color: var(--tv-primary); color: inherit; }
+
+/* Unread carries a left rule as well as the tint, since colour alone should
+   never be the only thing saying what state a row is in. */
+.notifs__row--unread {
+  border-left: 3px solid var(--tv-accent);
+  background: var(--tv-canvas-app);
+}
+
+.notifs__row--skel {
+  min-height: 76px;
+  background: var(--tv-canvas-app);
+  border-style: dashed;
+}
+
+.notifs__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: var(--tv-radius-md);
+  background: var(--tv-primary-soft);
+  color: var(--tv-primary);
+}
+
+.notifs__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-1);
+  flex: 1;
+  min-width: 0;
+}
+
+.notifs__title {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-semibold);
+  line-height: var(--tv-lh-snug);
+  color: var(--tv-text);
+}
+
+.notifs__body {
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  overflow-wrap: anywhere;
+}
+
+.notifs__when {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.notifs__read {
+  flex-shrink: 0;
+  padding: var(--tv-space-1) var(--tv-space-3);
+  min-height: 44px;
+  border: var(--tv-border-width) solid var(--tv-border-strong);
+  border-radius: var(--tv-radius-md);
+  background: transparent;
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-2);
+  cursor: pointer;
+}
+
+.notifs__read:hover { border-color: var(--tv-primary); color: var(--tv-primary); }
+
+/* ============ Breakpoints ============ */
+
+@media (max-width: 760px) {
+  .notifs__when { display: none; }
+
+  .notifs__row { padding: var(--tv-space-3); }
+}
+
+@media (min-width: 960px) {
+  .notifs { padding: var(--tv-space-8) var(--tv-space-6) var(--tv-space-20); }
+}

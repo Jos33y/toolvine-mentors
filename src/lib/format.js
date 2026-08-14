@@ -62,6 +62,16 @@ export function dateStub(iso) {
   }
 }
 
+// Plain calendar date for admin lists. "13 Aug 2026". Lives here rather than
+// inside a page because two spellings of one date is the same defect two
+// spellings of a time already were. Invites.jsx still carries a private copy.
+export function shortDate(iso) {
+  if (!iso) return null
+  return new Date(iso).toLocaleDateString('en-GB', {
+    day: 'numeric', month: 'short', year: 'numeric'
+  })
+}
+
 // "Paired since Mar 2026" line on MenteesListCard.
 export function pairedSinceLabel(iso) {
   if (!iso) return null

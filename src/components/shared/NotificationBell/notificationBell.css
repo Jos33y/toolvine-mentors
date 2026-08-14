@@ -1,0 +1,200 @@
+/* Notification bell. Anchored panel rather than a drawer: this is a peek at
+   whether anything happened, and the full list has its own page. A drawer
+   would be the same weight as the resource panel for a much smaller job. */
+
+.bell { position: relative; }
+
+.bell__button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: none;
+  border-radius: var(--tv-radius-md);
+  color: var(--tv-text-2);
+  cursor: pointer;
+  transition: background var(--tv-duration-fast) var(--tv-ease),
+              color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.bell__button:hover { background: var(--tv-canvas-app); color: var(--tv-text); }
+
+/* Amber, not the error red. Something waiting is not something wrong. */
+.bell__count {
+  position: absolute;
+  top: 5px;
+  right: 4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--tv-radius-pill);
+  background: var(--tv-accent);
+  color: var(--tv-text-inverse);
+  font-family: var(--tv-font-mono);
+  font-size: 10px;
+  font-weight: var(--tv-fw-semibold);
+  line-height: 1;
+}
+
+/* ============ Panel ============ */
+
+.bell__panel {
+  position: absolute;
+  top: calc(100% + var(--tv-space-2));
+  right: 0;
+  width: min(360px, calc(100vw - var(--tv-space-8)));
+  /* Inside the topbar's stacking context, which is already z-sticky, so this
+     only needs to beat siblings rather than the page. */
+  z-index: 1;
+  background: var(--tv-surface);
+  border: var(--tv-border-width) solid var(--tv-border);
+  border-radius: var(--tv-radius-lg);
+  box-shadow: var(--tv-shadow-lg);
+  overflow: hidden;
+}
+
+.bell__panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--tv-space-3);
+  padding: var(--tv-space-3) var(--tv-space-4);
+  border-bottom: var(--tv-border-width) solid var(--tv-border);
+}
+
+.bell__panel-title {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-semibold);
+  color: var(--tv-text);
+}
+
+.bell__mark {
+  border: 0;
+  background: none;
+  padding: var(--tv-space-1) 0;
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-medium);
+  color: var(--tv-primary);
+  cursor: pointer;
+}
+
+.bell__mark:hover { color: var(--tv-primary-hover); text-decoration: underline; }
+
+/* ============ List ============ */
+
+.bell__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 336px;
+  overflow-y: auto;
+}
+
+.bell__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--tv-space-3);
+  width: 100%;
+  padding: var(--tv-space-3) var(--tv-space-4);
+  border: 0;
+  border-bottom: var(--tv-border-width) solid var(--tv-border);
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--tv-duration-fast) var(--tv-ease);
+}
+
+.bell__item:hover { background: var(--tv-canvas-app); }
+
+/* Unread carries a tint and a dot. Colour alone never conveys state. */
+.bell__item--unread { background: var(--tv-canvas-app); }
+
+.bell__item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: var(--tv-radius-md);
+  background: var(--tv-primary-soft);
+  color: var(--tv-primary);
+}
+
+.bell__item-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.bell__item-title {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-medium);
+  color: var(--tv-text);
+  line-height: var(--tv-lh-snug);
+}
+
+.bell__item-body {
+  font-size: var(--tv-fs-xs);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.bell__item-when {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+}
+
+.bell__item-dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  margin-top: var(--tv-space-2);
+  border-radius: var(--tv-radius-pill);
+  background: var(--tv-accent);
+}
+
+.bell__empty {
+  padding: var(--tv-space-6) var(--tv-space-4);
+  margin: 0;
+  text-align: center;
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+}
+
+.bell__all {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--tv-space-2);
+  width: 100%;
+  padding: var(--tv-space-3);
+  min-height: 44px;
+  border: 0;
+  background: var(--tv-canvas-app);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-semibold);
+  color: var(--tv-primary);
+  cursor: pointer;
+  transition: background var(--tv-duration-fast) var(--tv-ease);
+}
+
+.bell__all:hover { background: var(--tv-primary-soft); }

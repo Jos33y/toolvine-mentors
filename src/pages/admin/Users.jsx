@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/stores/useAuth'
 import { useAdminUsers } from '@/hooks/useAdminUsers'
-import { applyRoleDecision, sendRoleDecisionEmail, setUserActive, bucketFor } from '@/lib/adminUsers'
+import { applyRoleDecision, sendRoleDecisionEmail, setUserActive, bucketFor, reminderStateFor, sendReminderNow, reminderFailureMessage } from '@/lib/adminUsers'
 import { UserDetailDrawer } from '@/components/admin/UserDetailDrawer/UserDetailDrawer'
 import './users.css'
 
@@ -18,7 +18,8 @@ const FILTERS = [
   { key: 'deactivated',        label: 'Deactivated' },
   { key: 'onboarding_stalled', label: 'Stalled onboarding' },
   { key: 'unverified',         label: 'Unverified email' },
-  { key: 'unpaired',           label: 'Unpaired (30d+)' }
+  { key: 'unpaired',           label: 'Unpaired (30d+)' },
+  { key: 'needs_a_call',       label: 'Needs a call' }
 ]
 
 const DEFAULT_FILTER = 'pending'
@@ -93,6 +94,42 @@ export function Users() {
     } finally {
       setBusyId(null)
       setPending(null)
+    }
+  }
+
+  // No confirm dialog. Sending somebody a reminder is not a destructive act,
+  // and the row reports what happened either way.
+  async function remind(user, kind) {
+    setBusyId(user.id)
+    setRowError({ id: null, message: '' })
+    setRowNotice({ id: null, message: '', tone: 'info' })
+    try {
+      const result = await sendReminderNow(user.id, kind)
+      if (result.sent > 0) {
+        // Patched rather than waited for. The realtime echo on profiles will
+        // confirm it a moment later.
+        const isVerification = kind === 'verification'
+        patchUser(user.id, isVerification
+          ? {
+              verification_reminder_count:   (user.verification_reminder_count ?? 0) + 1,
+              verification_last_reminder_at: new Date().toISOString()
+            }
+          : {
+              onboarding_reminder_count:   (user.onboarding_reminder_count ?? 0) + 1,
+              onboarding_last_reminder_at: new Date().toISOString()
+            })
+        setRowNotice({ id: user.id, message: `Reminder sent to ${user.email}.`, tone: 'success' })
+      } else {
+        setRowNotice({
+          id: user.id,
+          message: reminderFailureMessage(result.reason),
+          tone: 'warn'
+        })
+      }
+    } catch (e) {
+      setRowError({ id: user.id, message: friendly(e) })
+    } finally {
+      setBusyId(null)
     }
   }
 
@@ -176,6 +213,7 @@ export function Users() {
               onSelect={() => setSelectedUserId(u.id)}
               onAsk={(decision, label) => setPending({ user: u, decision, label })}
               onToggleActive={() => setPending({ user: u, decision: 'toggle_active', label: u.is_active ? 'Deactivate user' : 'Reactivate user' })}
+              onRemind={(kind) => remind(u, kind)}
             />
           ))}
         </ul>
@@ -204,10 +242,42 @@ export function Users() {
   )
 }
 
+/* ============ Reminder chip ============ */
+
+// Four columns have held this since 0010 and nothing ever showed it. An admin
+// could not see who had been chased, how often, or when.
+function ReminderChip({ state }) {
+  const label = state.kind === 'verification' ? 'Verification' : 'Onboarding'
+
+  if (state.sent === 0) {
+    return (
+      <p className="admin-users__reminder">
+        {label} reminder not sent yet
+      </p>
+    )
+  }
+
+  return (
+    <p className={'admin-users__reminder' + (state.exhausted ? ' admin-users__reminder--spent' : '')}>
+      {label} reminder {state.sent} of 3
+      {state.last && <> &middot; last {relativeDays(state.last)}</>}
+      {state.exhausted && <> &middot; email is not reaching them</>}
+    </p>
+  )
+}
+
+function relativeDays(iso) {
+  const days = Math.floor((Date.now() - new Date(iso).getTime()) / DAY_MS)
+  if (days <= 0) return 'today'
+  if (days === 1) return 'yesterday'
+  return `${days} days ago`
+}
+
 /* ============ Row ============ */
 
-function UserRow({ user, isSelf, busy, rowError, rowNotice, onSelect, onAsk, onToggleActive }) {
+function UserRow({ user, isSelf, busy, rowError, rowNotice, onSelect, onAsk, onToggleActive, onRemind }) {
   const bucket = bucketFor(user)
+  const reminder = reminderStateFor(user)
   const initials = computeInitials(user.full_name)
   const joined = formatJoined(user.created_at)
 
@@ -271,9 +341,20 @@ function UserRow({ user, isSelf, busy, rowError, rowNotice, onSelect, onAsk, onT
           )}
         </div>
         <p className="admin-users__joined">Joined {joined}</p>
+        {reminder && <ReminderChip state={reminder} />}
       </div>
 
       <div className="admin-users__actions">
+        {reminder && (
+          <button
+            type="button"
+            className="admin-users__btn admin-users__btn--quiet"
+            onClick={() => onRemind(reminder.kind)}
+            disabled={busy}
+          >
+            {reminder.sent > 0 ? 'Remind again' : 'Send reminder'}
+          </button>
+        )}
         {actions.map((a) => (
           <button
             key={a.decision}
@@ -371,7 +452,8 @@ function countByBucket(users) {
     pending: 0, mentor: 0, mentee: 0, admin: 0, deactivated: 0,
     onboarding_stalled: 0,
     unverified: 0,
-    unpaired: 0
+    unpaired: 0,
+    needs_a_call: 0
   }
 
   const now = Date.now()
@@ -385,6 +467,10 @@ function countByBucket(users) {
     if (!u.onboarded                    && ageMs > 2  * DAY_MS) c.onboarding_stalled++
     if (u.email_verified === false      && ageMs > 3  * DAY_MS) c.unverified++
     if (b === 'mentee' && u.onboarded   && ageMs > 30 * DAY_MS) c.unpaired++
+
+    // Three reminders sent and still stalled. Email has stopped working on
+    // this person and somebody should pick up a phone.
+    if (reminderStateFor(u)?.exhausted) c.needs_a_call++
   }
   return c
 }
@@ -419,6 +505,8 @@ function matchesFilter(user, filter) {
       return user.email_verified === false && ageMs > 3 * DAY_MS
     case 'unpaired':
       return bucketFor(user) === 'mentee' && user.onboarded && ageMs > 30 * DAY_MS
+    case 'needs_a_call':
+      return Boolean(reminderStateFor(user)?.exhausted)
     default:
       return false
   }

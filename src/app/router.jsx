@@ -51,9 +51,12 @@ const Insights    = lazy(() => import('@/pages/admin/Insights').then((m) => ({ d
 const AdminPartners = lazy(() => import('@/pages/admin/Partners').then((m) => ({ default: m.Partners })))
 const AdminInvites  = lazy(() => import('@/pages/admin/Invites').then((m) => ({ default: m.Invites })))
 const AdminPairings = lazy(() => import('@/pages/admin/Pairings').then((m) => ({ default: m.Pairings })))
+const AdminResources = lazy(() => import('@/pages/admin/Resources').then((m) => ({ default: m.Resources })))
 const Mentees      = lazy(() => import('@/pages/mentor/Mentees').then((m) => ({ default: m.Mentees })))
 const MyMentor     = lazy(() => import('@/pages/mentee/Mentor').then((m) => ({ default: m.Mentor })))
 const MeetingsPage = lazy(() => import('@/pages/meetings/Meetings').then((m) => ({ default: m.Meetings })))
+const LibraryPage  = lazy(() => import('@/pages/library/Library').then((m) => ({ default: m.Library })))
+const NotificationsPage = lazy(() => import('@/pages/notifications/NotificationsRoute').then((m) => ({ default: m.NotificationsRoute })))
 const MeetingPage  = lazy(() => import('@/pages/meetings/Meeting').then((m) => ({ default: m.Meeting })))
 
 /* ============ Root ============
@@ -184,6 +187,14 @@ const router = createBrowserRouter([
                 path: '/meetings/:id',
                 element: <LazyRoute><MeetingPage /></LazyRoute>
               },
+              {
+                path: '/library',
+                element: <LazyRoute><LibraryPage /></LazyRoute>
+              },
+              {
+                path: '/notifications',
+                element: <LazyRoute><NotificationsPage /></LazyRoute>
+              },
 
               /* Every admin-guarded surface lives under /admin. The old root
                  paths redirect rather than 404 so links written before the
@@ -202,7 +213,8 @@ const router = createBrowserRouter([
                   { path: 'activity',    element: <LazyRoute><Activity    /></LazyRoute> },
                   { path: 'insights',    element: <LazyRoute><Insights    /></LazyRoute> },
                   { path: 'partners',    element: <LazyRoute><AdminPartners /></LazyRoute> },
-                  { path: 'invites',     element: <LazyRoute><AdminInvites  /></LazyRoute> }
+                  { path: 'invites',     element: <LazyRoute><AdminInvites  /></LazyRoute> },
+                  { path: 'resources',   element: <LazyRoute><AdminResources /></LazyRoute> }
                 ]
               },
 
