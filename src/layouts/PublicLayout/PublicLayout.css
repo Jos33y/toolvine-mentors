@@ -31,8 +31,21 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: var(--tv-text);
+  /* The lockup is drawn with currentColor. Ink turns the shield into a solid
+     black block, so the brand link carries teal rather than body text colour. */
+  color: var(--tv-primary);
   text-decoration: none;
+}
+
+.public-brand-lockup {
+  height: 40px;
+  width: auto;
+}
+
+@media (min-width: 760px) {
+  .public-brand-lockup {
+    height: 52px;
+  }
 }
 
 .public-brand-name {

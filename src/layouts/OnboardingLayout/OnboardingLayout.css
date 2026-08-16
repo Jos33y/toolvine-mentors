@@ -57,9 +57,21 @@
   display: inline-flex;
   align-items: center;
   gap: var(--tv-space-3);
-  color: var(--tv-text);
+  /* Drives the lockup, which is drawn with currentColor. */
+  color: var(--tv-primary);
   text-decoration: none;
   padding: var(--tv-space-1) 0;
+}
+
+.onb__brand-lockup {
+  height: 36px;
+  width: auto;
+}
+
+@media (min-width: 760px) {
+  .onb__brand-lockup {
+    height: 44px;
+  }
 }
 
 .onb__brand-link:hover .onb__brand-name {

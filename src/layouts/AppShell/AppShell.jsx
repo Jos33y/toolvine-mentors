@@ -154,7 +154,7 @@ export function AppShell() {
       {/* ============ Desktop sidebar ============ */}
       <aside className="shell-sidebar" aria-label="Primary">
         <div className="shell-sidebar-brand">
-          <Logo variant="mark-light" size={32} />
+          <Logo variant="client-mark" height={30} />
           <span className="shell-sidebar-brand-name">Toolvine</span>
         </div>
 

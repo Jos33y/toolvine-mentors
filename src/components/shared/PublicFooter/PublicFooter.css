@@ -70,31 +70,20 @@
   display: flex;
   align-items: center;
   gap: var(--tv-space-4);
+  /* The lockup is drawn with currentColor and already carries the name, so the
+     Poppins wordmark that used to sit beside it is gone. */
+  color: var(--tv-primary);
 }
 
-.pf__brand-text {
-  display: flex;
-  flex-direction: column;
+.pf__brand-lockup {
+  height: 44px;
+  width: auto;
 }
 
-.pf__brand-name {
-  font-family: var(--tv-font-display);
-  font-weight: var(--tv-fw-semibold);
-  font-size: clamp(1.25rem, 2.5vw, 1.625rem);
-  letter-spacing: var(--tv-tracking-tight);
-  color: var(--tv-text);
-  line-height: var(--tv-lh-tight);
-  margin: 0;
-}
-
-.pf__brand-sub {
-  font-family: var(--tv-font-display);
-  font-weight: var(--tv-fw-medium);
-  font-size: var(--tv-fs-xs);
-  letter-spacing: var(--tv-tracking-wider);
-  text-transform: uppercase;
-  color: var(--tv-text-muted);
-  margin: 0;
+@media (min-width: 760px) {
+  .pf__brand-lockup {
+    height: 56px;
+  }
 }
 
 .pf__mark {

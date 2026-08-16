@@ -170,7 +170,7 @@ export function PublicFooter() {
       if (dist < 200) {
         const t = 1 - dist / 200
         const angle = Math.atan2(dx, -dy)
-        mark.style.setProperty('--mark-rot', `${(Math.sin(angle) * t * 3).toFixed(1)}deg`)
+        mark.style.setProperty('--mark-rot', `${(Math.sin(angle) * t * 1.2).toFixed(1)}deg`)
         mark.style.setProperty('--mark-glow', t.toFixed(2))
       } else {
         mark.style.setProperty('--mark-rot', '0deg')
@@ -198,11 +198,7 @@ export function PublicFooter() {
         <div className="pf__masthead">
           <div className="pf__brand">
             <div className="pf__mark" ref={markRef}>
-              <Logo variant="mark" size={48} />
-            </div>
-            <div className="pf__brand-text">
-              <p className="pf__brand-name">Toolvine Mentors</p>
-              <p className="pf__brand-sub">&amp; Leaders Initiative</p>
+              <Logo variant="client-lockup" height={56} className="pf__brand-lockup" />
             </div>
           </div>
         </div>

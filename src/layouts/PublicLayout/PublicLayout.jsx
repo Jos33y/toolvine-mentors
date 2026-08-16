@@ -2,7 +2,6 @@ import { NavLink, Outlet, Link, useLocation } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '@/stores/useAuth'
 import { homeFor } from '@/lib/roles'
-import { NAMES } from '@/lib/taglines'
 import { Logo } from '@/components/shared/Logo/Logo'
 import { Icon } from '@/components/shared/Icon/Icon'
 import { PublicFooter } from '@/components/shared/PublicFooter/PublicFooter'
@@ -53,8 +52,7 @@ export function PublicLayout() {
       <header className="public-header">
         <div className="public-header-inner">
           <Link to="/" className="public-brand" onClick={() => setOpen(false)}>
-            <Logo variant="mark" size={34} />
-            <span className="public-brand-name">{NAMES.short}</span>
+            <Logo variant="client-lockup" height={52} className="public-brand-lockup" />
           </Link>
 
           <nav className="public-nav-desktop" aria-label="Primary">

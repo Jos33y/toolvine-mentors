@@ -12,8 +12,7 @@ export function AuthLayout() {
     <div className="auth">
       <header className="auth__top">
         <Link to="/" className="auth__brand-link" aria-label={`${NAMES.short} home`}>
-          <Logo variant="mark" size={28} />
-          <span className="auth__brand-name">{NAMES.short}</span>
+          <Logo variant="client-lockup" height={44} className="auth__brand-lockup" />
         </Link>
         <time className="auth__date">{todayLong}</time>
       </header>

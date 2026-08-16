@@ -23,8 +23,7 @@ export function OnboardingLayout() {
     <div className="onb">
       <header className="onb__top">
         <Link to={brandHref} className="onb__brand-link" aria-label={brandLabel}>
-          <Logo variant="mark" size={28} />
-          <span className="onb__brand-name">{NAMES.short}</span>
+          <Logo variant="client-lockup" height={44} className="onb__brand-lockup" />
         </Link>
       </header>
 

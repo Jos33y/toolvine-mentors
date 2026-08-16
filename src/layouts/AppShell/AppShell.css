@@ -26,6 +26,8 @@
   gap: var(--tv-space-3);
   padding: 0 var(--tv-space-2);
   margin-bottom: var(--tv-space-6);
+  /* The shield is drawn with currentColor and sits on the dark sidebar. */
+  color: var(--tv-sidebar-text-active);
 }
 
 .shell-sidebar-brand-name {

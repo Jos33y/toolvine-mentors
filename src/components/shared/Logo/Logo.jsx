@@ -2,9 +2,35 @@ import logomark64       from '@/assets/brand/logomark-64.png'
 import logomark128      from '@/assets/brand/logomark-128.png'
 import logomark256      from '@/assets/brand/logomark-256.png'
 import logomarkLight256 from '@/assets/brand/logomark-light-256.png'
+import { CLIENT_LOCKUP, CLIENT_MARK } from '@/assets/brand/clientLogo'
 
-// Variants: mark, mark-light (both PNG), mark-mono (SVG, currentColor), favicon (SVG, no stem), horizontal (+ wordmark), stacked (+ wordmark + subtitle).
-export function Logo({ variant = 'mark', size = 40, withWordmark = false, light = false, title = 'Toolvine' }) {
+// Vesica variants: mark, mark-light (PNG), mark-mono, favicon (SVG,
+// currentColor), horizontal, stacked (+ wordmark).
+//
+// Client variants: client-lockup is their full three-line lockup and already
+// carries the name, so nothing sets a wordmark beside it. client-mark is the
+// shield on its own, for anywhere the lockup would render its subtitle too
+// small to read. Both take their colour from CSS, so one asset serves the dark
+// sidebar and the cream marketing header.
+//
+// Client variants are sized by height, because the lockup is a wide rectangle
+// and a square `size` would crop the intent. Width follows the aspect ratio.
+export function Logo({
+  variant = 'mark',
+  size = 40,
+  height = null,
+  withWordmark = false,
+  light = false,
+  className = '',
+  title = 'Toolvine Mentors and Leaders Initiative'
+}) {
+  if (variant === 'client-lockup') {
+    return <ClientArt art={CLIENT_LOCKUP} height={height ?? size} title={title} className={className} />
+  }
+  if (variant === 'client-mark') {
+    return <ClientArt art={CLIENT_MARK} height={height ?? size} title={title} className={className} />
+  }
+
   if (variant === 'mark-mono' || variant === 'favicon') {
     return <MarkSVG variant={variant} size={size} title={title} />
   }
@@ -15,6 +41,31 @@ export function Logo({ variant = 'mark', size = 40, withWordmark = false, light 
   if (v === 'stacked')    return <Stacked    size={size} light={light} title={title} />
 
   return <MarkPNG size={size} light={light || variant === 'mark-light'} title={title} />
+}
+
+/* ============ Client artwork ============ */
+
+// width and height are attributes rather than styles, so the box is reserved
+// before CSS loads and nothing shifts. A className lets a layout override the
+// height at a breakpoint; the viewBox keeps the ratio.
+function ClientArt({ art, height, title, className }) {
+  const width = Math.round((art.width / art.height) * height)
+
+  return (
+    <svg
+      className={className || undefined}
+      width={width}
+      height={height}
+      viewBox={`0 0 ${art.width} ${art.height}`}
+      role="img"
+      aria-label={title}
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ display: 'block' }}
+    >
+      <title>{title}</title>
+      <path d={art.d} fill="currentColor" fillRule="evenodd" />
+    </svg>
+  )
 }
 
 /* ============ PNG mark (default rendering) ============ */
