@@ -53,6 +53,7 @@ const NAV_ITEMS = [
   { to: '/admin/invites',      label: 'Invites',     icon: 'mail',      allow: [ROLES.ADMIN] },
   { to: '/admin/partners',     label: 'Partners',    icon: 'handshake', allow: [ROLES.ADMIN] },
   { to: '/admin/resources',    label: 'Resources',   icon: 'bookOpen',  allow: [ROLES.ADMIN] },
+  { to: '/admin/verse',        label: 'Verse',       icon: 'sunrise',   allow: [ROLES.ADMIN] },
 
   // Notifications and Profile last. Both low-frequency and settings-tier:
   // the bell in the topbar is the way into notifications day to day.

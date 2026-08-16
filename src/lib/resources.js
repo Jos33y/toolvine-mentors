@@ -6,6 +6,10 @@ const BUCKET = 'resources'
 const MAX_INPUT_BYTES = 25 * 1024 * 1024
 const SIGNED_URL_SECONDS = 120
 
+// A preview stays on screen while somebody reads it, and a PDF viewer re-requests
+// byte ranges as they scroll. Two minutes expires mid-document.
+const PREVIEW_URL_SECONDS = 900
+
 const SELECT = 'id, title, description, category, type, file_path, external_url, youtube_id, is_archived, published_on, uploaded_by, created_at, updated_at'
 
 // Mirrors allowed_mime_types on the resources bucket. A blocklist here let a
@@ -423,15 +427,30 @@ export async function uploadResourceFile(title, file) {
 
 // Signed at click time rather than at render time, so a tab left open overnight
 // still downloads.
-export async function resourceFileUrl(filePath) {
+export async function resourceFileUrl(filePath, seconds = SIGNED_URL_SECONDS) {
   if (!filePath) return null
 
   const { data, error } = await supabase.storage
     .from(BUCKET)
-    .createSignedUrl(filePath, SIGNED_URL_SECONDS)
+    .createSignedUrl(filePath, seconds)
 
   if (error) throw error
   return data?.signedUrl ?? null
+}
+
+export async function resourcePreviewUrl(filePath) {
+  return resourceFileUrl(filePath, PREVIEW_URL_SECONDS)
+}
+
+// What a browser can show inline without a plugin. Anything else stays a
+// download, because a broken embed is worse than an honest button.
+const PREVIEW_IMAGE_EXT = ['jpg', 'jpeg', 'png', 'webp']
+
+export function previewKindOf(filePath) {
+  const ext = (/\.([a-z0-9]+)$/i.exec(filePath ?? '')?.[1] ?? '').toLowerCase()
+  if (PREVIEW_IMAGE_EXT.includes(ext)) return 'image'
+  if (ext === 'pdf') return 'pdf'
+  return null
 }
 
 // Best effort, but not silent. remove() returns an error rather than throwing,

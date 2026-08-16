@@ -52,6 +52,7 @@ const AdminPartners = lazy(() => import('@/pages/admin/Partners').then((m) => ({
 const AdminInvites  = lazy(() => import('@/pages/admin/Invites').then((m) => ({ default: m.Invites })))
 const AdminPairings = lazy(() => import('@/pages/admin/Pairings').then((m) => ({ default: m.Pairings })))
 const AdminResources = lazy(() => import('@/pages/admin/Resources').then((m) => ({ default: m.Resources })))
+const AdminVerse     = lazy(() => import('@/pages/admin/Verse').then((m) => ({ default: m.Verse })))
 const Mentees      = lazy(() => import('@/pages/mentor/Mentees').then((m) => ({ default: m.Mentees })))
 const MyMentor     = lazy(() => import('@/pages/mentee/Mentor').then((m) => ({ default: m.Mentor })))
 const MeetingsPage = lazy(() => import('@/pages/meetings/Meetings').then((m) => ({ default: m.Meetings })))
@@ -214,7 +215,8 @@ const router = createBrowserRouter([
                   { path: 'insights',    element: <LazyRoute><Insights    /></LazyRoute> },
                   { path: 'partners',    element: <LazyRoute><AdminPartners /></LazyRoute> },
                   { path: 'invites',     element: <LazyRoute><AdminInvites  /></LazyRoute> },
-                  { path: 'resources',   element: <LazyRoute><AdminResources /></LazyRoute> }
+                  { path: 'resources',   element: <LazyRoute><AdminResources /></LazyRoute> },
+                  { path: 'verse',       element: <LazyRoute><AdminVerse /></LazyRoute> }
                 ]
               },
 

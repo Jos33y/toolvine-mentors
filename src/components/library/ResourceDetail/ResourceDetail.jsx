@@ -4,6 +4,8 @@ import { Icon } from '@/components/shared/Icon/Icon'
 import { chapterOf } from '@/lib/chapters'
 import {
   resourceFileUrl,
+  resourcePreviewUrl,
+  previewKindOf,
   friendlyResourceError,
   youTubeEmbedUrl,
   publishedLabel
@@ -119,6 +121,8 @@ export function ResourceDetail({ resource, categoryLabel, extraLabels, onClose }
             </div>
           )}
 
+          {resource.type === 'file' && <FilePreview resource={resource} />}
+
           {resource.description && <p className="rdd__desc">{resource.description}</p>}
         </div>
 
@@ -128,6 +132,76 @@ export function ResourceDetail({ resource, categoryLabel, extraLabels, onClose }
       </aside>
     </>,
     document.body
+  )
+}
+
+/* ============ Inline preview ============ */
+
+// Images preview everywhere. A PDF previews only where a pointer exists,
+// because iOS Safari refuses to render one inside a frame and shows an empty
+// box instead. On a phone the footer button already opens it properly, so no
+// preview is better than a blank rectangle plus a duplicate call to action.
+function FilePreview({ resource }) {
+  const kind = previewKindOf(resource.file_path)
+  const [url,    setUrl]    = useState(null)
+  const [state,  setState]  = useState('loading')
+
+  const canEmbedPdf =
+    typeof window !== 'undefined' &&
+    window.matchMedia('(hover: hover) and (pointer: fine)').matches
+
+  const show = kind === 'image' || (kind === 'pdf' && canEmbedPdf)
+
+  useEffect(() => {
+    if (!show) return
+    let cancelled = false
+    setState('loading')
+    setUrl(null)
+
+    resourcePreviewUrl(resource.file_path)
+      .then((signed) => {
+        if (cancelled) return
+        if (!signed) { setState('failed'); return }
+        setUrl(signed)
+        // An image reports its own load. A frame does not, reliably.
+        if (kind === 'pdf') setState('ready')
+      })
+      .catch(() => { if (!cancelled) setState('failed') })
+
+    return () => { cancelled = true }
+  }, [resource.file_path, kind, show])
+
+  if (!show) return null
+
+  // A failed preview is silent. The footer button is the real path to the file
+  // and an error block here would say the same thing twice.
+  if (state === 'failed') return null
+
+  return (
+    <div className={`rdd__preview rdd__preview--${kind}`}>
+      {state === 'loading' && (
+        <p className="rdd__preview-state">Loading preview</p>
+      )}
+
+      {url && kind === 'image' && (
+        <img
+          className="rdd__preview-img"
+          src={url}
+          alt={resource.title}
+          onLoad={() => setState('ready')}
+          onError={() => setState('failed')}
+        />
+      )}
+
+      {url && kind === 'pdf' && (
+        <iframe
+          className="rdd__preview-pdf"
+          src={url}
+          title={`Preview of ${resource.title}`}
+          loading="lazy"
+        />
+      )}
+    </div>
   )
 }
 
