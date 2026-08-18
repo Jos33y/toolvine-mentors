@@ -29,7 +29,7 @@ export function Conviction() {
           <div className="conviction__close">
             <span className="conviction__close-rule" aria-hidden="true" />
             <p className="conviction__close-line">
-              This is the work we have been doing since 2020.
+              This is the work we have been doing since 2021.
             </p>
           </div>
 

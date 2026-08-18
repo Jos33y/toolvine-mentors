@@ -7,7 +7,7 @@ import './HowItWorks.css'
 
 /* ============ Data ============ */
 
-const BADGES = ['Free to join', 'Faith-aware', 'Since 2020', '127 active pairs']
+const BADGES = ['Free to join', 'Faith-aware', 'Since 2021', 'Ibadan, Nigeria']
 
 const PROPS = [
   {
@@ -23,7 +23,7 @@ const PROPS = [
   {
     icon: 'resources',
     title: 'Curated, not crowdsourced',
-    body: 'A library of 115 resources built by mentors. Essays, book reviews, reflections, recorded talks. Read what the community reads.'
+    body: 'A library built by mentors, not by upload. Essays, book reviews, reflections, recorded talks, filed under seven chapters. Read what the community reads.'
   }
 ]
 
@@ -32,12 +32,6 @@ const STEPS = [
   { num: '02', icon: 'pairings', title: 'Get paired', desc: 'Our team reviews your profile and pairs you with a mentor who fits your path. Most pairings happen within two weeks.' },
   { num: '03', icon: 'meetings', title: 'Meet', desc: 'Schedule regular meetings with your mentor. Online, by phone, or in person. Your mentor leads; you show up prepared.' },
   { num: '04', icon: 'bookOpen', title: 'Grow', desc: 'Your mentor takes notes after every session. You access the resource library. The relationship deepens with every meeting.' }
-]
-
-const STATS = [
-  { value: '127', label: 'Pairs walking together' },
-  { value: '1,840', label: 'Meetings logged' },
-  { value: '6', label: 'Years running' }
 ]
 
 const FAQS = [
@@ -126,20 +120,6 @@ export function HowItWorks() {
             ))}
           </div>
         </div>
-      </section>
-
-      {/* ============ Social proof ============ */}
-      <section className="hiw__proof" aria-label="Community numbers">
-        <RevealOnScroll threshold={0.3}>
-          <div className="hiw__proof-inner">
-            {STATS.map((s) => (
-              <div key={s.label} className="hiw__stat">
-                <span className="hiw__stat-number">{s.value}</span>
-                <span className="hiw__stat-label">{s.label}</span>
-              </div>
-            ))}
-          </div>
-        </RevealOnScroll>
       </section>
 
       {/* ============ FAQ ============ */}

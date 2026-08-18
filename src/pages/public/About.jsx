@@ -519,7 +519,7 @@ export function About() {
             </ul>
 
             <p className="about__team-body">
-              Dr. Alade chairs a board of five. Six teams keep the work moving, and a growing circle of mentors walks with the mentees.
+              Dr. Alade chairs a board of five. Seven teams keep the work moving, and the mentors walk with the mentees.
             </p>
 
             <Link to="/team" className="about__team-cta">
@@ -565,7 +565,7 @@ export function About() {
           </div>
 
           <p className="about__invite-colophon">
-            Toolvine Mentors &amp; Leaders Initiative &middot; Est. 2021 &middot; Ibadan, Nigeria
+            Toolvine Mentors and Leaders Initiative &middot; Est. 2021 &middot; Ibadan, Nigeria
           </p>
         </div>
       </section>

@@ -7,7 +7,6 @@ import {
   BOARD,
   TEAMS,
   ADMIN,
-  MENTORS,
   personFor,
   appearsMoreThanOnce,
   initialsFor
@@ -38,7 +37,7 @@ export function Team() {
       {/* ============ Hero ============ */}
       <header className="team__hero">
         <div className="team__watermark" aria-hidden="true">
-          <Logo variant="mark" size={400} />
+          <Logo variant="client-mark" height={400} />
         </div>
 
         <p className="team__eyebrow">THE TEAM</p>
@@ -47,7 +46,7 @@ export function Team() {
           <em className="team__title-italic">who carry it.</em>
         </h1>
         <p className="team__intro">
-          A board of five, six teams, and a growing circle of mentors.
+          A board of five, seven teams, and the people who lead them.
           This is who we are today.
         </p>
       </header>
@@ -174,31 +173,6 @@ export function Team() {
                 <p className="team__admin-role">{ADMIN.role}</p>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ============ Mentors ============ */}
-      <section className="team__section team__section--mentors" aria-label="The mentors">
-        <div className="team__section-inner">
-          <div className="team__section-head">
-            <p className="team__section-eyebrow">THE MENTORS</p>
-            <h2 className="team__section-title">A growing circle.</h2>
-          </div>
-
-          <div className="team__grid team__grid--mentors">
-            {MENTORS.map((m, i) => (
-              <RevealOnScroll key={m.name} threshold={0.05} delay={Math.min(i * 40, 400)}>
-                <article className="team__member team__member--compact">
-                  <div className="team__member-avatar-wrap">
-                    <Avatar person={m} size="member" />
-                  </div>
-                  <div className="team__member-text">
-                    <p className="team__member-name">{m.name}</p>
-                  </div>
-                </article>
-              </RevealOnScroll>
-            ))}
           </div>
         </div>
       </section>
