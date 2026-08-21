@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useSiteInsights } from '@/hooks/useSiteInsights'
 import { Icon } from '@/components/shared/Icon/Icon'
+import { sourceLabel } from '@/lib/siteInsights'
+import { toCsvSections, downloadCsv, csvFilename, isoDate } from '@/lib/csv'
 import './insights.css'
 
 // Full visitor analytics for /admin/insights. Range pills drive the hook's
@@ -25,19 +27,35 @@ export function Insights() {
     <section className="ins">
       <header className="ins__head">
         <h1 className="ins__title">Insights</h1>
-        <div className="ins__range" role="tablist" aria-label="Date range">
-          {RANGES.map((r) => (
+        <div className="ins__head-actions">
+          <div className="ins__range" role="tablist" aria-label="Date range">
+            {RANGES.map((r) => (
+              <button
+                key={r.value}
+                type="button"
+                role="tab"
+                aria-selected={days === r.value}
+                className={`ins__range-btn ${days === r.value ? 'is-active' : ''}`}
+                onClick={() => setDays(r.value)}
+              >
+                {r.label}
+              </button>
+            ))}
+          </div>
+
+          {!loading && !error && (
             <button
-              key={r.value}
               type="button"
-              role="tab"
-              aria-selected={days === r.value}
-              className={`ins__range-btn ${days === r.value ? 'is-active' : ''}`}
-              onClick={() => setDays(r.value)}
+              className="ins__export"
+              onClick={() => exportInsights({
+                days, visits, visitors, paths, devices, sources, series, funnel,
+                seriesFrom, seriesTrimmed
+              })}
             >
-              {r.label}
+              <Icon name="download" size={16} />
+              <span>Download CSV</span>
             </button>
-          ))}
+          )}
         </div>
       </header>
 
@@ -69,6 +87,87 @@ export function Insights() {
       )}
     </section>
   )
+}
+
+// ============ CSV export ============
+
+// Six blocks in one file rather than six buttons on the page. The first block
+// is the range, because a figure reading 1,240 with no window stated is not
+// something a board can use, and the range pill does not travel with the file.
+function exportInsights({
+  days, visits, visitors, paths, devices, sources, series, funnel,
+  seriesFrom, seriesTrimmed
+}) {
+  const pair = [
+    { label: 'Metric', value: (r) => r.k },
+    { label: 'Value',  value: (r) => r.v }
+  ]
+
+  const report = [
+    { k: 'Range',        v: `Last ${days} days` },
+    { k: 'Generated',    v: isoDate(new Date()) },
+    seriesTrimmed && seriesFrom
+      ? { k: 'Tracking began', v: isoDate(seriesFrom) }
+      : null
+  ].filter(Boolean)
+
+  const summary = [
+    { k: 'Page views',                 v: visits.current },
+    { k: 'Page views, previous window', v: visits.previous },
+    { k: 'Visitors',                   v: visitors.current },
+    { k: 'Visitors, previous window',  v: visitors.previous }
+  ]
+
+  const funnelRows = [
+    { k: 'Visitors',        v: funnel.visitors },
+    { k: 'Viewed sign-up',  v: funnel.signupViews },
+    { k: 'Signed up',       v: funnel.signups },
+    { k: 'Verified email',  v: funnel.verified },
+    { k: 'Onboarded',       v: funnel.onboarded }
+  ]
+
+  const deviceRows = [
+    { k: 'Mobile',  v: devices.mobile },
+    { k: 'Tablet',  v: devices.tablet },
+    { k: 'Desktop', v: devices.desktop },
+    { k: 'Unknown', v: devices.unknown },
+    { k: 'Total',   v: devices.total }
+  ]
+
+  const csv = toCsvSections([
+    { title: 'Toolvine insights', columns: pair, items: report },
+    { title: 'Summary',           columns: pair, items: summary },
+    { title: 'Funnel',            columns: [{ label: 'Stage', value: (r) => r.k }, { label: 'Sessions', value: (r) => r.v }], items: funnelRows },
+    { title: 'Devices',           columns: [{ label: 'Device', value: (r) => r.k }, { label: 'Sessions', value: (r) => r.v }], items: deviceRows },
+    {
+      title: 'Sources',
+      columns: [
+        { label: 'Source',   value: (r) => r.label || sourceLabel(r.source) },
+        { label: 'Raw',      value: (r) => r.source },
+        { label: 'Sessions', value: (r) => r.sessions }
+      ],
+      items: sources
+    },
+    {
+      title: 'Top paths',
+      columns: [
+        { label: 'Path',     value: (r) => r.path },
+        { label: 'Views',    value: (r) => r.count },
+        { label: 'Sessions', value: (r) => r.sessions }
+      ],
+      items: paths
+    },
+    {
+      title: 'Daily page views',
+      columns: [
+        { label: 'Date',  value: (r) => r.date },
+        { label: 'Views', value: (r) => r.visits }
+      ],
+      items: series
+    }
+  ])
+
+  downloadCsv(csvFilename('toolvine-insights', `${days} days`), csv)
 }
 
 // ============ Visits card with line chart ============

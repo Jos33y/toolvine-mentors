@@ -89,6 +89,10 @@
   color: var(--tv-text-inverse);
 }
 
+.admin-users__filter-label {
+  white-space: nowrap;
+}
+
 .admin-users__filter-count {
   font-family: var(--tv-font-mono);
   font-size: var(--tv-fs-xs);
@@ -105,11 +109,34 @@
   box-shadow: var(--tv-shadow-focus);
 }
 
+/* ============ Toolbar ============ */
+
+.admin-users__toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--tv-space-5);
+}
+
+.admin-users__export {
+  gap: var(--tv-space-2);
+  flex-shrink: 0;
+}
+
+.admin-users__export-count {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  color: var(--tv-text-muted);
+}
+
 /* ============ Search ============ */
 
 .admin-users__search {
   position: relative;
-  margin-bottom: var(--tv-space-5);
+  margin-bottom: 0;
+  flex: 1 1 260px;
   max-width: 420px;
 }
 

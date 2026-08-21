@@ -4,6 +4,8 @@ import { useAuth } from '@/stores/useAuth'
 import { useAdminUsers } from '@/hooks/useAdminUsers'
 import { applyRoleDecision, sendRoleDecisionEmail, decisionSendsEmail, setUserActive, bucketFor, reminderStateFor, sendReminderNow, reminderFailureMessage } from '@/lib/adminUsers'
 import { UserDetailDrawer } from '@/components/admin/UserDetailDrawer/UserDetailDrawer'
+import { Icon } from '@/components/shared/Icon/Icon'
+import { toCsv, downloadCsv, csvFilename, isoDate } from '@/lib/csv'
 import './users.css'
 
 // Role buckets group users by primary state. Attention filters cut across
@@ -168,6 +170,17 @@ export function Users() {
     }
   }
 
+  // Exports what is on screen, not the whole table. filterUsers and the search
+  // both run client-side over the full fetch, so the filtered array is the
+  // honest set: an admin who has narrowed to "Mentors" gets mentors.
+  function exportCsv() {
+    const label = FILTERS.find((f) => f.key === filter)?.label ?? filter
+    downloadCsv(
+      csvFilename('toolvine-members', label, query || null),
+      toCsv(MEMBER_COLUMNS, filtered)
+    )
+  }
+
   return (
     <section className="admin-users">
       <header className="admin-users__head">
@@ -197,17 +210,31 @@ export function Users() {
         ))}
       </nav>
 
-      <div className="admin-users__search">
-        <SearchIcon />
-        <input
-          type="search"
-          className="admin-users__search-input"
-          placeholder="Search name or email"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          autoComplete="off"
-          spellCheck="false"
-        />
+      <div className="admin-users__toolbar">
+        <div className="admin-users__search">
+          <SearchIcon />
+          <input
+            type="search"
+            className="admin-users__search-input"
+            placeholder="Search name or email"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            autoComplete="off"
+            spellCheck="false"
+          />
+        </div>
+
+        {filtered.length > 0 && (
+          <button
+            type="button"
+            className="admin-users__btn admin-users__btn--secondary admin-users__export"
+            onClick={exportCsv}
+          >
+            <Icon name="download" size={16} />
+            <span>Download CSV</span>
+            <span className="admin-users__export-count">{filtered.length}</span>
+          </button>
+        )}
       </div>
 
       {error && (
@@ -471,6 +498,38 @@ function EmptyState({ filter, query }) {
 }
 
 /* ============ Helpers ============ */
+
+// Export columns. Order follows what the row shows before widening into the
+// fields only the drawer surfaces.
+//
+// whatsapp_phone is included deliberately. The immediate use for this file is
+// getting the twenty-five mentors' numbers into one place to invite them, and
+// a members export without contact details does not do the job it exists for.
+// An admin already reads that column on screen. Note that the file leaves the
+// platform, so it is worth saying so when handing the button over.
+const MEMBER_COLUMNS = [
+  { label: 'Name',                   value: (u) => u.full_name || '' },
+  { label: 'Email',                  value: (u) => u.email || '' },
+  { label: 'WhatsApp',               value: (u) => u.whatsapp_phone || '' },
+  { label: 'Roles',                  value: (u) => (u.roles || []).join(' ') },
+  { label: 'Group',                  value: (u) => bucketFor(u) },
+  { label: 'Status',                 value: (u) => (u.is_active ? 'Active' : 'Deactivated') },
+  { label: 'Email verified',         value: (u) => yesNo(u.email_verified) },
+  { label: 'Onboarded',              value: (u) => yesNo(u.onboarded) },
+  { label: 'Role intent',            value: (u) => (u.role_undecided ? 'Undecided' : (u.role_intent || '')) },
+  { label: 'Country',                value: (u) => u.country || '' },
+  { label: 'Location',               value: (u) => u.location || '' },
+  { label: 'Monthly hours',          value: (u) => u.monthly_hours ?? '' },
+  { label: 'Joined',                 value: (u) => isoDate(u.created_at) },
+  { label: 'Verification reminders', value: (u) => u.verification_reminder_count ?? 0 },
+  { label: 'Onboarding reminders',   value: (u) => u.onboarding_reminder_count ?? 0 }
+]
+
+function yesNo(v) {
+  if (v === true)  return 'Yes'
+  if (v === false) return 'No'
+  return ''
+}
 
 const DAY_MS = 24 * 60 * 60 * 1000
 

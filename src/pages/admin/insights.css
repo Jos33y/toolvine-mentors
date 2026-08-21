@@ -8,10 +8,48 @@
   display: flex;
   flex-direction: column;
   gap: var(--tv-space-5);
-  max-width: var(--tv-content-max, 1200px);
+  max-width: var(--tv-content-max);
 }
 
 /* ============ Head + range tabs ============ */
+
+.ins__head-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-3);
+  flex-wrap: wrap;
+}
+
+.ins__export {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  height: 40px;
+  padding: 0 var(--tv-space-4);
+  background: var(--tv-surface);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-medium);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-2);
+  cursor: pointer;
+  white-space: nowrap;
+  letter-spacing: var(--tv-tracking-tight);
+  transition: background var(--tv-duration-fast) var(--tv-ease),
+              border-color var(--tv-duration-fast) var(--tv-ease),
+              color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.ins__export:hover {
+  border-color: var(--tv-text-2);
+  color: var(--tv-text);
+}
+
+.ins__export:focus-visible {
+  outline: none;
+  box-shadow: var(--tv-shadow-focus);
+}
 
 .ins__head {
   display: flex;
@@ -149,8 +187,8 @@
   color: var(--tv-text-muted);
 }
 
-.ins__visits-delta--up   { color: var(--tv-success, #10B981); }
-.ins__visits-delta--down { color: var(--tv-error, #EF4444); }
+.ins__visits-delta--up   { color: var(--tv-success); }
+.ins__visits-delta--down { color: var(--tv-error); }
 
 /* ============ Line chart SVG ============ */
 
@@ -379,7 +417,7 @@
   font-family: var(--tv-font-body);
   font-size: var(--tv-fs-xs);
   color: var(--tv-text-muted);
-  line-height: var(--tv-lh-normal, 1.5);
+  line-height: var(--tv-lh-base);
 }
 
 /* ============ Funnel ============ */
