@@ -51,12 +51,26 @@ export async function fetchActivityPage({
 // Sentence template for each known action. {target} marks where the target
 // label should be inserted by the renderer. Templates that need no target
 // (e.g. system-wide events later) just omit the placeholder.
+//
+// Six of these were added after querying admin_actions rather than reading
+// this file: pair_users and archive_resource had no matching writer and 20 of
+// the 21 rows in the log were falling through to the slug fallback below.
+// The two apparent orphans are left in place until the code that would write
+// them has actually been read.
 const TEMPLATES = {
   approve_mentor:    'approved {target} as mentor',
   confirm_mentee:    'confirmed {target} as mentee',
   revoke_mentor:     "revoked {target}\u2019s mentor role",
+  grant_admin:       'made {target} an admin',
+  revoke_admin:      "removed {target}\u2019s admin access",
   deactivate_user:   'deactivated {target}',
   reactivate_user:   'reactivated {target}',
+  resource_created:  'added the resource {target}',
+  resource_updated:  'edited the resource {target}',
+  create_pairing:    'paired {target}',
+  reschedule_meeting:'rescheduled a meeting for {target}',
+  invite_created:    'created an invite for {target}',
+  invite_sent:       'sent an invite to {target}',
   add_note:          'added a note about {target}',
   update_note:       'edited a note about {target}',
   delete_note:       'deleted a note about {target}',

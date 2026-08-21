@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/stores/useAuth'
 import { useAdminUsers } from '@/hooks/useAdminUsers'
-import { applyRoleDecision, sendRoleDecisionEmail, setUserActive, bucketFor, reminderStateFor, sendReminderNow, reminderFailureMessage } from '@/lib/adminUsers'
+import { applyRoleDecision, sendRoleDecisionEmail, decisionSendsEmail, setUserActive, bucketFor, reminderStateFor, sendReminderNow, reminderFailureMessage } from '@/lib/adminUsers'
 import { UserDetailDrawer } from '@/components/admin/UserDetailDrawer/UserDetailDrawer'
 import './users.css'
 
@@ -63,6 +63,15 @@ export function Users() {
     return () => clearTimeout(t)
   }, [rowNotice.id, rowNotice.message])
 
+  // Counted off the role array, not counts.admin. bucketFor puts deactivated
+  // above admin, and a deactivated admin carries a banned_until stamp and
+  // cannot sign in, so neither number would answer "how many admins can
+  // actually reach the console".
+  const activeAdminCount = useMemo(
+    () => users.filter((u) => u.is_active && u.roles?.includes('admin')).length,
+    [users]
+  )
+
   const counts = useMemo(() => countByBucket(users), [users])
   const filtered = useMemo(
     () => filterUsers(users, filter, query),
@@ -83,6 +92,18 @@ export function Users() {
           is_active:      next.is_active
         })
       }
+
+      // Admin decisions are not emailed. Reporting on a send that was never
+      // attempted would read as a delivery failure.
+      if (!decisionSendsEmail(decision)) {
+        setRowNotice({
+          id:      user.id,
+          message: `${decisionPastVerb(decision)}. No email is sent for this change.`,
+          tone:    'success'
+        })
+        return
+      }
+
       const result = await sendRoleDecisionEmail(user.id, decision)
       setRowNotice({
         id:      user.id,
@@ -154,6 +175,7 @@ export function Users() {
         <h1 className="admin-users__title">Users</h1>
         <p className="admin-users__lede">
           Approve mentor sign-ups, demote, deactivate, or confirm a mentee.
+          Open a member to grant or remove admin access.
         </p>
       </header>
 
@@ -235,6 +257,12 @@ export function Users() {
       {selectedUser && (
         <UserDetailDrawer
           user={selectedUser}
+          isSelf={selectedUser.id === me?.id}
+          activeAdminCount={activeAdminCount}
+          busy={busyId === selectedUser.id}
+          error={rowError.id === selectedUser.id ? rowError.message : ''}
+          notice={rowNotice.id === selectedUser.id ? rowNotice : null}
+          onDecision={(decision) => runDecision(selectedUser, decision)}
           onClose={() => setSelectedUserId(null)}
         />
       )}
@@ -637,6 +665,8 @@ function decisionPastVerb(decision) {
     case 'approve_mentor': return 'Mentor role granted'
     case 'confirm_mentee': return 'Mentee role confirmed'
     case 'revoke_mentor':  return 'Mentor role removed'
+    case 'grant_admin':    return 'Admin access granted'
+    case 'revoke_admin':   return 'Admin access removed'
     default:               return 'Done'
   }
 }
@@ -645,6 +675,9 @@ function friendly(err) {
   const msg = (err?.message || '').toLowerCase()
   if (msg.includes('admin only'))    return 'Only an admin can do this.'
   if (msg.includes('user not found')) return 'That user no longer exists.'
+  if (msg.includes('your own admin role')) return 'You cannot remove your own admin access. Another admin has to do it for you.'
+  if (msg.includes('last admin'))    return 'This is the only active admin. Grant admin to somebody else first.'
+  if (msg.includes('deactivated account')) return 'Reactivate this account before granting admin access.'
   if (msg.includes('unknown decision')) return 'Unsupported action.'
   return err?.message || 'Something went wrong. Try again.'
 }

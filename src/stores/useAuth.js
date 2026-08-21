@@ -15,7 +15,7 @@ export const useAuth = create((set, get) => ({
   profile: null,
   roles: [],
   privileges: {},
-  loading: true,
+  loading: true, 
   error: null,
 
   // Private. Holds the active realtime channel for the user's own profile row

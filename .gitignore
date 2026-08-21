@@ -20,3 +20,4 @@ session-summary.md
 *.zip
 *-tree.txt
 *-report.txt
+collect-source.ps1

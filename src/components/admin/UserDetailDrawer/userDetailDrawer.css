@@ -1,18 +1,18 @@
 /* UserDetailDrawer.
    Side drawer on desktop (slides from right), bottom sheet on mobile (slides
    from bottom). Holds the user header, role pills, and the AdminNoteEditor.
-   Working surface aesthetic — cool app canvas, hairlines, no warm cream. */
+   Working surface aesthetic: cool app canvas, hairlines, no warm cream. */
 
 .udd__backdrop {
   position: fixed;
   inset: 0;
   background: rgba(15, 23, 42, 0.5);
-  z-index: 100;
+  z-index: var(--tv-z-overlay);
   border: 0;
   padding: 0;
   cursor: pointer;
   opacity: 0;
-  transition: opacity 240ms var(--tv-ease);
+  transition: opacity var(--tv-duration-slow) var(--tv-ease);
 }
 
 .udd__backdrop--open {
@@ -25,7 +25,7 @@
   right: 0;
   bottom: 0;
   width: min(480px, 100vw);
-  z-index: 110;
+  z-index: calc(var(--tv-z-overlay) + 1);
   background: var(--tv-surface);
   border-left: 1px solid var(--tv-border);
   box-shadow: -10px 0 28px rgba(15, 23, 42, 0.08);
@@ -33,7 +33,7 @@
   flex-direction: column;
   overflow-y: auto;
   transform: translateX(100%);
-  transition: transform 240ms var(--tv-ease);
+  transition: transform var(--tv-duration-slow) var(--tv-ease);
 }
 
 .udd--open {
@@ -202,6 +202,116 @@
   padding: 2px calc(var(--tv-space-2) - 1px);
 }
 
+/* ============ Admin access ============ */
+
+.udd__access {
+  padding: var(--tv-space-5);
+  border-bottom: 1px solid var(--tv-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-4);
+}
+
+.udd__access-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-1);
+}
+
+.udd__access-eyebrow {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tv-tracking-wider);
+  color: var(--tv-accent-text);
+  margin: 0;
+}
+
+.udd__access-title {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-base);
+  color: var(--tv-text);
+  margin: 0;
+  letter-spacing: var(--tv-tracking-tight);
+  line-height: var(--tv-lh-tight);
+}
+
+.udd__access-helper {
+  margin: 4px 0 0 0;
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+  line-height: var(--tv-lh-base);
+}
+
+.udd__access-confirm {
+  padding: var(--tv-space-4);
+  background: var(--tv-canvas-app);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-3);
+}
+
+.udd__access-confirm-body {
+  margin: 0;
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text);
+  line-height: var(--tv-lh-base);
+}
+
+.udd__access-note {
+  margin: 0;
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+  line-height: var(--tv-lh-base);
+}
+
+.udd__access-actions {
+  display: flex;
+  gap: var(--tv-space-2);
+  flex-wrap: wrap;
+}
+
+.udd__access-blocked {
+  margin: 0;
+  padding: var(--tv-space-3) var(--tv-space-4);
+  background: var(--tv-canvas-app);
+  border: 1px dashed var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-muted);
+  line-height: var(--tv-lh-base);
+}
+
+.udd__access-error {
+  margin: 0;
+  padding: var(--tv-space-3);
+  background: var(--tv-error-bg);
+  color: var(--tv-error-text);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+}
+
+.udd__access-notice {
+  margin: 0;
+  padding: var(--tv-space-3);
+  background: var(--tv-success-bg);
+  color: var(--tv-success-text);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+}
+
 /* ============ Notes section ============ */
 
 .udd__notes {
@@ -242,7 +352,7 @@
   font-family: var(--tv-font-body);
   font-size: var(--tv-fs-xs);
   color: var(--tv-text-muted);
-  line-height: 1.5;
+  line-height: var(--tv-lh-base);
 }
 
 /* ============ New-note input ============ */
@@ -262,7 +372,7 @@
   font-family: var(--tv-font-body);
   font-size: var(--tv-fs-sm);
   color: var(--tv-text);
-  line-height: 1.55;
+  line-height: var(--tv-lh-base);
   resize: vertical;
   min-height: 80px;
   transition: border-color var(--tv-duration-fast) var(--tv-ease),
@@ -273,7 +383,7 @@
   outline: none;
   border-color: var(--tv-primary);
   background: var(--tv-surface);
-  box-shadow: var(--tv-shadow-focus, 0 0 0 3px var(--tv-primary-soft));
+  box-shadow: var(--tv-shadow-focus);
 }
 
 .udd__notes-textarea::placeholder {
@@ -368,7 +478,7 @@
   font-family: var(--tv-font-body);
   font-size: var(--tv-fs-sm);
   color: var(--tv-text);
-  line-height: 1.55;
+  line-height: var(--tv-lh-base);
   white-space: pre-line;
   word-wrap: break-word;
 }
@@ -411,7 +521,7 @@
 .udd__btn--primary {
   background: var(--tv-primary);
   border-color: var(--tv-primary);
-  color: var(--tv-primary-text, #ffffff);
+  color: var(--tv-text-inverse);
 }
 
 .udd__btn--primary:hover:not(:disabled) {
@@ -433,23 +543,23 @@
 .udd__btn--ghost-danger {
   background: transparent;
   border-color: var(--tv-border);
-  color: var(--tv-error, #EF4444);
+  color: var(--tv-error);
 }
 
 .udd__btn--ghost-danger:hover:not(:disabled) {
   background: var(--tv-canvas-app);
-  border-color: var(--tv-error, #EF4444);
+  border-color: var(--tv-error);
 }
 
 .udd__btn--danger {
-  background: var(--tv-error, #EF4444);
-  border-color: var(--tv-error, #EF4444);
-  color: #ffffff;
+  background: var(--tv-error);
+  border-color: var(--tv-error);
+  color: var(--tv-text-inverse);
 }
 
 .udd__btn--danger:hover:not(:disabled) {
-  background: #dc2626;
-  border-color: #dc2626;
+  background: var(--tv-error-text);
+  border-color: var(--tv-error-text);
 }
 
 /* ============ Mobile (bottom sheet) ============ */
@@ -480,7 +590,14 @@
     padding: var(--tv-space-3) var(--tv-space-4);
   }
 
+  .udd__access,
   .udd__notes {
     padding: var(--tv-space-4);
+  }
+
+  /* Full-width targets so the two-step confirm clears 44px on a thumb. */
+  .udd__access-actions .udd__btn {
+    flex: 1 1 auto;
+    min-height: var(--tv-touch-min, 44px);
   }
 }

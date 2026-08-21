@@ -44,10 +44,21 @@ export async function applyRoleDecision(targetUserId, decision, targetLabel = nu
   return data?.[0] || null
 }
 
+// role-decision-send has cases for the three mentoring decisions only. Admin
+// grants are deliberately not emailed: there is no eighth template, and being
+// handed the whole platform is news somebody delivers themselves.
+const EMAILED_DECISIONS = new Set(['approve_mentor', 'confirm_mentee', 'revoke_mentor'])
+
+export function decisionSendsEmail(decision) {
+  return EMAILED_DECISIONS.has(decision)
+}
+
 // Best-effort role-change notification. Server-side gates on email_verified
 // and returns { sent, reason } so the caller can show appropriate feedback.
 // Never throws: a failed notification must not roll back a successful decision.
 export async function sendRoleDecisionEmail(targetUserId, decision) {
+  if (!EMAILED_DECISIONS.has(decision)) return { sent: false, reason: 'not-applicable' }
+
   try {
     const { data, error } = await supabase.functions.invoke('role-decision-send', {
       body: { user_id: targetUserId, decision }

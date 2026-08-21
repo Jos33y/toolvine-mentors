@@ -4,14 +4,26 @@ import { useAdminUserNotes } from '@/hooks/useAdminUserNotes'
 import './userDetailDrawer.css'
 
 // Side drawer for user details on /users. Slides in from the right on
-// desktop, from the bottom on mobile. v1 holds only the AdminNoteEditor;
-// future panels (pairing history, sessions, email log) slot in below
-// without changing this contract.
+// desktop, from the bottom on mobile. Holds the admin access panel and the
+// AdminNoteEditor; future panels (pairing history, sessions, email log) slot
+// in below without changing this contract.
 //
 // Portaled to document.body so `position: fixed` is always viewport-relative,
 // regardless of whether some ancestor in /users carries a transform / filter
 // / backdrop-filter that would otherwise re-anchor the fixed positioning.
-export function UserDetailDrawer({ user, onClose }) {
+//
+// The role-change props are optional. Without onDecision the admin panel is
+// absent, so the drawer stays usable anywhere the caller has no mutation.
+export function UserDetailDrawer({
+  user,
+  onClose,
+  isSelf = false,
+  activeAdminCount = 0,
+  busy = false,
+  error = '',
+  notice = null,
+  onDecision = null
+}) {
   const [open, setOpen] = useState(false)
   const drawerRef = useRef(null)
 
@@ -43,9 +55,10 @@ export function UserDetailDrawer({ user, onClose }) {
     return () => window.removeEventListener('keydown', onKey)
   })
 
+  // Matches --tv-duration-slow so the slide-out finishes before unmount.
   const handleClose = () => {
     setOpen(false)
-    setTimeout(onClose, 240)
+    setTimeout(onClose, 260)
   }
 
   if (!user) return null
@@ -99,11 +112,157 @@ export function UserDetailDrawer({ user, onClose }) {
           {user.email_verified === false  && <span className="udd__pill udd__pill--soft">Email unverified</span>}
         </div>
 
+        {onDecision && (
+          <AdminAccess
+            user={user}
+            isSelf={isSelf}
+            activeAdminCount={activeAdminCount}
+            busy={busy}
+            error={error}
+            notice={notice}
+            onDecision={onDecision}
+          />
+        )}
+
         <AdminNoteEditor user={user} />
       </aside>
     </>,
     document.body
   )
+}
+
+// ============ Admin access ============
+
+// Grant and revoke live in the drawer, not in the row. Every button in the row
+// is a step in the recruitment funnel with one obvious next move. Admin is
+// orthogonal and rare, and sitting it beside "Approve as mentor" puts the
+// whole platform one misclick away. Opening the record first is the point.
+//
+// Confirmation is the inline two-step NoteCard already uses, not the page's
+// ConfirmDialog. That dialog renders inside .admin-users unportaled while this
+// drawer portals to body, so the two would stack unpredictably, and the
+// drawer's window-level Escape handler would close it out from underneath.
+function AdminAccess({ user, isSelf, activeAdminCount, busy, error, notice, onDecision }) {
+  const [confirming, setConfirming] = useState(null)
+
+  const name    = user.full_name || user.email || 'This user'
+  const isAdmin = user.roles?.includes('admin') === true
+
+  // Only counts when this person is themselves reachable. A deactivated admin
+  // is not holding the platform open for anybody.
+  const onlyActiveAdmin = isAdmin && user.is_active && activeAdminCount <= 1
+
+  const canGrant  = !isAdmin && user.is_active
+  const canRevoke = isAdmin && !isSelf && !onlyActiveAdmin
+  const blocked   = blockedReason({ isAdmin, isSelf, onlyActiveAdmin, isActive: user.is_active })
+
+  // Drop the half-finished confirm if the record changes underneath.
+  useEffect(() => { setConfirming(null) }, [user.id, isAdmin])
+
+  const run = async (decision) => {
+    await onDecision(decision)
+    setConfirming(null)
+  }
+
+  return (
+    <section className="udd__access">
+      <header className="udd__access-head">
+        <p className="udd__access-eyebrow">Admin access</p>
+        <h3 className="udd__access-title">
+          {isAdmin
+            ? `${name} can administer the platform`
+            : `${name} is not an administrator`}
+        </h3>
+        <p className="udd__access-helper">
+          There is one admin tier. Every admin holds every admin power,
+          including granting admin to somebody else.
+        </p>
+      </header>
+
+      {confirming ? (
+        <div className="udd__access-confirm">
+          <p className="udd__access-confirm-body">{confirmCopy(confirming, name)}</p>
+          <p className="udd__access-note">
+            No email is sent for this. Tell them yourself.
+          </p>
+          <div className="udd__access-actions">
+            <button
+              type="button"
+              className="udd__btn udd__btn--ghost"
+              onClick={() => setConfirming(null)}
+              disabled={busy}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className={'udd__btn udd__btn--' + (confirming === 'grant_admin' ? 'primary' : 'danger')}
+              onClick={() => run(confirming)}
+              disabled={busy}
+              autoFocus
+            >
+              {busy
+                ? 'Working'
+                : (confirming === 'grant_admin' ? 'Grant admin' : 'Remove admin')}
+            </button>
+          </div>
+        </div>
+      ) : blocked ? (
+        <p className="udd__access-blocked">{blocked}</p>
+      ) : (
+        <div className="udd__access-actions">
+          {canGrant && (
+            <button
+              type="button"
+              className="udd__btn udd__btn--primary"
+              onClick={() => setConfirming('grant_admin')}
+              disabled={busy}
+            >
+              Grant admin
+            </button>
+          )}
+          {canRevoke && (
+            <button
+              type="button"
+              className="udd__btn udd__btn--ghost-danger"
+              onClick={() => setConfirming('revoke_admin')}
+              disabled={busy}
+            >
+              Remove admin
+            </button>
+          )}
+        </div>
+      )}
+
+      {error
+        ? <p className="udd__access-error" role="alert">{error}</p>
+        : notice?.message
+          ? <p className="udd__access-notice" role="status">{notice.message}</p>
+          : null}
+    </section>
+  )
+}
+
+// Why no button is offered. A blank panel would read as a missing feature, so
+// the reason is stated even though the control itself is absent.
+function blockedReason({ isAdmin, isSelf, onlyActiveAdmin, isActive }) {
+  if (onlyActiveAdmin) {
+    return 'This is the only active admin. Grant admin to somebody else before removing it here, or nobody can reach the console.'
+  }
+  if (isAdmin && isSelf) {
+    return 'You cannot remove your own admin access. Another admin has to do it for you.'
+  }
+  if (!isAdmin && !isActive) {
+    return 'Reactivate this account before granting admin access.'
+  }
+  return null
+}
+
+function confirmCopy(decision, name) {
+  if (decision === 'grant_admin') {
+    return `${name} will be able to manage every member, pairing, meeting and resource, and can grant admin to anybody else. There is no smaller share of it to give.`
+  }
+  return `${name} will lose the admin console. Their mentor or mentee role and all of their history stay exactly as they are.`
 }
 
 // ============ Note editor ============
