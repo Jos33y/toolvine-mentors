@@ -90,8 +90,11 @@ export function SiteInsightsCard() {
       )}
 
       <footer className="admin-insights__foot">
+        {/* Reads Analytics because that is what the sidebar calls the page it
+            opens. The class prefix and the route stay on insights, which is
+            what the RPC is named. */}
         <Link to="/admin/insights" className="admin-insights__link">
-          View full insights
+          View full analytics
           <Arrow />
         </Link>
       </footer>

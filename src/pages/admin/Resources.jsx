@@ -42,11 +42,19 @@ const TYPE_OPTIONS = [
   { value: 'youtube', label: 'Video' }
 ]
 
+// Plain words rather than the column values. An admin picking this is deciding
+// who reads it, not setting a flag.
+const VISIBILITY_OPTIONS = [
+  { value: 'members', label: 'Members only' },
+  { value: 'public',  label: 'Everyone' }
+]
+
 const TYPE_LABEL = { file: 'File', link: 'Link', youtube: 'Video' }
 
 const BLANK = {
   title: '', description: '', category: '', type: 'file',
-  external_url: '', youtube_url: '', file_path: '', published_on: ''
+  external_url: '', youtube_url: '', file_path: '', published_on: '',
+  visibility: 'members'
 }
 
 export function Resources() {
@@ -123,7 +131,10 @@ export function Resources() {
 
   function openNew() {
     setEditing(null)
-    setDraft({ ...BLANK, category: categories[0]?.slug ?? '' })
+    const first = categories[0]
+    // BLANK opens on type file, and a file cannot be public, so the category
+    // default only takes effect once the kind changes.
+    setDraft({ ...BLANK, category: first?.slug ?? '' })
     setExtra([])
     setFile(null); setFormError(''); setFieldErrors({}); setNotice('')
     setOpen(true)
@@ -139,7 +150,8 @@ export function Resources() {
       external_url: row.external_url ?? '',
       youtube_url:  row.youtube_id ? `https://youtu.be/${row.youtube_id}` : '',
       file_path:    row.file_path ?? '',
-      published_on: row.published_on ?? ''
+      published_on: row.published_on ?? '',
+      visibility:   row.visibility ?? 'members'
     })
     setExtra(row.extra_categories ?? [])
     setFile(null); setFormError(''); setFieldErrors({}); setNotice('')
@@ -159,7 +171,16 @@ export function Resources() {
 
   function changeLead(e) {
     const next = e.target.value
-    setDraft((d) => ({ ...d, category: next }))
+    setDraft((d) => ({
+      ...d,
+      category: next,
+      // Pre-selected on a new resource only. Re-filing something already live
+      // must not silently publish or unpublish it: choosing a chapter is not a
+      // visibility decision. A file stays members only either way.
+      visibility: (editing || d.type === 'file')
+        ? d.visibility
+        : (categories.find((c) => c.slug === next)?.is_public_default ? 'public' : 'members')
+    }))
     setExtra((list) => list.filter((s) => s !== next))
   }
 
@@ -169,7 +190,11 @@ export function Resources() {
       type: nextType,
       external_url: nextType === 'link'    ? d.external_url : '',
       youtube_url:  nextType === 'youtube' ? d.youtube_url  : '',
-      file_path:    nextType === 'file'    ? d.file_path    : ''
+      file_path:    nextType === 'file'    ? d.file_path    : '',
+      // A file cannot be public while the bucket has no anon policy, so
+      // switching to one drops it back rather than leaving a choice that would
+      // fail validation on save.
+      visibility:   nextType === 'file'    ? 'members'      : d.visibility
     }))
     setFile(null)
     setFieldErrors({})
@@ -389,9 +414,16 @@ function ResourceRow({ row, categoryLabel, extraLabels, busy, onEdit, onToggle }
         {row.description && <p className="admin-res__row-desc">{row.description}</p>}
       </div>
 
-      <span className={`admin-res__pill admin-res__pill--${row.is_archived ? 'archived' : 'live'}`}>
-        {row.is_archived ? 'Archived' : 'Live'}
-      </span>
+      <div className="admin-res__pills">
+        <span className={`admin-res__pill admin-res__pill--${row.is_archived ? 'archived' : 'live'}`}>
+          {row.is_archived ? 'Archived' : 'Live'}
+        </span>
+        {/* Shown only when public, so the quiet default stays quiet and the
+            thing the whole web can read is what catches the eye. */}
+        {row.visibility === 'public' && !row.is_archived && (
+          <span className="admin-res__pill admin-res__pill--public">Public</span>
+        )}
+      </div>
 
       <div className="admin-res__row-actions">
         <button type="button" className="admin-res__action" onClick={preview} disabled={opening}>
@@ -501,20 +533,55 @@ function ResourceForm({
         </div>
       </div>
 
-      <div className="admin-res__field">
-        <label className="admin-res__label" htmlFor="res-published">Published</label>
-        <input
-          id="res-published"
-          type="date"
-          className="admin-res__input admin-res__input--date"
-          value={draft.published_on}
-          onChange={set('published_on')}
-        />
-        <p className="admin-res__hint">
-          Optional, and the date the author published it rather than the date you added it
-          here. The newsletter shelf orders on this.
-        </p>
-        {fieldErrors.published_on && <p className="admin-res__field-error">{fieldErrors.published_on}</p>}
+      <div className="admin-res__pair">
+        <div className="admin-res__field">
+          <span className="admin-res__label" id="res-visibility-label">Who can see it</span>
+          {draft.type === 'file' ? (
+            <p className="admin-res__hint admin-res__hint--locked">
+              Uploaded files stay members only. Sharing one with the public needs
+              a change we have not made yet. Add it as a link if the whole web
+              should read it.
+            </p>
+          ) : (
+            <>
+              <div className="admin-res__segment" role="group" aria-labelledby="res-visibility-label">
+                {VISIBILITY_OPTIONS.map((v) => (
+                  <button
+                    key={v.value}
+                    type="button"
+                    className={'admin-res__seg' + (draft.visibility === v.value ? ' admin-res__seg--active' : '')}
+                    onClick={() => setDraft({ ...draft, visibility: v.value })}
+                    aria-pressed={draft.visibility === v.value}
+                  >
+                    {v.label}
+                  </button>
+                ))}
+              </div>
+              <p className={'admin-res__hint' + (draft.visibility === 'public' ? ' admin-res__hint--public' : '')}>
+                {draft.visibility === 'public'
+                  ? 'Anyone can read this, with or without an account.'
+                  : 'Only people signed in to Toolvine can read this.'}
+              </p>
+            </>
+          )}
+          {fieldErrors.visibility && <p className="admin-res__field-error">{fieldErrors.visibility}</p>}
+        </div>
+
+        <div className="admin-res__field">
+          <label className="admin-res__label" htmlFor="res-published">Published</label>
+          <input
+            id="res-published"
+            type="date"
+            className="admin-res__input admin-res__input--date"
+            value={draft.published_on}
+            onChange={set('published_on')}
+          />
+          <p className="admin-res__hint">
+            Optional, and the date the author published it rather than the date you added it
+            here. The newsletter shelf orders on this.
+          </p>
+          {fieldErrors.published_on && <p className="admin-res__field-error">{fieldErrors.published_on}</p>}
+        </div>
       </div>
 
       <div className="admin-res__field">

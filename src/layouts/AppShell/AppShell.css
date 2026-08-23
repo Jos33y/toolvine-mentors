@@ -25,7 +25,7 @@
   align-items: center;
   gap: var(--tv-space-3);
   padding: 0 var(--tv-space-2);
-  margin-bottom: var(--tv-space-6);
+  margin-bottom: var(--tv-space-5);
   /* The shield is drawn with currentColor and sits on the dark sidebar. */
   color: var(--tv-sidebar-text-active);
 }
@@ -47,20 +47,68 @@
   gap: 2px;
   flex: 1;
   overflow-y: auto;
-  padding-right: 4px;
+  overscroll-behavior: contain;
+  /* Scroll chrome off in every engine. The bar sat inside a 260px column and
+     read as a seam down the nav. */
+  scrollbar-width: none;
+  /* Without a visible bar the cut needs saying some other way. The nav is
+     flex: 1, so when the items fit, this fades empty space and is invisible;
+     when they do not, the last row softens at the edge. */
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent);
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent);
+}
+
+.shell-nav::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* ============ Sidebar groups ============ */
+
+/* Headings appear only when the list is long enough to need them, so a mentor
+   sees an ungrouped column and an admin sees five short ones.
+   Grouping added roughly 200px of height to the admin nav, which overflowed a
+   1280x800 laptop. The tighter rhythm below buys most of it back. */
+
+.shell-nav-group + .shell-nav-group {
+  margin-top: var(--tv-space-3);
+}
+
+.shell-nav-heading {
+  margin: 0 0 var(--tv-space-1);
+  padding: 0 var(--tv-space-3);
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  letter-spacing: var(--tv-tracking-wider);
+  text-transform: uppercase;
+  /* Quieter than an inactive item. A heading that competes with the links
+     under it makes the column harder to scan, not easier. */
+  color: var(--tv-sidebar-text);
+  opacity: 0.55;
+}
+
+.shell-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .shell-nav-item {
   display: flex;
   align-items: center;
   gap: var(--tv-space-3);
-  padding: var(--tv-space-3) var(--tv-space-3);
+  /* Vertical padding is what sets the row height here, not min-height. This is
+     a desktop-only surface driven by a mouse, so the 44px touch floor does not
+     apply and the tighter rhythm reads as a denser tool rather than a cramped
+     one. The mobile tab bar and sheet keep their 48px and 56px targets. */
+  padding: var(--tv-space-2) var(--tv-space-3);
   border-radius: var(--tv-radius-md);
   color: var(--tv-sidebar-text);
   font-size: var(--tv-fs-sm);
   font-weight: var(--tv-fw-medium);
   text-decoration: none;
-  min-height: 40px;
+  min-height: 34px;
   transition: background var(--tv-duration-fast) var(--tv-ease),
               color var(--tv-duration-fast) var(--tv-ease);
 }
@@ -334,6 +382,11 @@
   display: flex;
   flex-direction: column;
   gap: var(--tv-space-2);
+  /* Eleven grouped items plus identity and sign-out overruns a short phone.
+     Capped so the sheet scrolls rather than pushing sign-out off screen. */
+  max-height: 88dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .shell-sheet.is-open {
@@ -356,6 +409,28 @@
   flex-direction: column;
   gap: 2px;
   margin-bottom: var(--tv-space-2);
+}
+
+.shell-sheet-group + .shell-sheet-group {
+  margin-top: var(--tv-space-4);
+}
+
+.shell-sheet-heading {
+  margin: 0 0 var(--tv-space-1);
+  padding: 0 var(--tv-space-3);
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  letter-spacing: var(--tv-tracking-wider);
+  text-transform: uppercase;
+  color: var(--tv-sidebar-text);
+  opacity: 0.55;
+}
+
+.shell-sheet-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .shell-sheet-link {

@@ -8,7 +8,7 @@ import { supabase } from '@/lib/supabase'
 export async function fetchActiveCategories() {
   const { data, error } = await supabase
     .from('mentoring_categories')
-    .select('id, slug, label, description, sort_order, is_focus_category, is_resource_category')
+    .select('id, slug, label, description, sort_order, is_focus_category, is_resource_category, is_public_default')
     .eq('is_active', true)
     .order('sort_order', { ascending: true })
 

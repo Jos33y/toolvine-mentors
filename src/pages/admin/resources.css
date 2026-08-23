@@ -253,9 +253,17 @@
 
 /* ============ Status pill ============ */
 
-.admin-res__pill {
+/* The wrapper owns the grid area. Two pills both claiming it would stack. */
+.admin-res__pills {
   grid-area: pill;
   justify-self: start;
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  flex-wrap: wrap;
+}
+
+.admin-res__pill {
   padding: var(--tv-space-1) var(--tv-space-3);
   border: var(--tv-border-width) solid var(--tv-border);
   border-radius: var(--tv-radius-pill);
@@ -275,6 +283,13 @@
 .admin-res__pill--archived {
   border-color: var(--tv-border-strong);
   color: var(--tv-text-muted);
+}
+
+/* Amber, because public is the exception worth noticing rather than a second
+   healthy state. Reads as attention, not as an error. */
+.admin-res__pill--public {
+  border-color: var(--tv-accent);
+  color: var(--tv-accent-text);
 }
 
 /* ============ Actions ============ */
@@ -559,6 +574,23 @@
   line-height: var(--tv-lh-base);
   color: var(--tv-text-muted);
   margin: var(--tv-space-2) 0 0;
+}
+
+/* Public is the consequential choice, so its explanation carries weight the
+   default one does not. */
+.admin-res__hint--public {
+  color: var(--tv-accent-text);
+  font-weight: var(--tv-fw-medium);
+}
+
+/* Stands in for the control when the kind is file. Boxed so the row does not
+   read as an empty field. */
+.admin-res__hint--locked {
+  margin-top: 0;
+  padding: var(--tv-space-3);
+  background: var(--tv-canvas-app);
+  border: var(--tv-border-width) dashed var(--tv-border);
+  border-radius: var(--tv-radius-md);
 }
 
 .admin-res__field-error,

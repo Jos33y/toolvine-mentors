@@ -10,7 +10,7 @@ const SIGNED_URL_SECONDS = 120
 // byte ranges as they scroll. Two minutes expires mid-document.
 const PREVIEW_URL_SECONDS = 900
 
-const SELECT = 'id, title, description, category, type, file_path, external_url, youtube_id, is_archived, published_on, uploaded_by, created_at, updated_at'
+const SELECT = 'id, title, description, category, type, file_path, external_url, youtube_id, is_archived, visibility, published_on, uploaded_by, created_at, updated_at'
 
 // Mirrors allowed_mime_types on the resources bucket. A blocklist here let a
 // .txt or .zip reach storage and come back with a message written for an API.
@@ -229,6 +229,11 @@ export const resourceSchema = z
       .trim()
       .optional()
       .or(z.literal('')),
+    // Mirrors resources_visibility_check. Same refine form as type, for the
+    // same zod 3 and 4 reason.
+    visibility: z
+      .string()
+      .refine((v) => ['public', 'members'].includes(v), 'Choose who can see this.'),
     published_on: z
       .string()
       .trim()
@@ -255,6 +260,18 @@ export const resourceSchema = z
     if (values.type === 'file' && !values.file_path) {
       ctx.addIssue({ code: 'custom', path: ['file_path'], message: 'Choose a file to upload.' })
     }
+
+    // Files are served from a private bucket through createSignedUrl and there
+    // is no anon storage policy, so a public file would be listed to a visitor
+    // who then could not open it. Caught here as well as in the form, because
+    // the form is not the only caller.
+    if (values.type === 'file' && values.visibility === 'public') {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['visibility'],
+        message: 'Uploaded files cannot be public yet. Share it as a link, or keep it members only.'
+      })
+    }
   })
 
 // D47. Exactly one of the three columns is set and the other two are explicitly
@@ -268,6 +285,7 @@ function toRow(values) {
     description:  parsed.description || null,
     category:     parsed.category,
     type:         parsed.type,
+    visibility:   parsed.visibility,
     published_on: parsed.published_on || null,
     file_path:    parsed.type === 'file'    ? parsed.file_path            : null,
     external_url: parsed.type === 'link'    ? parsed.external_url         : null,

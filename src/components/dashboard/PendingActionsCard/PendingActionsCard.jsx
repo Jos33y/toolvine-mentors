@@ -16,7 +16,7 @@ export function PendingActionsCard() {
   // board lists every unpaired mentee, so it shows more rows than this count.
   const rows = [
     { key: 'pending',    icon: 'user',     count: counts.pendingReviews,     label: 'Mentors awaiting review',           href: '/admin/users?filter=pending' },
-    { key: 'messages',   icon: 'mail',     count: counts.newSubmissions,     label: 'Unread contact submissions',        href: '/admin/submissions' },
+    { key: 'messages',   icon: 'mail',     count: counts.newSubmissions,     label: 'Unread contact messages',           href: '/admin/submissions' },
     { key: 'stalled',    icon: 'clock',    count: counts.stalledOnboardings, label: 'Stalled onboardings (over 14 days)', href: '/admin/users?filter=onboarding_stalled' },
     { key: 'unverified', icon: 'alert',    count: counts.unverifiedOver72h,  label: 'Unverified emails (over 72 hours)', href: '/admin/users?filter=unverified' },
     { key: 'unpaired',   icon: 'pairings', count: counts.unpairedOver30d,    label: 'Mentees unpaired (over 30 days)',   href: '/admin/pairings?filter=unpaired' }
