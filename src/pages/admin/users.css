@@ -175,89 +175,97 @@
 
 /* ============ List ============ */
 
+/* Hairline-separated lines, not cards. Cards cost their own padding plus the
+   gap between them, which at a hundred people is a few thousand pixels of
+   nothing. */
+
 .admin-users__list {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--tv-space-2);
-}
-
-.admin-users__row {
-  display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.2fr) auto;
-  align-items: center;
-  gap: var(--tv-space-4);
-  background: var(--tv-canvas-brand);
+  background: var(--tv-surface);
   border: 1px solid var(--tv-border);
   border-radius: var(--tv-radius-lg);
-  padding: var(--tv-space-4) var(--tv-space-5);
-  transition: border-color var(--tv-duration-fast) var(--tv-ease);
+  overflow: hidden;
 }
 
-.admin-users__row:hover {
-  border-color: var(--tv-border-strong);
+.admin-users__row + .admin-users__row {
+  border-top: 1px solid var(--tv-border);
 }
 
-.admin-users__row--inactive {
+.admin-users__row--inactive .admin-users__line {
+  /* Reads as receded without dropping contrast below AA, which opacity would. */
   background: var(--tv-canvas-app);
-  opacity: 0.85;
 }
 
 .admin-users__row--skel {
-  height: 80px;
-  background: linear-gradient(90deg, var(--tv-canvas-brand) 0%, var(--tv-surface) 50%, var(--tv-canvas-brand) 100%);
+  height: 56px;
+  background: linear-gradient(90deg, var(--tv-surface), var(--tv-canvas-app), var(--tv-surface));
   background-size: 200% 100%;
-  animation: au-shimmer 1400ms linear infinite;
-  border-color: var(--tv-border);
+  animation: admin-users-shimmer 1.4s var(--tv-ease) infinite;
 }
 
-/* ============ Person column ============ */
+@keyframes admin-users-shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
 
-.admin-users__person {
-  display: flex;
+/* ============ Row ============ */
+
+/* One line, fixed height, the whole thing opens the drawer. Everything that
+   used to be written out as prose in the row now lives in there. */
+
+.admin-users__line {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto auto;
   align-items: center;
   gap: var(--tv-space-3);
-  min-width: 0;
+  width: 100%;
+  min-height: 56px;
+  padding: var(--tv-space-2) var(--tv-space-4);
+  background: none;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--tv-duration-fast) var(--tv-ease);
+}
+
+.admin-users__line:hover {
+  background: var(--tv-canvas-app);
+}
+
+.admin-users__line:focus-visible {
+  outline: none;
+  box-shadow: inset var(--tv-shadow-focus);
 }
 
 .admin-users__avatar {
-  position: relative;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  overflow: hidden;
   flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  border-radius: var(--tv-radius-pill);
-  background:
-    radial-gradient(circle at 50% 32%, rgba(255, 255, 255, 0.55), transparent 62%),
-    var(--tv-primary-soft);
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(15, 118, 110, 0.18);
-  overflow: hidden;
+  background: var(--tv-primary-soft);
 }
 
 .admin-users__avatar-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
 }
 
 .admin-users__avatar-initials {
   font-family: var(--tv-font-display);
   font-weight: var(--tv-fw-semibold);
-  font-size: var(--tv-fs-sm);
+  font-size: var(--tv-fs-xs);
   color: var(--tv-primary);
-  letter-spacing: var(--tv-tracking-tight);
 }
 
 .admin-users__id {
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
 }
 
 .admin-users__name {
@@ -267,185 +275,73 @@
   font-size: var(--tv-fs-sm);
   color: var(--tv-text);
   line-height: var(--tv-lh-tight);
-  display: inline-flex;
-  align-items: center;
-  gap: var(--tv-space-2);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .admin-users__self-tag {
+  margin-left: var(--tv-space-2);
   font-family: var(--tv-font-mono);
-  font-size: 10px;
+  font-size: var(--tv-fs-xs);
   font-weight: var(--tv-fw-semibold);
+  letter-spacing: var(--tv-tracking-wider);
   text-transform: uppercase;
-  letter-spacing: var(--tv-tracking-wide);
   color: var(--tv-text-muted);
-  background: var(--tv-border);
-  padding: 1px 6px;
-  border-radius: var(--tv-radius-sm);
 }
 
 .admin-users__email {
-  margin: 0;
+  margin: 1px 0 0;
   font-size: var(--tv-fs-xs);
   color: var(--tv-text-muted);
+  line-height: var(--tv-lh-tight);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* ============ Meta column ============ */
-
-.admin-users__meta {
-  display: flex;
-  flex-direction: column;
-  gap: var(--tv-space-1);
-  min-width: 0;
-}
+/* ============ Pills ============ */
 
 .admin-users__pills {
-  display: inline-flex;
-  flex-wrap: wrap;
+  display: flex;
+  align-items: center;
   gap: var(--tv-space-1);
+  flex-wrap: nowrap;
 }
 
 .admin-users__pill {
-  display: inline-flex;
-  align-items: center;
   padding: 2px var(--tv-space-2);
   border-radius: var(--tv-radius-pill);
-  font-family: var(--tv-font-body);
-  font-size: 10px;
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
   font-weight: var(--tv-fw-semibold);
-  text-transform: uppercase;
   letter-spacing: var(--tv-tracking-wide);
-  line-height: 1.5;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .admin-users__pill--admin   { background: var(--tv-text);          color: var(--tv-text-inverse); }
 .admin-users__pill--mentor  { background: var(--tv-primary-soft);  color: var(--tv-primary); }
 .admin-users__pill--mentee  { background: var(--tv-accent-soft);   color: var(--tv-accent-text); }
-.admin-users__pill--pending { background: var(--tv-warning-bg);    color: var(--tv-warning-text); }
-.admin-users__pill--soft    { background: var(--tv-border);        color: var(--tv-text-muted); }
-.admin-users__pill--ghost   { background: transparent; border: 1px dashed var(--tv-border-strong); color: var(--tv-text-muted); }
+.admin-users__pill--pending { background: var(--tv-accent-soft);   color: var(--tv-accent-text); }
+.admin-users__pill--soft    { background: var(--tv-canvas-app);    color: var(--tv-text-muted); border: 1px solid var(--tv-border); }
+.admin-users__pill--ghost   { background: none;                    color: var(--tv-text-muted); border: 1px dashed var(--tv-border); }
 .admin-users__pill--off     { background: var(--tv-error-bg);      color: var(--tv-error-text); }
 
-.admin-users__joined {
-  margin: 0;
-  font-size: var(--tv-fs-xs);
-  color: var(--tv-text-muted);
-}
+/* ============ Slots ============ */
 
-/* ============ Actions column ============ */
+/* Fixed width so the action column lines up down the list rather than
+   wandering with the length of each label. */
 
-.admin-users__actions {
-  display: inline-flex;
+.admin-users__slot {
+  display: flex;
   align-items: center;
-  gap: var(--tv-space-2);
-  flex-wrap: wrap;
   justify-content: flex-end;
+  min-width: 44px;
 }
 
-.admin-users__btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 32px;
-  padding: 0 var(--tv-space-3);
-  font-family: var(--tv-font-body);
-  font-size: var(--tv-fs-xs);
-  font-weight: var(--tv-fw-semibold);
-  border-radius: var(--tv-radius-md);
-  border: 1px solid transparent;
-  cursor: pointer;
-  transition: background var(--tv-duration-fast) var(--tv-ease),
-              border-color var(--tv-duration-fast) var(--tv-ease),
-              color var(--tv-duration-fast) var(--tv-ease);
-  white-space: nowrap;
-}
-
-.admin-users__btn:focus-visible {
-  outline: none;
-  box-shadow: var(--tv-shadow-focus);
-}
-
-.admin-users__btn:disabled { opacity: 0.55; cursor: not-allowed; }
-
-.admin-users__btn--primary {
-  background: var(--tv-primary);
-  color: var(--tv-text-inverse);
-}
-.admin-users__btn--primary:hover:not(:disabled) { background: var(--tv-primary-hover); }
-
-.admin-users__btn--secondary {
-  background: transparent;
-  color: var(--tv-text-2);
-  border-color: var(--tv-border-input);
-}
-.admin-users__btn--secondary:hover:not(:disabled) {
-  background: var(--tv-surface);
-  color: var(--tv-text);
-}
-
-.admin-users__btn--ghost {
-  background: transparent;
-  color: var(--tv-text-2);
-  border-color: var(--tv-border);
-}
-.admin-users__btn--ghost:hover:not(:disabled) {
-  background: var(--tv-surface);
-  color: var(--tv-text);
-}
-
-.admin-users__btn--ghost-danger {
-  background: transparent;
-  color: var(--tv-text-muted);
-  border-color: transparent;
-  height: 28px;
-  padding: 0 var(--tv-space-2);
-}
-.admin-users__btn--ghost-danger:hover:not(:disabled) {
-  color: var(--tv-error-text);
-}
-
-.admin-users__btn--danger {
-  background: var(--tv-error-text);
-  color: var(--tv-text-inverse);
-}
-.admin-users__btn--danger:hover:not(:disabled) { background: #991616; }
-
-.admin-users__row-error {
-  grid-column: 1 / -1;
-  margin: var(--tv-space-2) 0 0;
-  font-size: var(--tv-fs-xs);
-  color: var(--tv-error-text);
-}
-
-.admin-users__row-notice {
-  grid-column: 1 / -1;
-  margin: var(--tv-space-2) 0 0;
-  padding: var(--tv-space-2) var(--tv-space-3);
-  font-size: var(--tv-fs-xs);
-  line-height: var(--tv-lh-base);
-  border-radius: var(--tv-radius-sm);
-  border: 1px solid var(--tv-border);
-}
-
-.admin-users__row-notice--success {
-  background: var(--tv-primary-softer);
-  color: var(--tv-primary);
-}
-
-.admin-users__row-notice--info {
-  background: var(--tv-warning-bg);
-  color: var(--tv-warning-text);
-}
-
-.admin-users__row-notice--warn {
-  background: var(--tv-error-bg);
-  color: var(--tv-error-text);
+.admin-users__slot--action {
+  min-width: 148px;
 }
 
 /* ============ Empty state ============ */
@@ -484,70 +380,6 @@
   margin-bottom: var(--tv-space-4);
 }
 
-/* ============ Confirm dialog ============ */
-
-.admin-users__overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--tv-space-4);
-  z-index: var(--tv-z-modal);
-  animation: au-overlay-in 200ms var(--tv-ease);
-}
-
-.admin-users__dialog {
-  width: 100%;
-  max-width: 460px;
-  background: var(--tv-surface);
-  border: 1px solid var(--tv-border);
-  border-radius: var(--tv-radius-lg);
-  padding: var(--tv-space-6);
-  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.20), 0 4px 10px rgba(15, 23, 42, 0.08);
-  animation: au-dialog-in 240ms var(--tv-ease);
-}
-
-.admin-users__dialog-title {
-  margin: 0 0 var(--tv-space-3);
-  font-family: var(--tv-font-display);
-  font-weight: var(--tv-fw-semibold);
-  font-size: var(--tv-fs-md);
-  letter-spacing: var(--tv-tracking-tight);
-  color: var(--tv-text);
-}
-
-.admin-users__dialog-body {
-  margin: 0 0 var(--tv-space-5);
-  font-size: var(--tv-fs-sm);
-  line-height: var(--tv-lh-base);
-  color: var(--tv-text-2);
-}
-
-/* When a warning follows the body, tighten the gap so the dialog reads as
-   one structured block instead of two paragraphs floating apart. */
-.admin-users__dialog-body:not(:last-of-type) {
-  margin-bottom: var(--tv-space-3);
-}
-
-.admin-users__dialog-warning {
-  margin: 0 0 var(--tv-space-5);
-  padding: var(--tv-space-3) var(--tv-space-4);
-  background: var(--tv-warning-bg);
-  border-left: 3px solid var(--tv-warning);
-  border-radius: var(--tv-radius-sm);
-  font-size: var(--tv-fs-sm);
-  line-height: var(--tv-lh-snug);
-  color: var(--tv-warning-text);
-}
-
-.admin-users__dialog-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--tv-space-2);
-}
-
 /* ============ Motion ============ */
 
 @keyframes au-rise {
@@ -577,73 +409,193 @@
   .admin-users__row--skel { animation: none; }
 }
 
+/* ============ Buttons ============ */
+
+/* Lived in the Actions column block, which went with the old row. Kept
+   verbatim in tone so nothing else on the page shifts. */
+
+.admin-users__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--tv-space-2);
+  min-height: 34px;
+  padding: 0 var(--tv-space-3);
+  border-radius: var(--tv-radius-md);
+  border: 1px solid var(--tv-border);
+  background: var(--tv-surface);
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-medium);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-2);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--tv-duration-fast) var(--tv-ease),
+              border-color var(--tv-duration-fast) var(--tv-ease),
+              color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.admin-users__btn:hover:not(:disabled) {
+  border-color: var(--tv-text-2);
+  color: var(--tv-text);
+}
+
+.admin-users__btn:focus-visible {
+  outline: none;
+  box-shadow: var(--tv-shadow-focus);
+}
+
+.admin-users__btn:disabled {
+  cursor: not-allowed;
+  color: var(--tv-text-muted);
+  border-color: var(--tv-border);
+}
+
+.admin-users__btn--primary {
+  background: var(--tv-primary);
+  border-color: var(--tv-primary);
+  color: var(--tv-text-inverse);
+}
+
+.admin-users__btn--primary:hover:not(:disabled) {
+  background: var(--tv-primary-hover);
+  border-color: var(--tv-primary-hover);
+  color: var(--tv-text-inverse);
+}
+
+.admin-users__btn--secondary {
+  background: var(--tv-surface);
+}
+
+/* ============ Row feedback ============ */
+
+/* The one thing that breaks the fixed row height, and only while it is on
+   screen. An approval fired inline has to report inline. */
+
+.admin-users__row-error,
+.admin-users__row-notice {
+  margin: 0;
+  padding: var(--tv-space-2) var(--tv-space-4) var(--tv-space-3);
+  font-size: var(--tv-fs-xs);
+  line-height: var(--tv-lh-base);
+}
+
+.admin-users__row-error {
+  color: var(--tv-error-text);
+  background: var(--tv-error-bg);
+}
+
+.admin-users__row-notice--success { color: var(--tv-success-text); background: var(--tv-success-bg); }
+.admin-users__row-notice--info    { color: var(--tv-text-2);       background: var(--tv-canvas-app); }
+.admin-users__row-notice--warn    { color: var(--tv-accent-text);  background: var(--tv-accent-soft); }
+
 /* ============ Small-screen ============ */
 
-@media (max-width: 880px) {
-  .admin-users__row {
-    grid-template-columns: 1fr;
-    gap: var(--tv-space-3);
+@media (max-width: 760px) {
+  /* Two lines rather than five columns, still a fixed height. Name and email
+     above, pills and chip below, the action pinned right across both. */
+  .admin-users__line {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      'avatar id     action'
+      'avatar badges action';
+    row-gap: var(--tv-space-1);
+    min-height: 68px;
   }
-  .admin-users__meta { order: 2; }
-  .admin-users__actions {
-    order: 3;
+
+  .admin-users__avatar { grid-area: avatar; align-self: center; }
+  .admin-users__id     { grid-area: id; }
+
+  .admin-users__pills {
+    grid-area: badges;
+    flex-wrap: wrap;
+  }
+
+  /* The chip rides with the pills so the action keeps the right edge alone. */
+  .admin-users__slot:not(.admin-users__slot--action) {
+    grid-area: badges;
     justify-content: flex-start;
+    justify-self: end;
+    min-width: 0;
+  }
+
+  .admin-users__slot--action {
+    grid-area: action;
+    align-self: center;
+    min-width: 0;
+  }
+
+  /* Tap target, since the row itself is also tappable and the two must not
+     fight over a few pixels. */
+  .admin-users__slot--action .admin-users__btn {
+    min-height: 40px;
+  }
+
+  .admin-users__pager {
+    flex-wrap: wrap;
+    justify-content: center;
   }
 }
 
-@media (max-width: 640px) {
-  .admin-users {
-    padding: var(--tv-space-5) var(--tv-space-4) var(--tv-space-16);
-  }
-  .admin-users__filters { gap: var(--tv-space-1); }
-  .admin-users__filter {
-    height: 30px;
-    padding: 0 var(--tv-space-3);
-    font-size: var(--tv-fs-xs);
-  }
-  .admin-users__row { padding: var(--tv-space-4); }
-}
+/* ============ Reminder chip ============ */
 
-.admin-users__person--clickable {
-  cursor: pointer;
-  border-radius: var(--tv-radius-md);
-  transition: background var(--tv-duration-fast) var(--tv-ease);
-}
-.admin-users__person--clickable:hover {
-  background: var(--tv-canvas-app);
-}
-.admin-users__person--clickable:focus-visible {
-  outline: 2px solid var(--tv-primary-light);
-  outline-offset: 2px;
-}
-/* ============ Reminder state ============ */
-
-/* Four columns have carried this since 0010 and nothing ever displayed it.
-   An admin could not see who had been chased, how often, or when. */
-
-.admin-users__reminder {
-  margin: var(--tv-space-1) 0 0;
+.admin-users__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px var(--tv-space-2);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-pill);
   font-family: var(--tv-font-mono);
   font-size: var(--tv-fs-xs);
-  letter-spacing: var(--tv-tracking-wide);
-  line-height: var(--tv-lh-base);
+  color: var(--tv-text-muted);
+  white-space: nowrap;
+}
+
+.admin-users__chip-count {
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-users__chip-kind {
+  font-weight: var(--tv-fw-semibold);
+  opacity: 0.6;
+}
+
+/* Spent means the three automatic sends are used and anything further is by
+   hand. Amber reads as attention rather than as an error, because nothing has
+   actually failed. */
+.admin-users__chip--spent {
+  border-color: var(--tv-accent);
+  color: var(--tv-accent-text);
+}
+
+/* ============ Pager ============ */
+
+.admin-users__pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--tv-space-3);
+  margin-top: var(--tv-space-4);
+}
+
+.admin-users__pager-count {
+  margin: 0;
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
   color: var(--tv-text-muted);
 }
 
-/* Three sent and still stalled. Amber rather than red: nothing has failed,
-   but a person needs to pick up a phone. */
-.admin-users__reminder--spent {
-  color: var(--tv-accent-text);
-  font-weight: var(--tv-fw-semibold);
-}
-
-.admin-users__btn--quiet {
-  background: transparent;
-  border: var(--tv-border-width) solid var(--tv-border-strong);
-  color: var(--tv-text-2);
-}
-
-.admin-users__btn--quiet:hover:not(:disabled) {
-  border-color: var(--tv-primary);
-  color: var(--tv-primary);
+/* Visually hidden, still read aloud. The chip shows 3/3 and a screen reader
+   gets the whole sentence. */
+.tv-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

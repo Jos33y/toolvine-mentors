@@ -4,9 +4,9 @@ import { fetchNote, saveNote, friendlyNoteError } from '@/lib/meetingNotes'
 import {
   fetchActionItemsForMeeting,
   createActionItem,
-  updateActionItem,
   setActionItemStatus,
   cancelActionItem,
+  needsCompletionNote,
   friendlyItemError,
   isOverdue,
   dueLabel,
@@ -20,6 +20,10 @@ import './meetingRecord.css'
 // A mentee gets the action items list and nothing else. The notes block is
 // not rendered for them at all: no empty state, no "you do not have access".
 // The field does not exist.
+//
+// Privacy runs one way. The mentor's notes stay private. What a mentee writes
+// about finishing an item travels up to the mentor, and it lives on
+// meeting_action_items rather than anywhere near meeting_notes.
 export function MeetingRecord({
   meetingId,
   canWriteNotes,
@@ -168,12 +172,15 @@ function ItemsBlock({ meetingId, canManage, mentor, mentee, viewerId, authorId }
 
   useEffect(() => { load() }, [load])
 
-  async function onToggle(item) {
+  // One entry point for both directions. The note travels with the status
+  // change because meeting_action_items_check ties done to completed_at and
+  // the RPC clears the note on the way back to open, so the two cannot move
+  // separately without leaving the row describing work nobody is claiming.
+  async function onSetStatus(item, next, note) {
     setBusyId(item.id)
     setError('')
     try {
-      const next = item.status === ITEM_STATUS.DONE ? ITEM_STATUS.OPEN : ITEM_STATUS.DONE
-      await setActionItemStatus(item.id, next)
+      await setActionItemStatus(item.id, next, note)
       await load()
     } catch (e) {
       setError(friendlyItemError(e))
@@ -217,8 +224,8 @@ function ItemsBlock({ meetingId, canManage, mentor, mentee, viewerId, authorId }
           <h2 className="record__title">Action items</h2>
           <p className="record__hint">
             {canManage
-              ? 'What either of you agreed to do. Each person can mark their own done.'
-              : 'What you agreed to do. Mark each one done as you finish it.'}
+              ? 'What either of you agreed to do. When your mentee marks one done they say what happened, and you read it here.'
+              : 'What you agreed to do. Mark each one done and write a line about how it went.'}
           </p>
         </div>
         {canManage && !adding && (
@@ -257,8 +264,9 @@ function ItemsBlock({ meetingId, canManage, mentor, mentee, viewerId, authorId }
                 item={item}
                 canManage={canManage}
                 canToggle={canManage || item.assigned_to === viewerId}
+                viewerId={viewerId}
                 busy={busyId === item.id}
-                onToggle={() => onToggle(item)}
+                onSetStatus={(next, note) => onSetStatus(item, next, note)}
                 onCancel={() => onCancel(item)}
               />
             ))}
@@ -272,8 +280,9 @@ function ItemsBlock({ meetingId, canManage, mentor, mentee, viewerId, authorId }
                   item={item}
                   canManage={canManage}
                   canToggle={item.status === ITEM_STATUS.DONE && (canManage || item.assigned_to === viewerId)}
+                  viewerId={viewerId}
                   busy={busyId === item.id}
-                  onToggle={() => onToggle(item)}
+                  onSetStatus={(next, note) => onSetStatus(item, next, note)}
                   onCancel={() => onCancel(item)}
                 />
               ))}
@@ -285,19 +294,44 @@ function ItemsBlock({ meetingId, canManage, mentor, mentee, viewerId, authorId }
   )
 }
 
-function ItemRow({ item, canManage, canToggle, busy, onToggle, onCancel }) {
+function ItemRow({ item, canManage, canToggle, viewerId, busy, onSetStatus, onCancel }) {
   const done      = item.status === ITEM_STATUS.DONE
   const cancelled = item.status === ITEM_STATUS.CANCELLED
   const over      = !done && !cancelled && isOverdue(item.due_on)
+
+  const [noting, setNoting]           = useState(false)
+  const [note, setNote]               = useState('')
+  const [confirmUndo, setConfirmUndo] = useState(false)
+
+  // Mirrors the rule inside set_action_item_status. Asking here rather than
+  // letting the database refuse means the person is asked for the note instead
+  // of being told off for not having sent one.
+  const owesNote = needsCompletionNote(item, viewerId)
+
+  function onCheck() {
+    if (done) {
+      // Reopening clears the note. Somebody's own words are not something to
+      // discard on a stray tap.
+      if (item.completion_note) setConfirmUndo(true)
+      else onSetStatus(ITEM_STATUS.OPEN, null)
+      return
+    }
+    if (owesNote) {
+      setNoting(true)
+      return
+    }
+    onSetStatus(ITEM_STATUS.DONE, null)
+  }
 
   return (
     <li className={'item' + (done ? ' item--done' : '') + (cancelled ? ' item--cancelled' : '')}>
       <button
         type="button"
         className="item__check"
-        onClick={onToggle}
+        onClick={onCheck}
         disabled={!canToggle || busy || cancelled}
         aria-pressed={done}
+        aria-expanded={noting || confirmUndo ? true : undefined}
         aria-label={done ? 'Mark as not done' : 'Mark as done'}
       >
         {done && <Icon name="check" size={12} strokeWidth={2.5} />}
@@ -314,6 +348,75 @@ function ItemRow({ item, canManage, canToggle, busy, onToggle, onCancel }) {
           )}
           {cancelled && <span className="item__tag">Cancelled</span>}
         </p>
+
+        {/* The point of the whole change. A done item that says only "done"
+            throws away the part that mattered. */}
+        {done && item.completion_note && (
+          <p className="item__note">{item.completion_note}</p>
+        )}
+
+        {noting && (
+          <div className="item__noteform">
+            <label className="record__field">
+              <span className="record__label">What happened</span>
+              <input
+                type="text"
+                className="record__input"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="I read it on the bus on Tuesday and one line stopped me"
+                autoFocus
+              />
+            </label>
+            <p className="item__note-hint">
+              The person who set this reads it. A line is enough.
+            </p>
+            <div className="item__note-actions">
+              <button
+                type="button"
+                className="record__ghost"
+                onClick={() => { setNoting(false); setNote('') }}
+                disabled={busy}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="record__save"
+                onClick={() => onSetStatus(ITEM_STATUS.DONE, note)}
+                disabled={busy || note.trim().length === 0}
+              >
+                {busy ? 'Saving' : 'Mark done'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {confirmUndo && (
+          <div className="item__noteform">
+            <p className="item__note-warn">
+              Reopening this clears what you wrote about doing it.
+            </p>
+            <div className="item__note-actions">
+              <button
+                type="button"
+                className="record__ghost"
+                onClick={() => setConfirmUndo(false)}
+                disabled={busy}
+              >
+                Keep it done
+              </button>
+              <button
+                type="button"
+                className="record__danger"
+                onClick={() => onSetStatus(ITEM_STATUS.OPEN, null)}
+                disabled={busy}
+              >
+                {busy ? 'Reopening' : 'Reopen anyway'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* D32. Only a mentor or admin cancels. The RPC refuses cancelled, so a

@@ -12,6 +12,9 @@ import {
   cancelMeeting,
   reopenMeeting,
   rescheduleMeeting,
+  acceptMeetingRequest,
+  rejectMeetingRequest,
+  withdrawMeetingRequest,
   sendMeetingEmail,
   availableModes,
   modeNeedsLink,
@@ -25,19 +28,15 @@ import {
   mentorPhone,
   modeUsesMentorPhone,
   isPast,
+  isRequestStatus,
+  isStaleRequest,
   opensForCompletionIn,
+  MEETING_STATUS,
+  MODE_ICONS,
   MODE_LABELS,
   STATUS_LABELS
 } from '@/lib/meetings'
 import './meeting.css'
-
-const MODE_ICONS = {
-  external:     'externalLink',
-  phone:        'phone',
-  in_person:    'mapPin',
-  native_video: 'video',
-  native_audio: 'mic'
-}
 
 export function Meeting() {
   const { id } = useParams()
@@ -56,6 +55,8 @@ export function Meeting() {
   const [busy,    setBusy]    = useState(false)
   const [confirm, setConfirm] = useState(null)
   const [editing, setEditing] = useState(false)
+  const [declining, setDeclining] = useState(false)
+  const [reason,    setReason]    = useState('')
 
   const nativeCalls = useFlag(FLAG_KEYS.NATIVE_CALLS_ENABLED)
 
@@ -106,14 +107,22 @@ export function Meeting() {
   const canManage = isAdmin || (isMentor && viewerIsMentor)
 
   const phone   = modeUsesMentorPhone(mode) ? mentorPhone(mentor) : null
-  const overdue = status === 'scheduled' && isPast(scheduledFor)
+  const overdue = status === MEETING_STATUS.SCHEDULED && isPast(scheduledFor)
+
+  // A request is not a meeting yet. The bell links here, so this page has to
+  // be able to answer one rather than showing a session with no controls.
+  const isRequest   = isRequestStatus(status)
+  const pending     = status === MEETING_STATUS.PENDING
+  const canAnswer   = pending && (isAdmin || viewerIsMentor)
+  const canWithdraw = pending && viewerIsMentee
+  const staleAsk    = isStaleRequest(meeting)
 
   // A meeting is completed after it happens, not before. D16 makes the mistake
   // expensive, since only an admin can undo it. Cancel is the opposite and
   // stays available throughout, because cancelling is what you do to something
   // that has not happened yet.
-  const canComplete = canManage && status === 'scheduled' && isPast(scheduledFor)
-  const canCancel   = canManage && status === 'scheduled'
+  const canComplete = canManage && status === MEETING_STATUS.SCHEDULED && isPast(scheduledFor)
+  const canCancel   = canManage && status === MEETING_STATUS.SCHEDULED
 
   async function run(action) {
     setBusy(true)
@@ -133,8 +142,39 @@ export function Meeting() {
       } else if (action === 'reopen') {
         await reopenMeeting(meeting.id, label)
         setNotice('Reopened and back to scheduled.')
+      } else if (action === 'withdraw') {
+        await withdrawMeetingRequest(meeting.id)
+        setNotice('Request withdrawn. You can ask for another time whenever you are ready.')
       }
       setConfirm(null)
+      await load()
+    } catch (e) {
+      setError(friendlyMeetingError(e))
+      setConfirm(null)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function answer(action, reason) {
+    setBusy(true)
+    setError('')
+    try {
+      if (action === 'accept') {
+        await acceptMeetingRequest(meeting.id)
+        const mail = await sendMeetingEmail(meeting.id, 'scheduled')
+        setNotice(
+          'Accepted. This is now a scheduled meeting. ' +
+          (mail.sent ? 'Both of you have been emailed.' : 'The notification email did not send.')
+        )
+      } else if (action === 'reject') {
+        await rejectMeetingRequest(meeting.id, reason)
+        setNotice(
+          `Declined. ${mentee?.full_name ?? 'Your mentee'} can read your reason and ask for another time.`
+        )
+      }
+      setConfirm(null)
+      setDeclining(false)
       await load()
     } catch (e) {
       setError(friendlyMeetingError(e))
@@ -193,6 +233,28 @@ export function Meeting() {
         </div>
       )}
 
+      {pending && !staleAsk && (
+        <div className="meeting__warn" role="note">
+          {canAnswer
+            ? `${mentee?.full_name ?? 'Your mentee'} asked for this time. Nothing is set until you accept or decline.`
+            : `Waiting on ${mentor?.full_name ?? 'your mentor'}. Nothing is set until they answer, and you can withdraw it until then.`}
+        </div>
+      )}
+
+      {staleAsk && (
+        <div className="meeting__warn" role="note">
+          {canAnswer
+            ? 'That time has passed and this request is still waiting on you.'
+            : 'That time has passed with no answer. Withdraw it and ask for another.'}
+        </div>
+      )}
+
+      {status === MEETING_STATUS.WITHDRAWN && (
+        <div className="meeting__notice" role="note">
+          This request was withdrawn before it was answered. It was never a scheduled meeting.
+        </div>
+      )}
+
       {editing && (
         <ReschedulePanel
           meeting={meeting}
@@ -231,6 +293,20 @@ export function Meeting() {
           viewerIsMentee={viewerIsMentee}
           viewerWhen={meetingWhen(scheduledFor)}
         />
+
+        {isRequest && meeting.requestNote && (
+          <div className="meeting__block">
+            <h2 className="meeting__block-title">What they added</h2>
+            <p className="meeting__quote">{meeting.requestNote}</p>
+          </div>
+        )}
+
+        {status === MEETING_STATUS.REJECTED && meeting.rejectionReason && (
+          <div className="meeting__block">
+            <h2 className="meeting__block-title">Why it was declined</h2>
+            <p className="meeting__quote meeting__quote--reason">{meeting.rejectionReason}</p>
+          </div>
+        )}
 
         {externalLink && (
           <div className="meeting__block">
@@ -271,7 +347,82 @@ export function Meeting() {
           </div>
         )}
 
-        {canManage && (
+        {(canAnswer || canWithdraw) && (
+          <footer className="meeting__actions">
+            {canAnswer && !declining && (
+              <>
+                <button
+                  type="button"
+                  className="meeting__cta"
+                  onClick={() => answer('accept')}
+                  disabled={busy}
+                >
+                  Accept
+                </button>
+                <button
+                  type="button"
+                  className="meeting__action"
+                  onClick={() => { setDeclining(true); setNotice('') }}
+                  disabled={busy}
+                >
+                  Decline
+                </button>
+              </>
+            )}
+
+            {canWithdraw && (
+              <button
+                type="button"
+                className="meeting__action meeting__action--danger"
+                onClick={() => setConfirm('withdraw')}
+                disabled={busy}
+              >
+                Withdraw request
+              </button>
+            )}
+          </footer>
+        )}
+
+        {/* Opens on the page rather than in a dialog. A modal here would cover
+            the request the mentor is deciding about. */}
+        {declining && (
+          <div className="meeting__decline">
+            <label className="meeting__field meeting__field--wide">
+              <span className="meeting__field-label">Why not this time</span>
+              <input
+                type="text"
+                className="meeting__input"
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                placeholder="I am travelling that week, try the Saturday after"
+                autoFocus
+              />
+              <span className="meeting__field-hint">
+                {mentee?.full_name ?? 'Your mentee'} reads this, so write it the way you would say it.
+              </span>
+            </label>
+            <div className="meeting__decline-actions">
+              <button
+                type="button"
+                className="meeting__action"
+                onClick={() => { setDeclining(false); setReason('') }}
+                disabled={busy}
+              >
+                Keep waiting
+              </button>
+              <button
+                type="button"
+                className="meeting__cta meeting__cta--danger"
+                onClick={() => answer('reject', reason)}
+                disabled={busy || reason.trim().length === 0}
+              >
+                {busy ? 'Declining' : 'Send decline'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {canManage && !isRequest && (
           <footer className="meeting__actions">
             {canComplete && (
               <button
@@ -318,7 +469,7 @@ export function Meeting() {
             )}
             {/* D17. Correcting a mistakenly completed meeting is an admin
                 action, not a toggle the mentor can reach. */}
-            {status === 'completed' && isAdmin && (
+            {status === MEETING_STATUS.COMPLETED && isAdmin && (
               <button
                 type="button"
                 className="meeting__action"
@@ -328,7 +479,7 @@ export function Meeting() {
                 Reopen this meeting
               </button>
             )}
-            {status === 'completed' && !isAdmin && (
+            {status === MEETING_STATUS.COMPLETED && !isAdmin && (
               <p className="meeting__final">
                 Completed meetings are part of the record. An admin can correct one that was marked by mistake.
               </p>
@@ -339,15 +490,17 @@ export function Meeting() {
 
       {/* Notes are absent from the DOM for a mentee, not disabled or emptied.
           RLS blocks them at the database too; this is the second layer. */}
-      <MeetingRecord
-        meetingId={meeting.id}
-        canWriteNotes={canManage}
-        canManageItems={canManage}
-        authorId={profile?.id ?? null}
-        mentor={mentor}
-        mentee={mentee}
-        viewerId={profile?.id ?? null}
-      />
+      {!isRequest && (
+        <MeetingRecord
+          meetingId={meeting.id}
+          canWriteNotes={canManage}
+          canManageItems={canManage}
+          authorId={profile?.id ?? null}
+          mentor={mentor}
+          mentee={mentee}
+          viewerId={profile?.id ?? null}
+        />
+      )}
 
       {confirm && (
         <ConfirmDialog
@@ -586,32 +739,47 @@ function Fact({ label, value }) {
 }
 
 function ConfirmDialog({ kind, meeting, busy, onCancel, onConfirm }) {
-  const cancelling = kind === 'cancel'
   const who = meeting.mentee?.full_name ?? 'your mentee'
+  const mentorName = meeting.mentor?.full_name ?? 'your mentor'
+
+  const copy = {
+    cancel: {
+      title:   `Cancel this meeting with ${who}?`,
+      body:    'It stays on the record as cancelled rather than disappearing. You can schedule a new one at any time.',
+      confirm: 'Cancel meeting',
+      danger:  true
+    },
+    reopen: {
+      title:   'Reopen this meeting?',
+      body:    'It goes back to scheduled and its completion time is cleared. Use this only when it was marked completed by mistake.',
+      confirm: 'Reopen',
+      danger:  false
+    },
+    withdraw: {
+      title:   'Withdraw this request?',
+      body:    `${mentorName} will see that you took it back. Nothing is lost, and you can ask for another time whenever you are ready.`,
+      confirm: 'Withdraw request',
+      danger:  true
+    }
+  }[kind]
 
   return (
     <div className="meeting__overlay" role="dialog" aria-modal="true" aria-labelledby="meeting-confirm">
       <div className="meeting__dialog">
-        <h2 className="meeting__dialog-title" id="meeting-confirm">
-          {cancelling ? `Cancel this meeting with ${who}?` : 'Reopen this meeting?'}
-        </h2>
-        <p className="meeting__dialog-body">
-          {cancelling
-            ? 'It stays on the record as cancelled rather than disappearing. You can schedule a new one at any time.'
-            : 'It goes back to scheduled and its completion time is cleared. Use this only when it was marked completed by mistake.'}
-        </p>
+        <h2 className="meeting__dialog-title" id="meeting-confirm">{copy.title}</h2>
+        <p className="meeting__dialog-body">{copy.body}</p>
         <div className="meeting__dialog-actions">
           <button type="button" className="meeting__action" onClick={onCancel} disabled={busy}>
             Keep as is
           </button>
           <button
             type="button"
-            className={'meeting__cta' + (cancelling ? ' meeting__cta--danger' : '')}
+            className={'meeting__cta' + (copy.danger ? ' meeting__cta--danger' : '')}
             onClick={onConfirm}
             disabled={busy}
             autoFocus
           >
-            {busy ? 'Working' : cancelling ? 'Cancel meeting' : 'Reopen'}
+            {busy ? 'Working' : copy.confirm}
           </button>
         </div>
       </div>

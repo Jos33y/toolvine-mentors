@@ -4,10 +4,14 @@ import { fetchOpenItemsForMentee } from '@/lib/meetingActionItems'
 
 const DEBOUNCE_MS = 300
 
-// Open tasks assigned to the signed-in mentee. Read-only in Block C; the
-// mark-done action ships in a later block. Subscribes to meeting_action_items
-// filtered to this mentee so a task the mentor writes in Block D appears
-// without a refresh.
+// Open tasks assigned to the signed-in mentee, and the card that renders them
+// is where most items are actually marked done. Subscribes to
+// meeting_action_items filtered to this mentee so a task the mentor writes
+// appears without a refresh.
+//
+// The limit is passed as an options object. It used to be passed as a bare
+// number, which destructured to nothing and happened to land on the same
+// default, so the call worked while ignoring what it asked for.
 export function useMenteeTasks(menteeId) {
   const [items, setItems]     = useState([])
   const [loading, setLoading] = useState(true)
@@ -19,7 +23,7 @@ export function useMenteeTasks(menteeId) {
   const load = useCallback(async () => {
     if (!menteeId) return
     try {
-      const data = await fetchOpenItemsForMentee(menteeId, 10)
+      const data = await fetchOpenItemsForMentee(menteeId, { limit: 10 })
       if (cancelledRef.current) return
       setItems(data)
       setError(null)

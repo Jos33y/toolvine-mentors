@@ -202,6 +202,220 @@
   padding: 2px calc(var(--tv-space-2) - 1px);
 }
 
+/* ============ Sections ============ */
+
+/* Details, Reminders and Role all share one head treatment so the drawer reads
+   as one document rather than three panels bolted together. */
+
+.udd__details,
+.udd__reminders,
+.udd__roles {
+  padding: var(--tv-space-5);
+  border-bottom: 1px solid var(--tv-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-3);
+}
+
+.udd__section-eyebrow {
+  margin: 0;
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tv-tracking-wider);
+  color: var(--tv-accent-text);
+}
+
+.udd__section-title {
+  margin: 0;
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-base);
+  color: var(--tv-text);
+  letter-spacing: var(--tv-tracking-tight);
+  line-height: var(--tv-lh-tight);
+}
+
+.udd__section-helper {
+  margin: 0;
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+  line-height: var(--tv-lh-base);
+}
+
+/* ============ Focus and delivery ============ */
+
+.udd__focus,
+.udd__delivery {
+  padding: var(--tv-space-5);
+  border-bottom: 1px solid var(--tv-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-3);
+}
+
+.udd__focus-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-2);
+}
+
+.udd__focus-heading {
+  margin: 0;
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  color: var(--tv-text-2);
+}
+
+.udd__focus-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tv-space-2);
+}
+
+.udd__focus-item {
+  padding: 3px var(--tv-space-3);
+  border-radius: var(--tv-radius-pill);
+  background: var(--tv-primary-soft);
+  color: var(--tv-primary);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-medium);
+}
+
+/* ============ Delivery events ============ */
+
+.udd__events {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-1);
+}
+
+.udd__events {
+  border-top: 1px solid var(--tv-border);
+}
+
+/* Hairlines rather than a tile per row. Five stacked cards for five emails is
+   more chrome than content. */
+.udd__event {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--tv-space-3);
+  padding: var(--tv-space-2) 0;
+  border-bottom: 1px solid var(--tv-border);
+}
+
+.udd__event-type {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-medium);
+}
+
+.udd__event-type--good  { color: var(--tv-success-text); }
+.udd__event-type--bad   { color: var(--tv-error-text); }
+.udd__event-type--plain { color: var(--tv-text-2); }
+
+.udd__event-time {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============ Socials ============ */
+
+.udd__socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tv-space-2);
+}
+
+.udd__social {
+  padding: 3px var(--tv-space-3);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-pill);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-primary);
+  text-decoration: none;
+}
+
+.udd__social:hover {
+  border-color: var(--tv-primary);
+}
+
+.udd__social--flat {
+  color: var(--tv-text-muted);
+}
+
+/* ============ Details list ============ */
+
+.udd__detail-list {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--tv-space-2) var(--tv-space-4);
+}
+
+.udd__detail {
+  display: contents;
+}
+
+.udd__detail-label {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--tv-tracking-wide);
+  white-space: nowrap;
+}
+
+.udd__detail-value {
+  margin: 0;
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text);
+  line-height: var(--tv-lh-tight);
+  overflow-wrap: anywhere;
+}
+
+/* ============ Inline confirm ============ */
+
+/* Same two-step the admin access panel uses. The page's ConfirmDialog is not
+   portaled and this drawer is, so a modal on a modal would stack unpredictably
+   and the drawer's Escape handler would close the wrong one. */
+
+.udd__confirm {
+  padding: var(--tv-space-4);
+  background: var(--tv-canvas-app);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-3);
+}
+
+.udd__confirm-body {
+  margin: 0;
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text);
+  line-height: var(--tv-lh-base);
+}
+
+.udd__actions {
+  display: flex;
+  gap: var(--tv-space-2);
+  flex-wrap: wrap;
+}
+
 /* ============ Admin access ============ */
 
 .udd__access {
@@ -591,8 +805,28 @@
   }
 
   .udd__access,
+  .udd__details,
+  .udd__focus,
+  .udd__delivery,
+  .udd__reminders,
+  .udd__roles,
   .udd__notes {
     padding: var(--tv-space-4);
+  }
+
+  /* Labels above values rather than beside them, so a long WhatsApp number
+     does not squeeze the column to nothing. */
+  .udd__detail-list {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--tv-space-3);
+  }
+
+  .udd__detail {
+    display: block;
+  }
+
+  .udd__detail-value {
+    margin-top: 2px;
   }
 
   /* Full-width targets so the two-step confirm clears 44px on a thumb. */

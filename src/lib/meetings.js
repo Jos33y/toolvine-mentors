@@ -10,16 +10,31 @@ import { timeOfDay } from '@/lib/format'
 /* ============ Constants ============ */
 
 export const MEETING_STATUS = Object.freeze({
+  PENDING:   'pending',
   SCHEDULED: 'scheduled',
   COMPLETED: 'completed',
-  CANCELLED: 'cancelled'
+  CANCELLED: 'cancelled',
+  REJECTED:  'rejected',
+  WITHDRAWN: 'withdrawn'
 })
 
 export const STATUS_LABELS = Object.freeze({
+  pending:   'Pending',
   scheduled: 'Scheduled',
   completed: 'Completed',
-  cancelled: 'Cancelled'
+  cancelled: 'Cancelled',
+  rejected:  'Declined',
+  withdrawn: 'Withdrawn'
 })
+
+// The three states a request can be in. None of them is a meeting, which is
+// why withdrawn exists instead of reusing cancelled: a request that was never
+// a meeting must not count against the cancelled record.
+export const REQUEST_STATUSES = Object.freeze(['pending', 'rejected', 'withdrawn'])
+
+export function isRequestStatus(status) {
+  return REQUEST_STATUSES.includes(status)
+}
 
 // Native modes are gated behind native_calls_enabled. D21: while the flag is
 // off they are absent from the form, not disabled in it.
@@ -35,12 +50,25 @@ export const MODE_LABELS = Object.freeze(
   Object.fromEntries(MEETING_MODES.map((m) => [m.value, m.label]))
 )
 
+// Lives here rather than in each page. It was declared separately in
+// Meetings.jsx and again in Meeting.jsx, so a sixth mode would have needed
+// finding in two places and would have rendered nothing in whichever one got
+// missed.
+export const MODE_ICONS = Object.freeze({
+  external:     'externalLink',
+  phone:        'phone',
+  in_person:    'mapPin',
+  native_video: 'video',
+  native_audio: 'mic'
+})
+
 export const DURATION_MIN = 5
 export const DURATION_MAX = 480
 export const DEFAULT_DURATION = 60
 
 export const MEETING_FILTERS = [
   { key: 'upcoming',  label: 'Upcoming' },
+  { key: 'requests',  label: 'Requests' },
   { key: 'past',      label: 'Past' },
   { key: 'cancelled', label: 'Cancelled' }
 ]
@@ -49,6 +77,13 @@ export const DEFAULT_MEETING_FILTER = 'upcoming'
 
 export function availableModes(nativeCallsEnabled) {
   return MEETING_MODES.filter((m) => !m.native || nativeCallsEnabled === true)
+}
+
+// A request never offers a native mode, whatever the flag says. request_meeting
+// refuses one at the database, so offering it would be a form that fails on
+// submit.
+export function requestableModes() {
+  return MEETING_MODES.filter((m) => !m.native)
 }
 
 export function modeNeedsLink(mode) {
@@ -79,7 +114,7 @@ export function mentorPhone(mentor) {
 // payload that names it fails. Reads may select it; writes may not.
 const MEETING_FIELDS = `
   id, pairing_id, scheduled_for, duration_minutes, mode, external_link, location,
-  status, completed_at, created_by, created_at,
+  status, completed_at, request_note, rejection_reason, created_by, created_at,
   actual_duration_minutes
 `
 
@@ -93,10 +128,14 @@ const PAIRING_JOIN = `
 
 /* ============ Reads ============ */
 
-// One list for every role. scope is 'upcoming', 'past', or 'cancelled'.
-// Upcoming means scheduled and not yet started; past means completed, or
-// scheduled and already behind us, because a meeting nobody marked complete
-// is still in the past.
+// One list for every role. scope is 'upcoming', 'requests', 'past', or
+// 'cancelled'. Upcoming means scheduled and not yet started; past means
+// completed, or scheduled and already behind us, because a meeting nobody
+// marked complete is still in the past.
+//
+// Requests is its own scope rather than a slice of the others. A pending row
+// is not upcoming, because nobody has agreed to it, and a declined one is not
+// past, because it never happened.
 export async function fetchMeetings({ scope = DEFAULT_MEETING_FILTER, limit = 100 } = {}) {
   const nowIso = new Date().toISOString()
 
@@ -109,6 +148,12 @@ export async function fetchMeetings({ scope = DEFAULT_MEETING_FILTER, limit = 10
       .eq('status', MEETING_STATUS.SCHEDULED)
       .gte('scheduled_for', nowIso)
       .order('scheduled_for', { ascending: true })
+  } else if (scope === 'requests') {
+    // Newest first, not by meeting time. What matters on this tab is when
+    // somebody asked, and the page splits pending from answered itself.
+    query = query
+      .in('status', REQUEST_STATUSES)
+      .order('created_at', { ascending: false })
   } else if (scope === 'cancelled') {
     query = query
       .eq('status', MEETING_STATUS.CANCELLED)
@@ -124,6 +169,18 @@ export async function fetchMeetings({ scope = DEFAULT_MEETING_FILTER, limit = 10
   return (data ?? []).map(shape)
 }
 
+// Requests still waiting on an answer. Feeds the count on the Requests tab so
+// a mentor can see there is something to do without opening it.
+export async function countPendingRequests() {
+  const { count, error } = await supabase
+    .from('meetings')
+    .select('id', { count: 'exact', head: true })
+    .eq('status', MEETING_STATUS.PENDING)
+
+  if (error) throw error
+  return count ?? 0
+}
+
 export async function fetchMeeting(id) {
   const { data, error } = await supabase
     .from('meetings')
@@ -136,7 +193,8 @@ export async function fetchMeeting(id) {
 }
 
 // The single soonest upcoming meeting the caller can see. Feeds
-// NextMeetingCard on the mentee dashboard.
+// NextMeetingCard on the mentee dashboard. Pending is excluded by the status
+// filter: a request is not a next meeting until somebody accepts it.
 export async function fetchNextMeeting() {
   const { data, error } = await supabase
     .from('meetings')
@@ -159,7 +217,7 @@ export async function fetchSchedulablePairings() {
     .from('pairings')
     .select(`
       id, started_at,
-      mentor:profiles!pairings_mentor_id_fkey ( id, full_name, timezone ),
+      mentor:profiles!pairings_mentor_id_fkey ( id, full_name, timezone, whatsapp_phone, other_phone ),
       mentee:profiles!pairings_mentee_id_fkey ( id, full_name, timezone )
     `)
     .eq('is_active', true)
@@ -167,6 +225,29 @@ export async function fetchSchedulablePairings() {
 
   if (error) throw error
   return data ?? []
+}
+
+// The caller's own active pairing as the mentee, which is the only thing they
+// can request against. Filtered on mentee_id rather than taking the first row
+// RLS returns: somebody holding mentor and mentee at once sees both sides, and
+// the newest of the two can easily be the one where they are the mentor.
+// one_active_pairing_per_mentee makes maybeSingle safe.
+export async function fetchRequestablePairing(menteeId) {
+  if (!menteeId) return null
+
+  const { data, error } = await supabase
+    .from('pairings')
+    .select(`
+      id, started_at,
+      mentor:profiles!pairings_mentor_id_fkey ( id, full_name, timezone, whatsapp_phone, other_phone ),
+      mentee:profiles!pairings_mentee_id_fkey ( id, full_name, timezone )
+    `)
+    .eq('mentee_id', menteeId)
+    .eq('is_active', true)
+    .maybeSingle()
+
+  if (error) throw error
+  return data ?? null
 }
 
 /* ============ Writes ============ */
@@ -304,6 +385,71 @@ export async function reopenMeeting(id, label = null) {
   return shape(data)
 }
 
+/* ============ Requests ============ */
+
+// All four go through 0042's definer RPCs rather than a widened policy. RLS
+// cannot restrict columns, so an INSERT policy loose enough to admit a request
+// would also admit a mentee writing status directly, and an UPDATE policy
+// loose enough to admit a withdrawal would admit editing a confirmed meeting.
+//
+// Each RPC returns the bare meetings row, without the pairing join, so the
+// shape comes back with a null mentor and mentee. Callers reload the list
+// afterwards rather than rendering from the return value.
+//
+// None of these writes to admin_actions. An admin answering a request is worth
+// logging, and D90 is the reason it is not done here: adding an action name
+// without its matching template in adminActivity.js is what left twenty of
+// twenty-one rows rendering through the slug fallback. That pair ships
+// together or not at all.
+
+export async function requestMeeting({
+  pairingId,
+  scheduledFor,
+  durationMinutes = DEFAULT_DURATION,
+  mode = 'external',
+  externalLink = null,
+  location = null,
+  note = null
+}) {
+  const { data, error } = await supabase.rpc('request_meeting', {
+    p_pairing_id:       pairingId,
+    p_scheduled_for:    scheduledFor,
+    p_duration_minutes: durationMinutes ?? null,
+    p_mode:             mode,
+    p_external_link:    modeNeedsLink(mode)     ? (externalLink || null) : null,
+    p_location:         modeNeedsLocation(mode) ? (location || null)     : null,
+    p_note:             note ? String(note).trim() || null : null
+  })
+
+  if (error) throw error
+  return data ? shape(data) : null
+}
+
+// Accepting confirms what was asked for. Moving it is a reschedule, which
+// already exists and already tells both people what changed.
+export async function acceptMeetingRequest(id) {
+  const { data, error } = await supabase.rpc('accept_meeting_request', { p_meeting_id: id })
+  if (error) throw error
+  return data ? shape(data) : null
+}
+
+// The reason is not optional and the mentee reads it. The RPC refuses a blank
+// one, so the form has to as well or the failure lands after the click.
+export async function rejectMeetingRequest(id, reason) {
+  const { data, error } = await supabase.rpc('reject_meeting_request', {
+    p_meeting_id: id,
+    p_reason:     String(reason || '').trim()
+  })
+  if (error) throw error
+  return data ? shape(data) : null
+}
+
+export async function withdrawMeetingRequest(id) {
+  const { data, error } = await supabase.rpc('withdraw_meeting_request', { p_meeting_id: id })
+  if (error) throw error
+  return data ? shape(data) : null
+}
+
 // One notifier per domain, kind as a parameter. Adding a fourth kind later is
 // a copy block in the function, not a new deploy and a new invoke path here.
 // Best effort: a failed send must never read as a failed write.
@@ -338,11 +484,22 @@ export function friendlyMeetingError(err) {
   if (/completed meeting cannot be reopened or cancelled/i.test(raw)) {
     return 'That meeting is already recorded as completed. Only an admin can change it.'
   }
+  // 0042's request guards raise P0001 with copy already written for the person
+  // reading it. Rewriting them here would only make them worse.
+  if (code === 'P0001') {
+    return raw
+  }
   if (code === '23514' && /duration_minutes/i.test(raw)) {
     return `A meeting must run between ${DURATION_MIN} and ${DURATION_MAX} minutes.`
   }
+  if (code === '23514' && /meetings_rejection_check/i.test(raw)) {
+    return 'A declined request needs a reason. Write a line and try again.'
+  }
   if (code === '23514' && /meetings_check\b/i.test(raw)) {
     return 'A completed meeting needs a completion time. Reload and try again.'
+  }
+  if (code === '23514' && /status/i.test(raw)) {
+    return 'That is not a state a meeting can be in. Reload the page.'
   }
   if (code === '23514' && /mode/i.test(raw)) {
     return 'That meeting type is not available.'
@@ -425,10 +582,39 @@ export function opensForCompletionIn(iso, now = new Date()) {
   return null
 }
 
+// The date block on a list row. Both the meeting row and the request row
+// render it, and they now live in two files.
+export function dayNumber(iso) {
+  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric' })
+}
+
+export function monthShort(iso) {
+  return new Date(iso).toLocaleDateString('en-GB', { month: 'short' }).toUpperCase()
+}
+
+// Next sensible slot: tomorrow at 5pm, which is when this community meets.
+export function defaultMeetingSlot() {
+  const d = new Date()
+  d.setDate(d.getDate() + 1)
+  d.setHours(17, 0, 0, 0)
+  return toLocalInputValue(d.toISOString())
+}
+
+// A request whose time has passed with nobody answering. Nothing prunes it,
+// because nothing in this platform prunes anything, so the surface says so
+// instead and offers the withdrawal.
+export function isStaleRequest(meeting) {
+  return Boolean(meeting)
+    && meeting.status === MEETING_STATUS.PENDING
+    && isPast(meeting.scheduledFor)
+}
+
 /* ============ Internals ============ */
 
 // Flattens the pairing join so callers read meeting.mentor rather than
 // meeting.pairing.mentor, and keeps the raw pairing for the detail view.
+// The request RPCs return a row with no join at all, so mentor and mentee come
+// back null there by design.
 function shape(row) {
   const pairing = row.pairing ?? null
   return {
@@ -441,9 +627,11 @@ function shape(row) {
     location:        row.location,
     status:          row.status,
     completedAt:     row.completed_at,
+    requestNote:     row.request_note ?? null,
+    rejectionReason: row.rejection_reason ?? null,
     createdBy:       row.created_by,
     createdAt:       row.created_at,
-    actualMinutes:   row.actual_duration_minutes,
+    actualMinutes:   row.actual_duration_minutes ?? null,
     pairingActive:   pairing?.is_active ?? null,
     mentor:          pairing?.mentor ?? null,
     mentee:          pairing?.mentee ?? null
@@ -455,7 +643,8 @@ function shape(row) {
 // Upcoming scheduled meetings across all this mentor's active pairings.
 // Soonest first. Used by NextSessionsCard. Each meeting joined with the
 // mentee profile so the card can render "Session with Sarah" without a
-// second fetch.
+// second fetch. Pending is excluded by the status filter, so a request never
+// appears as a session the mentor has agreed to.
 export async function fetchUpcomingMeetingsForMentor(mentorId, { limit = 5 } = {}) {
   const { data: pairings, error: pErr } = await supabase
     .from('pairings')

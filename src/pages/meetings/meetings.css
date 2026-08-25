@@ -63,12 +63,24 @@
 
 .meetings__new:hover { background: var(--tv-primary-hover); }
 
+/* Two controls when somebody is a mentor and a mentee at once. Wraps rather
+   than shrinking, because both labels are verbs and truncating either one
+   loses the difference between them. */
+.meetings__head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tv-space-2);
+}
+
 @media (min-width: 760px) {
   .meetings__head {
     flex-direction: row;
     align-items: flex-start;
     justify-content: space-between;
   }
+
+  .meetings__head-actions { justify-content: flex-end; }
 }
 
 /* ============ Alerts ============ */
@@ -175,6 +187,26 @@
 
 .meetings__hint--warn { color: var(--tv-warning-text); }
 
+/* Inherits the input's box so the note field sits in the same family as the
+   rest of the form. Height comes from rows, not from a fixed value. */
+.meetings__textarea {
+  min-height: 0;
+  padding: var(--tv-space-3);
+  line-height: var(--tv-lh-base);
+  resize: vertical;
+}
+
+/* The phone hint under the mode picker. No rule existed for this class, so it
+   has been rendering as a default paragraph since it shipped. */
+.meetings__phone {
+  margin: 0;
+  font-size: var(--tv-fs-xs);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+}
+
+.meetings__phone--missing { color: var(--tv-warning-text); }
+
 /* ============ Mode picker ============ */
 
 .meetings__modes {
@@ -241,6 +273,9 @@
 }
 
 .meetings__filter {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-2);
   min-height: 40px;
   padding: var(--tv-space-2) var(--tv-space-4);
   background: transparent;
@@ -264,6 +299,22 @@
   background: var(--tv-surface);
   border-color: var(--tv-primary);
   color: var(--tv-primary);
+}
+
+/* Amber, not teal. This counts something waiting on a person rather than
+   marking the tab they are on, and the two must not read as the same thing. */
+.meetings__filter-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  padding: 0 var(--tv-space-1);
+  background: var(--tv-warning-bg);
+  border-radius: var(--tv-radius-pill);
+  font-family: var(--tv-font-mono);
+  font-size: 11px;
+  font-weight: var(--tv-fw-semibold);
+  color: var(--tv-warning-text);
 }
 
 /* ============ List ============ */
@@ -452,6 +503,67 @@
   color: var(--tv-warning-text);
 }
 
+/* ============ Requests ============ */
+
+/* What the mentee wrote with the request. A rule rather than quote marks,
+   because the text is theirs and the row should not put words around it. */
+.meetings__note {
+  margin: var(--tv-space-1) 0 0;
+  padding-left: var(--tv-space-3);
+  border-left: 2px solid var(--tv-border-strong);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  overflow-wrap: anywhere;
+}
+
+/* The mentor's reason, carried on the same rule in amber. A decline that
+   hides its reason is the thing this flow exists to avoid. */
+.meetings__reason {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-1);
+  margin: var(--tv-space-2) 0 0;
+  padding-left: var(--tv-space-3);
+  border-left: 2px solid var(--tv-accent);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  overflow-wrap: anywhere;
+}
+
+.meetings__reason-label {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  text-transform: uppercase;
+  color: var(--tv-accent-text);
+}
+
+.meetings__waiting {
+  margin: var(--tv-space-1) 0 0;
+  font-size: var(--tv-fs-xs);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-muted);
+}
+
+/* Opens inside the row, not over it. A dialog here would cover the request
+   the mentor is deciding about. */
+.meetings__reject {
+  margin-top: var(--tv-space-3);
+  padding: var(--tv-space-4);
+  background: var(--tv-canvas-app);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+}
+
+.meetings__reject-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tv-space-2);
+  margin-top: var(--tv-space-3);
+}
+
 /* ============ Status ============ */
 
 .meetings__status {
@@ -479,6 +591,21 @@
 }
 
 .meetings__status--cancelled {
+  background: var(--tv-canvas-app);
+  border: 1px solid var(--tv-border);
+  color: var(--tv-text-muted);
+}
+
+/* Pending is the only request state anyone has to act on, so it is the only
+   one that carries colour. Declined and withdrawn are settled, and settled
+   states are neutral: the label already says which one it is. */
+.meetings__status--pending {
+  background: var(--tv-warning-bg);
+  color: var(--tv-warning-text);
+}
+
+.meetings__status--rejected,
+.meetings__status--withdrawn {
   background: var(--tv-canvas-app);
   border: 1px solid var(--tv-border);
   color: var(--tv-text-muted);

@@ -44,17 +44,24 @@ export async function markAllRead() {
   return data ?? 0
 }
 
+// A proposed date takes the plain calendar; a confirmed one takes the calendar
+// with a mark on it. Cancelled, declined and withdrawn share one glyph on
+// purpose: they are three ways the same meeting did not happen, and the title
+// is what tells them apart.
 const KIND_ICON = {
-  meeting_scheduled:    'calendar',
-  meeting_rescheduled:  'clock',
-  meeting_cancelled:    'close',
-  meeting_completed:    'checkCircle',
-  action_item_assigned: 'check',
-  action_item_done:     'checkCircle',
-  pairing_created:      'pairings',
-  pairing_changed:      'pairings',
-  pairing_ended:        'pairings',
-  resource_added:       'resources'
+  meeting_requested:          'calendar',
+  meeting_scheduled:          'meetings',
+  meeting_rescheduled:        'clock',
+  meeting_cancelled:          'close',
+  meeting_request_rejected:   'close',
+  meeting_request_withdrawn:  'close',
+  meeting_completed:          'checkCircle',
+  action_item_assigned:       'check',
+  action_item_done:           'checkCircle',
+  pairing_created:            'pairings',
+  pairing_changed:            'pairings',
+  pairing_ended:              'pairings',
+  resource_added:             'resources'
 }
 
 export function notificationIcon(kind) {

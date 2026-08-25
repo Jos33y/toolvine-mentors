@@ -367,9 +367,79 @@
 .item__cancel:hover:not(:disabled) { color: var(--tv-error-text); }
 .item__cancel:disabled { opacity: 0.5; cursor: default; }
 
+/* ============ Completion note ============ */
+
+/* What the assignee wrote about doing it. Carried on a rule rather than in
+   quote marks: the words are theirs and the row should not put punctuation
+   around them. Not struck through, because unlike the task itself this is the
+   part still worth reading. */
+.item__note {
+  margin: var(--tv-space-2) 0 0;
+  padding-left: var(--tv-space-3);
+  border-left: 2px solid var(--tv-primary-light);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  overflow-wrap: anywhere;
+}
+
+.item--done .item__note {
+  color: var(--tv-text-2);
+  text-decoration: none;
+}
+
+/* Opens inside the row rather than over it. A dialog would cover the task the
+   person is writing about. */
+.item__noteform {
+  margin-top: var(--tv-space-3);
+  padding: var(--tv-space-4);
+  background: var(--tv-canvas-app);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+}
+
+.item__note-hint {
+  margin: var(--tv-space-2) 0 0;
+  font-size: var(--tv-fs-xs);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-muted);
+}
+
+.item__note-warn {
+  margin: 0;
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-warning-text);
+}
+
+.item__note-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tv-space-2);
+  margin-top: var(--tv-space-3);
+}
+
+.record__danger {
+  min-height: 40px;
+  padding: var(--tv-space-2) var(--tv-space-4);
+  background: transparent;
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-medium);
+  color: var(--tv-error-text);
+  cursor: pointer;
+  transition: border-color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.record__danger:hover:not(:disabled) { border-color: var(--tv-error); }
+.record__danger:disabled { opacity: 0.5; cursor: default; }
+
 @media (prefers-reduced-motion: reduce) {
   .record__add,
   .record__save,
+  .record__danger,
   .item__check,
   .item__cancel { transition: none; }
 }

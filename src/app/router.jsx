@@ -7,6 +7,7 @@ import { useRouteAnalytics } from '@/hooks/useRouteAnalytics'
 import { Splash } from '@/components/shared/Splash/Splash'
 import { ScrollToTop } from '@/components/shared/ScrollToTop/ScrollToTop'
 import { PlaceholderPage } from '@/components/shared/PlaceholderPage/PlaceholderPage'
+import { ErrorBoundary } from '@/components/shared/ErrorBoundary/ErrorBoundary'
 
 import { PublicLayout } from '@/layouts/PublicLayout/PublicLayout'
 import { AuthLayout } from '@/layouts/AuthLayout/AuthLayout'
@@ -119,10 +120,14 @@ function LazyRoute({ children }) {
 const router = createBrowserRouter([
   {
     element: <Root />,
+    // Last resort. Anything that escapes a nearer boundary lands here, which
+    // includes the app shell chunk itself failing to load.
+    errorElement: <ErrorBoundary variant="full" />,
     children: [
       /* Public marketing site */
       {
         element: <PublicLayout />,
+        errorElement: <ErrorBoundary variant="full" />,
         children: [
           { path: '/',                     element: <Home /> },
           { path: '/about',                element: <About /> },
@@ -175,7 +180,13 @@ const router = createBrowserRouter([
              real page as it ships. */
           {
             element: <LazyRoute><AppShell /></LazyRoute>,
-            children: [
+            children: [{
+              // Pathless, and it exists only to hold the boundary. An
+              // errorElement on the AppShell route would replace the shell;
+              // one level in, it replaces the outlet and the sidebar, topbar
+              // and bell stay where they are.
+              errorElement: <ErrorBoundary variant="page" />,
+              children: [
               { path: '/dashboard', element: <LazyRoute><Dashboard /></LazyRoute> },
               { path: '/profile',   element: <LazyRoute><Profile /></LazyRoute> },
 
@@ -239,7 +250,8 @@ const router = createBrowserRouter([
                   </RequireRole>
                 )
               }
-            ]
+              ]
+            }]
           }
         ]
       },

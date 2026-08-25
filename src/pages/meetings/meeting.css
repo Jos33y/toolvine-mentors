@@ -76,6 +76,18 @@
   color: var(--tv-text-muted);
 }
 
+/* Pending is the only request state anyone has to act on, so it is the only
+   one that carries colour. Declined and withdrawn are settled, and the label
+   already says which one. */
+.meeting__status--pending { background: var(--tv-warning-bg); color: var(--tv-warning-text); }
+
+.meeting__status--rejected,
+.meeting__status--withdrawn {
+  background: var(--tv-canvas-app);
+  border: 1px solid var(--tv-border);
+  color: var(--tv-text-muted);
+}
+
 /* ============ Banners ============ */
 
 .meeting__alert,
@@ -313,6 +325,41 @@
   font-size: var(--tv-fs-sm);
   line-height: var(--tv-lh-base);
   color: var(--tv-text-muted);
+}
+
+/* ============ Requests ============ */
+
+/* What the mentee wrote, and what the mentor answered. Carried on a rule
+   rather than in quote marks: the words belong to a person and the page
+   should not put punctuation around them. */
+.meeting__quote {
+  margin: 0;
+  padding-left: var(--tv-space-4);
+  border-left: 2px solid var(--tv-border-strong);
+  font-size: var(--tv-fs-base);
+  line-height: var(--tv-lh-relaxed);
+  color: var(--tv-text-2);
+  max-width: var(--tv-prose-max);
+  overflow-wrap: anywhere;
+}
+
+.meeting__quote--reason { border-left-color: var(--tv-accent); }
+
+/* Opens on the page rather than in a dialog, which would cover the request
+   being decided about. */
+.meeting__decline {
+  padding: var(--tv-space-5);
+  margin-top: var(--tv-space-5);
+  background: var(--tv-canvas-app);
+  border: 1px solid var(--tv-border-strong);
+  border-radius: var(--tv-radius-lg);
+}
+
+.meeting__decline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tv-space-3);
+  margin-top: var(--tv-space-4);
 }
 
 .meeting__cta {

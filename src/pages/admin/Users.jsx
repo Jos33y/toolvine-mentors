@@ -26,6 +26,10 @@ const FILTERS = [
 
 const DEFAULT_FILTER = 'pending'
 
+// Fifty rows at roughly 56px is a screen and a half of scroll, which is about
+// as far as anybody reads before reaching for a filter.
+const PAGE_SIZE = 50
+
 export function Users() {
   const me = useAuth((s) => s.profile)
   const { users, loading, error, patchUser } = useAdminUsers()
@@ -43,8 +47,8 @@ export function Users() {
     setSearchParams(params, { replace: true })
   }
 
-  const [query, setQuery]   = useState('')
-  const [pending, setPending] = useState(null)
+  const [query, setQuery] = useState('')
+  const [page, setPage]   = useState(1)
   const [busyId, setBusyId]   = useState(null)
   const [rowError, setRowError] = useState({ id: null, message: '' })
   const [rowNotice, setRowNotice] = useState({ id: null, message: '', tone: 'info' })
@@ -79,6 +83,19 @@ export function Users() {
     () => filterUsers(users, filter, query),
     [users, filter, query]
   )
+
+  // Paged client-side. fetchAdminUsers reads every profile in one query and
+  // filterUsers runs in the browser, so the page is a slice of what is already
+  // here. No server change, and Download CSV still exports the whole filtered
+  // set rather than the visible page.
+  const pageCount   = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const safePage    = Math.min(page, pageCount)
+  const pageRows    = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
+  const firstOnPage = (safePage - 1) * PAGE_SIZE + 1
+  const lastOnPage  = Math.min(safePage * PAGE_SIZE, filtered.length)
+
+  // Narrowing the list while on page four would otherwise leave an empty page.
+  useEffect(() => { setPage(1) }, [filter, query])
 
   async function runDecision(user, decision) {
     setBusyId(user.id)
@@ -250,35 +267,48 @@ export function Users() {
       ) : filtered.length === 0 ? (
         <EmptyState filter={filter} query={query} />
       ) : (
-        <ul className="admin-users__list">
-          {filtered.map((u) => (
-            <UserRow
-              key={u.id}
-              user={u}
-              isSelf={u.id === me?.id}
-              busy={busyId === u.id}
-              rowError={rowError.id === u.id ? rowError.message : ''}
-              rowNotice={rowNotice.id === u.id ? rowNotice : null}
-              onSelect={() => setSelectedUserId(u.id)}
-              onAsk={(decision, label) => setPending({ user: u, decision, label })}
-              onToggleActive={() => setPending({ user: u, decision: 'toggle_active', label: u.is_active ? 'Deactivate user' : 'Reactivate user' })}
-              onRemind={(kind) => remind(u, kind)}
-            />
-          ))}
-        </ul>
-      )}
+        <>
+          <ul className="admin-users__list">
+            {pageRows.map((u) => (
+              <UserRow
+                key={u.id}
+                user={u}
+                isSelf={u.id === me?.id}
+                busy={busyId === u.id}
+                rowError={rowError.id === u.id ? rowError.message : ''}
+                rowNotice={rowNotice.id === u.id ? rowNotice : null}
+                onSelect={() => setSelectedUserId(u.id)}
+                onAct={(decision) =>
+                  decision === 'toggle_active' ? toggleActive(u) : runDecision(u, decision)
+                }
+              />
+            ))}
+          </ul>
 
-      {pending && (
-        <ConfirmDialog
-          pending={pending}
-          busy={busyId === pending.user.id}
-          onCancel={() => setPending(null)}
-          onConfirm={() =>
-            pending.decision === 'toggle_active'
-              ? toggleActive(pending.user)
-              : runDecision(pending.user, pending.decision)
-          }
-        />
+          {pageCount > 1 && (
+            <nav className="admin-users__pager" aria-label="Pages">
+              <button
+                type="button"
+                className="admin-users__btn admin-users__btn--secondary"
+                onClick={() => setPage(safePage - 1)}
+                disabled={safePage === 1}
+              >
+                Previous
+              </button>
+              <p className="admin-users__pager-count">
+                {firstOnPage} to {lastOnPage} of {filtered.length}
+              </p>
+              <button
+                type="button"
+                className="admin-users__btn admin-users__btn--secondary"
+                onClick={() => setPage(safePage + 1)}
+                disabled={safePage === pageCount}
+              >
+                Next
+              </button>
+            </nav>
+          )}
+        </>
       )}
 
       {selectedUser && (
@@ -289,7 +319,12 @@ export function Users() {
           busy={busyId === selectedUser.id}
           error={rowError.id === selectedUser.id ? rowError.message : ''}
           notice={rowNotice.id === selectedUser.id ? rowNotice : null}
-          onDecision={(decision) => runDecision(selectedUser, decision)}
+          actions={drawerActions(selectedUser, bucketFor(selectedUser), selectedUser.id === me?.id)}
+          reminder={reminderStateFor(selectedUser)}
+          onDecision={(decision) =>
+            decision === 'toggle_active' ? toggleActive(selectedUser) : runDecision(selectedUser, decision)
+          }
+          onRemind={(kind) => remind(selectedUser, kind)}
           onClose={() => setSelectedUserId(null)}
         />
       )}
@@ -301,23 +336,24 @@ export function Users() {
 
 // Four columns have held this since 0010 and nothing ever showed it. An admin
 // could not see who had been chased, how often, or when.
+// Was a sentence in the row: "Verification reminder 3 of 3 · last 2 days ago ·
+// email is not reaching them". Fifty of those is a page of paragraphs, and the
+// last clause said something the platform could not know anyway. The count is
+// the chip, the account of it is in the drawer, and "Needs a call" is already
+// a filter at the top of the page.
 function ReminderChip({ state }) {
-  const label = state.kind === 'verification' ? 'Verification' : 'Onboarding'
-
-  if (state.sent === 0) {
-    return (
-      <p className="admin-users__reminder">
-        {label} reminder not sent yet
-      </p>
-    )
-  }
+  const kind = state.kind === 'verification' ? 'V' : 'O'
+  const title = `${state.kind === 'verification' ? 'Verification' : 'Onboarding'} reminders: ${state.sent} of 3`
 
   return (
-    <p className={'admin-users__reminder' + (state.exhausted ? ' admin-users__reminder--spent' : '')}>
-      {label} reminder {state.sent} of 3
-      {state.last && <> &middot; last {relativeDays(state.last)}</>}
-      {state.exhausted && <> &middot; email is not reaching them</>}
-    </p>
+    <span
+      className={'admin-users__chip' + (state.exhausted ? ' admin-users__chip--spent' : '')}
+      title={title}
+    >
+      <span className="admin-users__chip-kind" aria-hidden="true">{kind}</span>
+      <span className="admin-users__chip-count">{state.sent}/3</span>
+      <span className="tv-sr-only">{title}</span>
+    </span>
   )
 }
 
@@ -330,17 +366,12 @@ function relativeDays(iso) {
 
 /* ============ Row ============ */
 
-function UserRow({ user, isSelf, busy, rowError, rowNotice, onSelect, onAsk, onToggleActive, onRemind }) {
-  const bucket = bucketFor(user)
+function UserRow({ user, isSelf, busy, rowError, rowNotice, onSelect, onAct }) {
+  const bucket   = bucketFor(user)
   const reminder = reminderStateFor(user)
   const initials = computeInitials(user.full_name)
-  const joined = formatJoined(user.created_at)
+  const primary  = primaryAction(user, bucket)
 
-  const actions = applicableActions(user, bucket, isSelf)
-
-  // Person area is keyboard-accessible: Enter or Space opens the drawer.
-  // Kept as a div with role=button so the existing CSS layout does not
-  // collide with native button styling.
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
@@ -350,29 +381,31 @@ function UserRow({ user, isSelf, busy, rowError, rowNotice, onSelect, onAsk, onT
 
   return (
     <li className={'admin-users__row' + (user.is_active ? '' : ' admin-users__row--inactive')}>
+      {/* The whole line opens the drawer. The action button sits inside it, so
+          its click has to stop there or every approval would also open a
+          drawer over the result. */}
       <div
-        className="admin-users__person admin-users__person--clickable"
+        className="admin-users__line"
         role="button"
         tabIndex={0}
         onClick={onSelect}
         onKeyDown={handleKeyDown}
-        aria-label={`View details for ${user.full_name || user.email}`}
+        aria-label={`Open ${user.full_name || user.email}`}
       >
         <div className="admin-users__avatar" aria-hidden="true">
           {user.photo_url
             ? <img src={user.photo_url} alt="" className="admin-users__avatar-img" />
             : <span className="admin-users__avatar-initials">{initials}</span>}
         </div>
+
         <div className="admin-users__id">
           <p className="admin-users__name">
-            {user.full_name}
+            {user.full_name || user.email}
             {isSelf && <span className="admin-users__self-tag">you</span>}
           </p>
           <p className="admin-users__email">{user.email}</p>
         </div>
-      </div>
 
-      <div className="admin-users__meta">
         <div className="admin-users__pills" aria-label="Roles and flags">
           {user.roles.length === 0 && (
             <span className="admin-users__pill admin-users__pill--ghost">No role</span>
@@ -389,38 +422,29 @@ function UserRow({ user, isSelf, busy, rowError, rowNotice, onSelect, onAsk, onT
             <span className="admin-users__pill admin-users__pill--soft">Not onboarded</span>
           )}
           {user.email_verified === false && (
-            <span className="admin-users__pill admin-users__pill--soft">Email unverified</span>
+            <span className="admin-users__pill admin-users__pill--soft">Unverified</span>
           )}
           {!user.is_active && (
             <span className="admin-users__pill admin-users__pill--off">Deactivated</span>
           )}
         </div>
-        <p className="admin-users__joined">Joined {joined}</p>
-        {reminder && <ReminderChip state={reminder} />}
-      </div>
 
-      <div className="admin-users__actions">
-        {reminder && (
-          <button
-            type="button"
-            className="admin-users__btn admin-users__btn--quiet"
-            onClick={() => onRemind(reminder.kind)}
-            disabled={busy}
-          >
-            {reminder.sent > 0 ? 'Remind again' : 'Send reminder'}
-          </button>
-        )}
-        {actions.map((a) => (
-          <button
-            key={a.decision}
-            type="button"
-            className={'admin-users__btn admin-users__btn--' + a.tone}
-            onClick={() => a.decision === 'toggle_active' ? onToggleActive() : onAsk(a.decision, a.label)}
-            disabled={busy}
-          >
-            {a.label}
-          </button>
-        ))}
+        <div className="admin-users__slot">
+          {reminder && reminder.sent > 0 && <ReminderChip state={reminder} />}
+        </div>
+
+        <div className="admin-users__slot admin-users__slot--action">
+          {primary && (
+            <button
+              type="button"
+              className={'admin-users__btn admin-users__btn--' + primary.tone}
+              onClick={(e) => { e.stopPropagation(); onAct(primary.decision) }}
+              disabled={busy}
+            >
+              {busy ? 'Working' : primary.label}
+            </button>
+          )}
+        </div>
       </div>
 
       {rowError && (
@@ -437,47 +461,6 @@ function UserRow({ user, isSelf, busy, rowError, rowNotice, onSelect, onAsk, onT
     </li>
   )
 }
-
-/* ============ Confirmation dialog ============ */
-
-function ConfirmDialog({ pending, busy, onCancel, onConfirm }) {
-  const { user, decision, label } = pending
-  const body = confirmBody(decision, user)
-  const warning = confirmWarning(decision, user)
-
-  return (
-    <div className="admin-users__overlay" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
-      <div className="admin-users__dialog">
-        <h2 className="admin-users__dialog-title" id="confirm-title">{label}</h2>
-        <p className="admin-users__dialog-body">{body}</p>
-        {warning && (
-          <p className="admin-users__dialog-warning" role="note">{warning}</p>
-        )}
-        <div className="admin-users__dialog-actions">
-          <button
-            type="button"
-            className="admin-users__btn admin-users__btn--ghost"
-            onClick={onCancel}
-            disabled={busy}
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            className={'admin-users__btn admin-users__btn--' + (isDestructive(decision) ? 'danger' : 'primary')}
-            onClick={onConfirm}
-            disabled={busy}
-            autoFocus
-          >
-            {busy ? 'Working' : confirmCta(decision, user)}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-/* ============ Empty state ============ */
 
 function EmptyState({ filter, query }) {
   const f = FILTERS.find((x) => x.key === filter)?.label ?? ''
@@ -599,88 +582,44 @@ function matchesFilter(user, filter) {
   }
 }
 
-function applicableActions(user, bucket, isSelf) {
-  const actions = []
-  const isMentor = user.roles.includes('mentor')
-
-  if (!user.is_active) {
-    actions.push({ decision: 'toggle_active', label: 'Reactivate', tone: 'secondary' })
-    return actions
-  }
+// Split in two. The primary is the funnel step an admin repeats down a filtered
+// list, so it stays under the thumb and fires without a modal: approving a
+// mentor is reversible by demoting them, and the UX principles say confirm only
+// what deserves it.
+//
+// Everything consequential moved into the drawer, behind an inline two-step.
+// Demote and Deactivate used to sit one stray click from Approve.
+function primaryAction(user, bucket) {
+  if (!user.is_active) return { decision: 'toggle_active', label: 'Reactivate', tone: 'secondary' }
 
   if (bucket === 'pending') {
-    if (user.role_intent === 'mentor') {
-      actions.push({ decision: 'approve_mentor', label: 'Approve as mentor', tone: 'primary' })
-      actions.push({ decision: 'confirm_mentee', label: 'Make mentee instead', tone: 'secondary' })
-    } else {
-      actions.push({ decision: 'approve_mentor', label: 'Make mentor', tone: 'secondary' })
-      actions.push({ decision: 'confirm_mentee', label: 'Make mentee', tone: 'secondary' })
-    }
+    return user.role_intent === 'mentor'
+      ? { decision: 'approve_mentor', label: 'Approve as mentor', tone: 'primary' }
+      : { decision: 'confirm_mentee', label: 'Confirm as mentee',  tone: 'secondary' }
+  }
+  return null
+}
+
+function drawerActions(user, bucket, isSelf) {
+  const actions = []
+  if (!user.is_active) return actions
+
+  const isMentor = user.roles.includes('mentor')
+
+  if (bucket === 'pending') {
+    actions.push(user.role_intent === 'mentor'
+      ? { decision: 'confirm_mentee', label: 'Make mentee instead', tone: 'ghost' }
+      : { decision: 'approve_mentor', label: 'Make mentor',         tone: 'ghost' })
   } else if (isMentor) {
-    actions.push({ decision: 'revoke_mentor', label: 'Demote', tone: 'secondary' })
+    actions.push({ decision: 'revoke_mentor', label: 'Demote to mentee', tone: 'ghost' })
   } else if (bucket === 'mentee') {
-    actions.push({ decision: 'approve_mentor', label: 'Promote to mentor', tone: 'secondary' })
+    actions.push({ decision: 'approve_mentor', label: 'Promote to mentor', tone: 'ghost' })
   }
 
   if (!isSelf) {
     actions.push({ decision: 'toggle_active', label: 'Deactivate', tone: 'ghost-danger' })
   }
-
   return actions
-}
-
-function confirmBody(decision, user) {
-  const name = user.full_name || user.email
-  switch (decision) {
-    case 'approve_mentor':
-      if (user.role_undecided) {
-        return `${name} did not pick a role at sign-up. They will become a mentor and can be paired as a mentor from the Pairings page.`
-      }
-      return `${name} will become a mentor. They can be paired as a mentor from the Pairings page.`
-    case 'confirm_mentee':
-      if (user.role_intent === 'mentor') {
-        return `${name} requested to be a mentor. The request will be declined and they will be confirmed as a mentee.`
-      }
-      if (user.role_undecided) {
-        return `${name} did not pick a role at sign-up. They will be confirmed as a mentee.`
-      }
-      return `${name} will be confirmed as a mentee.`
-    case 'revoke_mentor':
-      return `${name} will lose the mentor role and return to being a mentee. Any active pairings they own will need to be reassigned from the Pairings page.`
-    case 'toggle_active':
-      return user.is_active
-        ? `${name} will not be able to sign in. Their history stays intact and you can reactivate them later.`
-        : `${name} will be able to sign in again. They keep all their history and role assignments.`
-    default:
-      return ''
-  }
-}
-
-function confirmWarning(decision, user) {
-  if (decision === 'approve_mentor' && user.email_verified === false) {
-    return 'Heads up: their email has not been verified. Pairing notifications will not reach them until they verify, even if you grant the mentor role now.'
-  }
-  return null
-}
-
-function confirmCta(decision, user) {
-  switch (decision) {
-    case 'approve_mentor':
-      if (user?.role_undecided) return 'Make mentor'
-      if (user?.roles?.includes('mentee') && !user.role_undecided && user.role_intent !== 'mentor') return 'Promote'
-      return 'Approve'
-    case 'confirm_mentee':
-      if (user?.role_intent === 'mentor') return 'Make mentee'
-      if (user?.role_undecided) return 'Make mentee'
-      return 'Confirm'
-    case 'revoke_mentor':  return 'Demote'
-    case 'toggle_active':  return 'Continue'
-    default:               return 'Continue'
-  }
-}
-
-function isDestructive(decision) {
-  return decision === 'revoke_mentor' || decision === 'toggle_active'
 }
 
 function computeInitials(fullName) {
@@ -737,6 +676,8 @@ function friendly(err) {
   if (msg.includes('your own admin role')) return 'You cannot remove your own admin access. Another admin has to do it for you.'
   if (msg.includes('last admin'))    return 'This is the only active admin. Grant admin to somebody else first.'
   if (msg.includes('deactivated account')) return 'Reactivate this account before granting admin access.'
+  if (msg.includes('unverified email'))    return 'They have to confirm their email address before they can be an admin.'
+  if (msg.includes('before onboarding'))   return 'They have to finish onboarding before they can be an admin.'
   if (msg.includes('unknown decision')) return 'Unsupported action.'
   return err?.message || 'Something went wrong. Try again.'
 }

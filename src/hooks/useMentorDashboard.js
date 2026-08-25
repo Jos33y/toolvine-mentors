@@ -15,6 +15,10 @@ const DEBOUNCE_MS = 300
 // meeting_action_items. Realtime events are debounced so a burst (admin pairs
 // two mentees back to back, or a webhook updates several rows) collapses to a
 // single refresh instead of thrashing the UI.
+//
+// Both limits are passed as options objects. They used to be passed as bare
+// numbers, which destructured to nothing and happened to land on the same
+// defaults, so the calls worked while ignoring what they asked for.
 export function useMentorDashboard(mentorId) {
   const [mentees, setMentees]         = useState([])
   const [upcoming, setUpcoming]       = useState([])
@@ -34,8 +38,8 @@ export function useMentorDashboard(mentorId) {
     try {
       const [menteesRaw, upcomingRows, items, statRow, settingsRow] = await Promise.all([
         fetchActiveMenteesForMentor(mentorId),
-        fetchUpcomingMeetingsForMentor(mentorId, 5),
-        fetchOpenItemsForMentor(mentorId, 5),
+        fetchUpcomingMeetingsForMentor(mentorId, { limit: 5 }),
+        fetchOpenItemsForMentor(mentorId, { limit: 5 }),
         fetchMentorStats(mentorId),
         supabase
           .from('app_settings')

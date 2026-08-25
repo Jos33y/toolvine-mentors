@@ -26,6 +26,9 @@ export async function fetchOpenItemsForMentor(mentorId, { limit = 5 } = {}) {
       status,
       due_on,
       created_at,
+      completed_at,
+      completion_note,
+      created_by,
       assigned_to,
       meeting_id,
       pairing_id,
@@ -43,8 +46,9 @@ export async function fetchOpenItemsForMentor(mentorId, { limit = 5 } = {}) {
 }
 
 // Open tasks assigned to this mentee across all their pairings. Used by the
-// mentee dashboard MenteeTasksCard. Read-only in Block C; a later block
-// adds the mark-done action.
+// mentee dashboard MenteeTasksCard, which is where most items are actually
+// marked done, so created_by comes back too: it decides whether a completion
+// note is owed.
 export async function fetchOpenItemsForMentee(menteeId, { limit = 10 } = {}) {
   const { data, error } = await supabase
     .from('meeting_action_items')
@@ -54,6 +58,9 @@ export async function fetchOpenItemsForMentee(menteeId, { limit = 10 } = {}) {
       status,
       due_on,
       created_at,
+      completed_at,
+      completion_note,
+      created_by,
       assigned_to,
       meeting_id,
       pairing_id,
@@ -94,7 +101,7 @@ export async function countOpenItemsByPairing(pairingIds) {
 
 const ITEM_FIELDS = `
   id, meeting_id, pairing_id, assigned_to, body, status, due_on,
-  created_by, created_at, updated_at, completed_at,
+  created_by, created_at, updated_at, completed_at, completion_note,
   assignee:profiles!meeting_action_items_assigned_to_fkey ( id, full_name, photo_url )
 `
 
@@ -136,7 +143,8 @@ export async function createActionItem({ meetingId, assignedTo, body, dueOn = nu
 
 // Explicit allowlist. status never travels this way: it has its own RPC, and
 // meeting_action_items_check ties done to completed_at, so the two must move
-// together or not at all.
+// together or not at all. completion_note is absent for the same reason: it
+// moves with the status change or not at all.
 const ITEM_UPDATABLE = ['body', 'assigned_to', 'due_on']
 
 export async function updateActionItem(id, patch = {}) {
@@ -158,16 +166,34 @@ export async function updateActionItem(id, patch = {}) {
   return data
 }
 
-// The narrow entry point from 0025. Accepts open and done only, and permits
-// the assignee, the pairing's mentor, or an admin. This is what lets a mentee
-// mark their own item done without an UPDATE policy that would also let them
-// rewrite the body, reassign it, or move the due date.
-export async function setActionItemStatus(id, status) {
-  const { error } = await supabase.rpc('set_action_item_status', {
+// The narrow entry point from 0025, widened by 0042 to carry the note. Accepts
+// open and done only, and permits the assignee, the pairing's mentor, or an
+// admin. This is what lets a mentee mark their own item done without an UPDATE
+// policy that would also let them rewrite the body, reassign it, or move the
+// due date.
+//
+// The third argument is not optional at the call site even though it is in the
+// signature. 0042 dropped the two-argument version rather than overloading it,
+// and passing the note every time keeps the two in step.
+export async function setActionItemStatus(id, status, note = null) {
+  const { data, error } = await supabase.rpc('set_action_item_status', {
     p_item_id: id,
-    p_status:  status
+    p_status:  status,
+    p_note:    note ? String(note).trim() : null
   })
   if (error) throw error
+  return data ?? null
+}
+
+// Who owes an account of the work. Only the person it was set for, and only
+// when somebody else set it: a mentor ticking their own item, or ticking a
+// mentee's item after hearing about it in conversation, is not writing
+// somebody else's reflection. Mirrors the rule inside the RPC, which is what
+// actually enforces it.
+export function needsCompletionNote(item, viewerId) {
+  if (!item || !viewerId) return false
+  if (item.completion_note) return false
+  return item.assigned_to === viewerId && item.created_by !== viewerId
 }
 
 // D32. Cancelling is a mentor and admin act, through the normal update path,
@@ -193,8 +219,16 @@ export function friendlyItemError(err) {
   const raw  = (err.message || '').trim()
   const code = err.code || ''
 
+  // 0042's guards raise P0001 with copy already written for the person
+  // reading it. Rewriting them here would only make them worse.
+  if (code === 'P0001' && /Say what you did|cancelled item cannot be/i.test(raw)) {
+    return raw
+  }
   if (code === '23514' && /body/i.test(raw)) {
     return 'An action item needs some text.'
+  }
+  if (code === '23514' && /meeting_action_items_note_check/i.test(raw)) {
+    return 'The note came through empty. Write a line about what happened.'
   }
   if (code === '23514' && /meeting_action_items_check/i.test(raw)) {
     return 'That item is in an inconsistent state. Reload and try again.'

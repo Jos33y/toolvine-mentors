@@ -43,6 +43,24 @@ export const useAuth = create((set, get) => ({
     }
     set({ session })
     await get()._loadUserData(session.user.id)
+
+    // Recency, migration 0042. Deliberately here rather than on sign-in: a
+    // sign-in only fires when a session is created, so somebody returning to a
+    // live session would never be counted, which is the opposite of what the
+    // column is for. This runs on boot and again on every token refresh, and
+    // touch_last_seen throttles to one write an hour server-side.
+    //
+    // Guarded on the profile because _loadUserData signs a deactivated user
+    // out, and stamping a visit for somebody being ejected would be a lie.
+    if (get().profile) get()._touchLastSeen()
+  },
+
+  // Fire and forget. Failing to record a visit must never block reaching the
+  // dashboard, so this swallows rather than throws.
+  _touchLastSeen: () => {
+    supabase.rpc('touch_last_seen').then(({ error }) => {
+      if (error) console.warn('[useAuth] touch_last_seen failed:', error.message)
+    })
   },
 
   // Pulls profile + user_roles for the given user. Extracted so refreshUser can
@@ -105,6 +123,10 @@ export const useAuth = create((set, get) => ({
   // flips to inactive, we sign out and redirect. Other profile changes refresh
   // local state. Idempotent: tears down any previous channel before opening
   // the new one so we never leak subscriptions when the user switches.
+  //
+  // touch_last_seen writes to this row, so it arrives here as an UPDATE and
+  // triggers one _loadUserData. Once an hour at most, and it keeps the
+  // profile in state accurate rather than a stale copy.
   _subscribeToOwnProfile: (userId) => {
     get()._unsubscribeFromOwnProfile()
 

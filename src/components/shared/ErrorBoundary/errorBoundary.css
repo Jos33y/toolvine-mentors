@@ -1,0 +1,150 @@
+/* Error boundary.
+   'page' sits inside the app shell, so it inherits the working canvas and only
+   needs to fill the outlet. 'full' stands alone and carries its own screen. */
+
+.errb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.errb--page {
+  min-height: 50vh;
+  padding: var(--tv-space-8) 0;
+}
+
+.errb--full {
+  min-height: 100dvh;
+  padding: var(--tv-space-6);
+  background: var(--tv-canvas-brand);
+}
+
+.errb__inner {
+  max-width: 46ch;
+  width: 100%;
+}
+
+.errb__eyebrow {
+  margin: 0 0 var(--tv-space-2);
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tv-tracking-wider);
+  color: var(--tv-accent-text);
+}
+
+.errb__title {
+  margin: 0;
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: clamp(1.375rem, 1.1rem + 1.2vw, 1.75rem);
+  line-height: var(--tv-lh-tight);
+  letter-spacing: var(--tv-tracking-tight);
+  color: var(--tv-text);
+}
+
+.errb__body {
+  margin: var(--tv-space-3) 0 0;
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-base);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+}
+
+.errb__actions {
+  display: flex;
+  gap: var(--tv-space-2);
+  flex-wrap: wrap;
+  margin-top: var(--tv-space-5);
+}
+
+.errb__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 var(--tv-space-5);
+  border-radius: var(--tv-radius-md);
+  border: 1px solid var(--tv-border);
+  background: var(--tv-surface);
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-medium);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-2);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--tv-duration-fast) var(--tv-ease),
+              border-color var(--tv-duration-fast) var(--tv-ease),
+              color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.errb__btn:hover {
+  border-color: var(--tv-text-2);
+  color: var(--tv-text);
+}
+
+.errb__btn:focus-visible {
+  outline: none;
+  box-shadow: var(--tv-shadow-focus);
+}
+
+.errb__btn--ghost {
+  background: none;
+}
+
+.errb__btn--primary {
+  background: var(--tv-primary);
+  border-color: var(--tv-primary);
+  color: var(--tv-text-inverse);
+}
+
+.errb__btn--primary:hover {
+  background: var(--tv-primary-hover);
+  border-color: var(--tv-primary-hover);
+  color: var(--tv-text-inverse);
+}
+
+.errb__foot {
+  margin: var(--tv-space-5) 0 0;
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-muted);
+}
+
+.errb__link {
+  color: var(--tv-primary);
+}
+
+/* ============ Developer detail ============ */
+
+.errb__detail {
+  margin-top: var(--tv-space-6);
+  border: 1px dashed var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  background: var(--tv-canvas-app);
+}
+
+.errb__detail-summary {
+  padding: var(--tv-space-3) var(--tv-space-4);
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tv-tracking-wide);
+  color: var(--tv-text-muted);
+  cursor: pointer;
+}
+
+.errb__detail-body {
+  margin: 0;
+  padding: 0 var(--tv-space-4) var(--tv-space-4);
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 40vh;
+  overflow-y: auto;
+}

@@ -1,21 +1,29 @@
 import { supabase } from '@/lib/supabase'
 import { logAdminAction } from '@/lib/adminLog'
 
-// Fetches every profile and joins their role rows client-side. v1 user count
-// is small enough that a single select is faster and simpler than a view.
+// Fetches every profile and joins their role and focus rows client-side. v1
+// user count is small enough that three selects beat a view.
+//
+// user_focus is what somebody offers to mentor in or wants mentoring in, and
+// it is the signal a pairing is actually made on. It was collected at
+// onboarding and read by nothing.
 export async function fetchAdminUsers() {
-  const [pRes, rRes] = await Promise.all([
+  const [pRes, rRes, fRes] = await Promise.all([
     supabase
       .from('profiles')
-      .select('id, full_name, email, photo_url, is_active, onboarded, role_intent, role_undecided, email_verified, whatsapp_phone, country, location, monthly_hours, created_at, verification_reminder_count, verification_last_reminder_at, onboarding_reminder_count, onboarding_last_reminder_at')
+      .select('id, full_name, email, photo_url, is_active, onboarded, role_intent, role_undecided, email_verified, whatsapp_phone, other_phone, country, location, timezone, monthly_hours, referral_source, socials, created_at, verification_reminder_count, verification_last_reminder_at, onboarding_reminder_count, onboarding_last_reminder_at')
       .order('created_at', { ascending: false }),
     supabase
       .from('user_roles')
-      .select('user_id, role')
+      .select('user_id, role'),
+    supabase
+      .from('user_focus')
+      .select('user_id, category_id, kind')
   ])
 
   if (pRes.error) throw pRes.error
   if (rRes.error) throw rRes.error
+  if (fRes.error) throw fRes.error
 
   const rolesByUser = new Map()
   for (const r of rRes.data) {
@@ -23,10 +31,36 @@ export async function fetchAdminUsers() {
     rolesByUser.get(r.user_id).push(r.role)
   }
 
+  const focusByUser = new Map()
+  for (const f of fRes.data) {
+    if (!focusByUser.has(f.user_id)) focusByUser.set(f.user_id, [])
+    focusByUser.get(f.user_id).push({ categoryId: f.category_id, kind: f.kind })
+  }
+
   return pRes.data.map((p) => ({
     ...p,
-    roles: rolesByUser.get(p.id) || []
+    roles: rolesByUser.get(p.id) || [],
+    focus: focusByUser.get(p.id) || []
   }))
+}
+
+// Delivery record for one person, newest first. Read on demand rather than
+// with the list: this grows a few rows per email forever, where roles and
+// focus are one row per choice.
+//
+// email_events_select_admin_or_self covers the read. Rows only exist from
+// 24 August, when the webhook receiver was built, so an empty list means no
+// record rather than no delivery.
+export async function fetchUserEmailEvents(userId, limit = 20) {
+  const { data, error } = await supabase
+    .from('email_events')
+    .select('id, event_type, bounce_type, message_id, created_at')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(limit)
+
+  if (error) throw error
+  return data ?? []
 }
 
 // Atomic role change via SECURITY DEFINER RPC. Logs the action client-side

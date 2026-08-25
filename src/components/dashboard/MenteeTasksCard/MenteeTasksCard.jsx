@@ -1,29 +1,40 @@
 import { useState } from 'react'
 import { useMenteeTasks } from '@/hooks/useMenteeTasks'
 import { Icon } from '@/components/shared/Icon/Icon'
-import { setActionItemStatus, friendlyItemError, ITEM_STATUS } from '@/lib/meetingActionItems'
+import {
+  setActionItemStatus,
+  needsCompletionNote,
+  friendlyItemError,
+  ITEM_STATUS
+} from '@/lib/meetingActionItems'
 import './menteeTasksCard.css'
 
 const DISPLAY_CAP = 6
 
-// The mentee's view of what their mentor set them. Marking done goes through
+// The mentee's view of what their mentor set them, and the surface where most
+// items actually get marked done. Marking done goes through
 // set_action_item_status, a narrow security-definer RPC, because a mentee has
 // no UPDATE policy on the table: one that let them tick a box would also let
 // them rewrite the text, reassign it, or move the due date.
 //
-// The bullet the card shipped with was a placeholder for exactly this control,
-// so the rhythm does not change now that it is real.
+// The tick opens a line to write rather than firing straight away. It is a
+// second step on a dashboard card, which is friction, and it is the point:
+// an item marked done with nothing said about it throws away the part that
+// mattered. The RPC refuses the write without it, so asking here means the
+// person is asked rather than told off.
 export function MenteeTasksCard({ menteeId }) {
   const { items, loading, refresh } = useMenteeTasks(menteeId)
 
   const [busyId, setBusyId] = useState(null)
+  const [openId, setOpenId] = useState(null)
   const [error, setError]   = useState('')
 
-  async function onDone(item) {
+  async function onDone(item, note) {
     setBusyId(item.id)
     setError('')
     try {
-      await setActionItemStatus(item.id, ITEM_STATUS.DONE)
+      await setActionItemStatus(item.id, ITEM_STATUS.DONE, note)
+      setOpenId(null)
       await refresh()
     } catch (e) {
       setError(friendlyItemError(e))
@@ -64,7 +75,15 @@ export function MenteeTasksCard({ menteeId }) {
       <ul className="tasks-card__list">
         {shown.map((item) => (
           <li key={item.id} className="tasks-card__item">
-            <TaskRow item={item} busy={busyId === item.id} onDone={() => onDone(item)} />
+            <TaskRow
+              item={item}
+              menteeId={menteeId}
+              busy={busyId === item.id}
+              noting={openId === item.id}
+              onOpen={() => { setOpenId(item.id); setError('') }}
+              onClose={() => setOpenId(null)}
+              onDone={(note) => onDone(item, note)}
+            />
           </li>
         ))}
       </ul>
@@ -87,18 +106,31 @@ function Header({ count }) {
   )
 }
 
-function TaskRow({ item, busy, onDone }) {
+function TaskRow({ item, menteeId, busy, noting, onOpen, onClose, onDone }) {
+  const [note, setNote] = useState('')
+
   const meetingAt = item.meeting?.scheduled_for ?? null
   const dueOn     = item.due_on ?? null
   const overdue   = isOverdue(dueOn)
+
+  // Mirrors the rule inside the RPC. In practice a mentee always owes one,
+  // since the insert policy means somebody else set the item, but the helper
+  // decides rather than the assumption.
+  const owesNote = needsCompletionNote(item, menteeId)
+
+  function onCheck() {
+    if (owesNote) onOpen()
+    else onDone(null)
+  }
 
   return (
     <div className="task-row">
       <button
         type="button"
         className="task-row__check"
-        onClick={onDone}
+        onClick={onCheck}
         disabled={busy}
+        aria-expanded={noting}
         aria-label={`Mark done: ${item.body}`}
       >
         {busy && <Icon name="check" size={12} strokeWidth={2.5} />}
@@ -115,6 +147,44 @@ function TaskRow({ item, busy, onDone }) {
             </span>
           )}
         </p>
+
+        {noting && (
+          <div className="task-row__noteform">
+            <label className="task-row__note-label" htmlFor={`note-${item.id}`}>
+              What happened
+            </label>
+            <input
+              id={`note-${item.id}`}
+              type="text"
+              className="task-row__note-input"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="I read it on the bus on Tuesday and one line stopped me"
+              autoFocus
+            />
+            <p className="task-row__note-hint">
+              Your mentor reads this. A line is enough.
+            </p>
+            <div className="task-row__note-actions">
+              <button
+                type="button"
+                className="task-row__ghost"
+                onClick={() => { onClose(); setNote('') }}
+                disabled={busy}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="task-row__save"
+                onClick={() => onDone(note)}
+                disabled={busy || note.trim().length === 0}
+              >
+                {busy ? 'Saving' : 'Mark done'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
