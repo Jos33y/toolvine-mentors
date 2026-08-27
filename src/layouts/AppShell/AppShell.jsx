@@ -5,6 +5,7 @@ import { ROLES, joinRoleLabels } from '@/lib/roles'
 import { Logo } from '@/components/shared/Logo/Logo'
 import { Icon } from '@/components/shared/Icon/Icon'
 import { OnboardingBanner } from '@/components/shared/OnboardingBanner/OnboardingBanner'
+import { ProgrammeBanner } from '@/components/shared/ProgrammeBanner/ProgrammeBanner'
 import { VerifyEmailBanner } from '@/components/shared/VerifyEmailBanner/VerifyEmailBanner'
 import { NotificationBell } from '@/components/shared/NotificationBell/NotificationBell'
 import { useNotifications } from '@/hooks/useNotifications'
@@ -50,6 +51,7 @@ const NAV_ITEMS = [
   // Shared by every signed-in user.
   { to: '/meetings',  label: 'Meetings',  icon: 'meetings',  allow: null, group: 'mentoring' },
   { to: '/library',   label: 'Library',   icon: 'resources', allow: null, group: 'mentoring' },
+  { to: '/programmes', label: 'Programmes', icon: 'clock',    allow: null, group: 'mentoring' },
 
   // Admin tools fill the slots between Meetings and Profile so admin's
   // mobile tab bar carries platform-running shortcuts, not settings.
@@ -59,7 +61,7 @@ const NAV_ITEMS = [
 
   { to: '/admin/resources',    label: 'Manage library',   icon: 'bookOpen',   allow: [ROLES.ADMIN], group: 'content' },
   { to: '/admin/verse',        label: 'Verse of the week', icon: 'sunrise',   allow: [ROLES.ADMIN], group: 'content' },
-  { to: '/admin/programmes',   label: 'Programmes',       icon: 'calendar',   allow: [ROLES.ADMIN], group: 'content' },
+  { to: '/admin/programmes',   label: 'Manage programmes', icon: 'calendar',  allow: [ROLES.ADMIN], group: 'content' },
   { to: '/admin/partners',     label: 'Partners',         icon: 'handshake',  allow: [ROLES.ADMIN], group: 'content' },
 
   // mail belongs to inbound post, so Invites moved off it above. Two rows
@@ -298,6 +300,7 @@ export function AppShell() {
 
         <VerifyEmailBanner />
         <OnboardingBanner />
+        <ProgrammeBanner />
 
         <main id="main" className="shell-content" tabIndex={-1}>
           <Outlet context={{ notifications }} />

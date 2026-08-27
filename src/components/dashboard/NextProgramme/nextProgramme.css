@@ -1,0 +1,245 @@
+/* ============ Next gathering band ============
+   The second half of the bridge between GreetingHero and the role groups.
+   Same grid as .verse so the two bands' columns line up and read as one
+   section rather than two widgets stacked. No card chrome, hairline rules,
+   meta on the left. */
+
+.nprog {
+  margin: var(--tv-space-6) 0 var(--tv-space-2);
+  padding: var(--tv-space-5) 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2.4fr);
+  gap: var(--tv-space-8);
+  align-items: start;
+  border-top: 1px solid var(--tv-border);
+  border-bottom: 1px solid var(--tv-border);
+}
+
+/* When the verse is showing, its bottom rule is already the divider between
+   them. Two hairlines with a gap between would read as a mistake, so the
+   band closes up and drops its own top rule. The verse hides itself when
+   stale, and then this one carries its own. */
+.verse + .nprog {
+  margin-top: calc(-1 * var(--tv-space-2));
+  border-top: none;
+}
+
+@media (max-width: 900px) {
+  .nprog {
+    grid-template-columns: 1fr;
+    gap: var(--tv-space-4);
+  }
+}
+
+/* Below the fold of a phone the button is what matters, so the row stacks and
+   the action takes the full width rather than sitting in a corner. */
+@media (max-width: 560px) {
+  .nprog__row { flex-direction: column; align-items: flex-start; gap: var(--tv-space-4); }
+  .nprog__actions { width: 100%; }
+  .nprog__join { flex: 1; justify-content: center; }
+}
+
+/* ============ Meta column ============ */
+
+.nprog__meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-2);
+  padding-top: var(--tv-space-1);
+}
+
+/* Teal against the verse band's amber eyebrow. Two bands, same shape, and
+   the colour is what says they are different things. */
+.nprog__eyebrow {
+  margin: 0;
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tv-tracking-wider);
+  color: var(--tv-primary);
+}
+
+.nprog__name {
+  margin: 0;
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-base);
+  letter-spacing: var(--tv-tracking-tight);
+  color: var(--tv-text);
+}
+
+/* ============ Body ============ */
+
+.nprog__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-3);
+  min-width: 0;
+}
+
+/* The date and the action are the two ends of the band. space-between puts
+   the button on the right edge instead of leaving three hundred pixels of
+   nothing after it, which is what made the first version read as unfinished. */
+.nprog__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--tv-space-5);
+}
+
+.nprog__when {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-4);
+  margin: 0;
+}
+
+/* The numeral carries the band. Tabular figures so a 9 and a 20 occupy the
+   same width and the labels beside them do not shift month to month. */
+.nprog__day {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: clamp(2.75rem, 5.5vw, 3.75rem);
+  line-height: 0.82;
+  letter-spacing: -0.045em;
+  font-variant-numeric: tabular-nums;
+  color: var(--tv-text);
+}
+
+/* A rule between the numeral and its labels, so the two read as one object
+   rather than a number that happens to have text next to it. */
+.nprog__stack::before {
+  content: '';
+  position: absolute;
+  left: calc(-1 * var(--tv-space-4) / 2);
+  top: 2px;
+  bottom: 2px;
+  width: 1px;
+  background: var(--tv-border);
+}
+
+.nprog__stack {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.nprog__dow {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wider);
+  color: var(--tv-primary);
+}
+
+.nprog__rest {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+  white-space: nowrap;
+}
+
+.nprog__sep { color: var(--tv-border-strong); }
+
+/* The split stack reads badly aloud, so it is hidden and the whole date is
+   exposed once instead. */
+.nprog__sr {
+  position: absolute; width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* Mono, sitting under the programme name, because it is a measurement rather
+   than a sentence. */
+.nprog__away {
+  margin: 0;
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  color: var(--tv-text-muted);
+}
+
+.nprog__desc {
+  margin: 0;
+  max-width: var(--tv-prose-max);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  overflow-wrap: anywhere;
+}
+
+.nprog__none {
+  margin: 0;
+  max-width: var(--tv-prose-max);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-muted);
+}
+
+.nprog--empty .nprog__body { padding-top: var(--tv-space-1); }
+
+/* ============ Actions ============ */
+
+.nprog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tv-space-3);
+}
+
+.nprog__join {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  min-height: 40px;
+  padding: var(--tv-space-2) var(--tv-space-5);
+  background: var(--tv-primary);
+  color: var(--tv-text-inverse);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-semibold);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background var(--tv-duration-fast) var(--tv-ease);
+}
+
+.nprog__join:visited { color: var(--tv-text-inverse); }
+
+.nprog__join:hover,
+.nprog__join:focus,
+.nprog__join:active {
+  background: var(--tv-primary-hover);
+  color: var(--tv-text-inverse);
+}
+
+.nprog__join:focus-visible {
+  outline: 2px solid var(--tv-primary);
+  outline-offset: 2px;
+}
+
+.nprog__nolink {
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-warning-text);
+}
+
+.nprog__all {
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-2);
+  text-decoration: none;
+  border-bottom: 1px solid var(--tv-border-strong);
+  padding-bottom: 1px;
+  transition: color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.nprog__all:hover { color: var(--tv-primary); }
+
+@media (prefers-reduced-motion: reduce) {
+  .nprog__join,
+  .nprog__all { transition: none; }
+}

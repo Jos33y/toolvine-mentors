@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { resolveJoinUrl } from '@/lib/programmes'
 
 // Admin reads and writes go to the base tables, not to
 // programme_schedule_public. The view exists to keep join_url away from
@@ -58,15 +59,11 @@ export async function saveDefaultJoinUrl(url) {
   if (error) throw error
 }
 
-// Which link actually applies, and where it came from. The page shows the
-// source as well as the value: a link inherited from the shared setting and a
-// link set on the programme look identical otherwise.
-export function resolveJoinUrl({ occurrence = null, programme = null, sharedUrl = '' } = {}) {
-  if (occurrence?.join_url) return { url: occurrence.join_url, source: 'occurrence' }
-  if (programme?.join_url)  return { url: programme.join_url,  source: 'programme' }
-  if (sharedUrl)            return { url: sharedUrl,           source: 'shared' }
-  return { url: null, source: 'none' }
-}
+// Defined in @/lib/programmes and re-exported here so the admin pages keep
+// importing it from one place. It must not live in an admin module: the member
+// programmes page needs the same three-level rule, and two copies of it would
+// drift apart.
+export { resolveJoinUrl }
 
 export async function fetchOccurrences({ programmeId = null, limit = 400 } = {}) {
   let query = supabase

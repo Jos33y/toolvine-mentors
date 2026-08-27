@@ -7,13 +7,19 @@ import { MenteeTasksCard }    from '@/components/dashboard/MenteeTasksCard/Mente
 import { VinethoughtsCard }   from '@/components/dashboard/VinethoughtsCard/VinethoughtsCard'
 import { ResourcesPreview }   from '@/components/dashboard/ResourcesPreview/ResourcesPreview'
 import { VerseOfWeek }        from '@/components/dashboard/VerseOfWeek/VerseOfWeek'
+import { NextProgramme }      from '@/components/dashboard/NextProgramme/NextProgramme'
 import { MentorGroup }        from './MentorGroup'
 import { AdminGroup }         from './AdminGroup'
 import './dashboard.css'
 
 // Role-aware composer. Each group mounts only for users holding that role.
-// VerseOfWeek sits as a bridge band right after the greeting, shared across
-// all roles. First the person, then the Word, then the work.
+// VerseOfWeek and NextProgramme sit as a bridge band right after the greeting,
+// shared across all roles. First the person, then the Word, then where we
+// gather, then the work.
+//
+// NextProgramme is above the groups deliberately. The groups are siloed by
+// role, so a mentor who is also a mentee never sees the mentee branch, and
+// where the community meets is not a role's business.
 //
 // Admin owns operations and the surface stays focused on that. The mentee
 // row from the signup trigger is implementation detail, not an indicator
@@ -50,6 +56,8 @@ export function Dashboard() {
       <GreetingHero profile={profile} />
 
       <VerseOfWeek />
+
+      <NextProgramme />
 
       {showAdminGroup && <AdminGroup multiRole={multiRole} />}
 

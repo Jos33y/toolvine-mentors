@@ -32,6 +32,118 @@ export async function fetchPublicSchedule() {
   return data ?? []
 }
 
+/* ============ Members ============ */
+
+// Members read the base tables rather than the view, because they are the
+// people the joining link is for. RLS admits any signed-in user to both, and
+// the view exists only to keep the link away from anonymous visitors.
+
+const MEMBER_PROGRAMME_FIELDS =
+  'id, slug, name, rule_type, start_time, duration_minutes, timezone, join_url, location'
+
+const MEMBER_OCCURRENCE_FIELDS =
+  'id, programme_id, occurs_on, start_time, duration_minutes, join_url, location, title, description, recap, is_skipped, skip_note'
+
+export async function fetchMemberSchedule() {
+  const [progRes, occRes, settingRes] = await Promise.all([
+    supabase
+      .from('programmes')
+      .select(MEMBER_PROGRAMME_FIELDS)
+      .eq('is_active', true)
+      .order('rule_type', { ascending: false })
+      .order('name', { ascending: true }),
+    supabase
+      .from('programme_occurrences')
+      .select(MEMBER_OCCURRENCE_FIELDS)
+      .gte('occurs_on', monthsFrom(-PAST_WINDOW_MONTHS))
+      .lte('occurs_on', monthsFrom(FUTURE_WINDOW_MONTHS))
+      .order('occurs_on', { ascending: true }),
+    supabase
+      .from('app_settings')
+      .select('value')
+      .eq('key', 'default_join_url')
+      .maybeSingle()
+  ])
+
+  if (progRes.error)    throw progRes.error
+  if (occRes.error)     throw occRes.error
+  // The settings read can fail without the page failing: a missing shared link
+  // costs a button, not the schedule.
+  const shared = settingRes.error ? '' : (typeof settingRes.data?.value === 'string' ? settingRes.data.value.trim() : '')
+
+  const programmes = progRes.data ?? []
+  const byId = new Map(programmes.map((p) => [p.id, p]))
+
+  // Flattened here so no surface has to remember which of the three levels a
+  // link came from.
+  const occurrences = (occRes.data ?? []).map((o) => {
+    const programme = byId.get(o.programme_id) ?? null
+    return {
+      ...o,
+      programme,
+      programme_slug: programme?.slug ?? null,
+      programme_name: programme?.name ?? null,
+      timezone:       programme?.timezone ?? 'Africa/Lagos',
+      start_time:     o.start_time ?? programme?.start_time ?? null,
+      joinUrl:        resolveJoinUrl({ occurrence: o, programme, sharedUrl: shared }).url,
+      place:          o.location ?? programme?.location ?? null
+    }
+  })
+
+  return { programmes, occurrences, sharedUrl: shared }
+}
+
+// Which of the three levels applies. Lives here rather than in the admin lib
+// so a member surface never has to import from one.
+export function resolveJoinUrl({ occurrence = null, programme = null, sharedUrl = '' } = {}) {
+  if (occurrence?.join_url) return { url: occurrence.join_url, source: 'occurrence' }
+  if (programme?.join_url)  return { url: programme.join_url,  source: 'programme' }
+  if (sharedUrl)            return { url: sharedUrl,           source: 'shared' }
+  return { url: null, source: 'none' }
+}
+
+// The soonest thing anyone has to be at. Feeds the banner, which is why it
+// takes the lead window rather than returning everything ahead.
+export function nextWithin(occurrences, leadDays) {
+  const today = isoDate(new Date())
+  const limit = new Date()
+  limit.setDate(limit.getDate() + leadDays)
+  const limitIso = isoDate(limit)
+
+  return occurrences.find(
+    (o) => !o.is_skipped && o.occurs_on >= today && o.occurs_on <= limitIso
+  ) ?? null
+}
+
+export function upcoming(occurrences) {
+  const today = isoDate(new Date())
+  return occurrences.filter((o) => o.occurs_on >= today)
+}
+
+export function past(occurrences) {
+  const today = isoDate(new Date())
+  return occurrences
+    .filter((o) => o.occurs_on < today)
+    .filter((o) => o.recap || o.description || (o.is_skipped && o.skip_note))
+    .sort((a, b) => (a.occurs_on < b.occurs_on ? 1 : -1))
+}
+
+// How far ahead the banner and the bell fire. One row, so a failure falls back
+// rather than blocking the page.
+export async function fetchBannerLeadDays() {
+  const { data, error } = await supabase
+    .from('app_settings')
+    .select('value')
+    .eq('key', 'programme_banner_lead_days')
+    .maybeSingle()
+
+  if (error) return 2
+  const n = Number(data?.value)
+  return Number.isFinite(n) && n > 0 ? n : 2
+}
+
+/* ============ Public ============ */
+
 // Q28. The public page shows the next occurrence and nothing further ahead.
 // A skipped month is not the next one: it is a month that was announced and
 // then called off, and offering it as the next date would be wrong.
@@ -113,13 +225,31 @@ export function programmeWhenParts(row) {
   if (!row?.occurs_on) return null
 
   return {
-    weekday: formatDay(row.occurs_on, { weekday: 'short' }).toUpperCase(),
+    weekday:     formatDay(row.occurs_on, { weekday: 'short' }).toUpperCase(),
+    weekdayLong: formatDay(row.occurs_on, { weekday: 'long' }).toUpperCase(),
     day:     formatDay(row.occurs_on, { day: 'numeric' }),
     month:   formatDay(row.occurs_on, { month: 'long' }).toUpperCase(),
     time:    formatClock(row.start_time),
     zone:    zoneLabel(row.timezone),
     full:    programmeWhen(row)
   }
+}
+
+// How far away, said the way a person would say it. A date on its own does not
+// tell anyone whether to act now or forget about it until next month.
+export function daysUntil(occursOn) {
+  if (!occursOn) return null
+
+  const today  = new Date(`${isoDate(new Date())}T00:00:00Z`)
+  const target = new Date(`${occursOn}T00:00:00Z`)
+  const days   = Math.round((target - today) / 86400000)
+
+  if (days < 0)  return null
+  if (days === 0) return 'today'
+  if (days === 1) return 'tomorrow'
+  if (days < 14)  return `in ${days} days`
+  if (days < 28)  return `in ${Math.round(days / 7)} weeks`
+  return `in ${Math.round(days / 30)} ${Math.round(days / 30) === 1 ? 'month' : 'months'}`
 }
 
 export function programmeDayOnly(row) {

@@ -55,6 +55,7 @@ const AdminPairings = lazy(() => import('@/pages/admin/Pairings').then((m) => ({
 const AdminResources = lazy(() => import('@/pages/admin/Resources').then((m) => ({ default: m.Resources })))
 const AdminVerse     = lazy(() => import('@/pages/admin/Verse').then((m) => ({ default: m.Verse })))
 const AdminProgrammes = lazy(() => import('@/pages/admin/Programmes').then((m) => ({ default: m.Programmes })))
+const ProgrammesPage  = lazy(() => import('@/pages/programmes/Programmes').then((m) => ({ default: m.Programmes })))
 const Mentees      = lazy(() => import('@/pages/mentor/Mentees').then((m) => ({ default: m.Mentees })))
 const MyMentor     = lazy(() => import('@/pages/mentee/Mentor').then((m) => ({ default: m.Mentor })))
 const MeetingsPage = lazy(() => import('@/pages/meetings/Meetings').then((m) => ({ default: m.Meetings })))
@@ -203,6 +204,10 @@ const router = createBrowserRouter([
               {
                 path: '/library',
                 element: <LazyRoute><LibraryPage /></LazyRoute>
+              },
+              {
+                path: '/programmes',
+                element: <LazyRoute><ProgrammesPage /></LazyRoute>
               },
               {
                 path: '/notifications',

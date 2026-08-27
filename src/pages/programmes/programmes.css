@@ -1,0 +1,309 @@
+/* Member programmes. Working surface, so the app canvas and the same hairline
+   list language as meetings. No hero, no photography, no motion beyond the
+   button states. */
+
+.mprog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-8);
+}
+
+.mprog__head { display: flex; flex-direction: column; }
+
+.mprog__lede {
+  margin: var(--tv-space-2) 0 0;
+  max-width: var(--tv-prose-max);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+}
+
+.mprog__error {
+  margin: 0;
+  padding: var(--tv-space-3) var(--tv-space-4);
+  background: var(--tv-error-bg);
+  color: var(--tv-error-text);
+  border-radius: var(--tv-radius-md);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+}
+
+.mprog__state {
+  margin: 0;
+  padding: var(--tv-space-8) 0;
+  max-width: var(--tv-prose-max);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-muted);
+}
+
+/* ============ Next ============ */
+
+/* The only card on the page. Everything else is a list row, which is what
+   makes this one read as the thing to act on. */
+.mprog__next {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--tv-space-5);
+  align-items: start;
+  padding: var(--tv-space-5);
+  background: var(--tv-surface);
+  border: 1px solid var(--tv-border);
+  border-left: 3px solid var(--tv-primary);
+  border-radius: var(--tv-radius-lg);
+}
+
+@media (min-width: 760px) {
+  .mprog__next { grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; }
+}
+
+.mprog__next-when {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-right: var(--tv-space-5);
+  border-right: 1px solid var(--tv-border);
+  line-height: 1.05;
+}
+
+.mprog__next-dow {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wider);
+  color: var(--tv-accent-text);
+}
+
+.mprog__next-day {
+  font-family: var(--tv-font-display);
+  font-size: clamp(2rem, 5vw, 2.75rem);
+  font-weight: var(--tv-fw-semibold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  color: var(--tv-text);
+}
+
+.mprog__next-mon {
+  font-family: var(--tv-font-mono);
+  font-size: 0.625rem;
+  letter-spacing: var(--tv-tracking-wider);
+  color: var(--tv-text-muted);
+}
+
+.mprog__next-main { display: flex; flex-direction: column; gap: var(--tv-space-2); min-width: 0; }
+
+.mprog__next-eyebrow {
+  margin: 0;
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wider);
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+}
+
+.mprog__next-title {
+  margin: 0;
+  font-family: var(--tv-font-display);
+  font-size: var(--tv-fs-lg);
+  font-weight: var(--tv-fw-semibold);
+  letter-spacing: -0.01em;
+  color: var(--tv-text);
+}
+
+.mprog__next-time {
+  margin: 0;
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-2);
+}
+
+.mprog__next-desc {
+  margin: 0;
+  max-width: var(--tv-prose-max);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  overflow-wrap: anywhere;
+}
+
+.mprog__next-place,
+.mprog__nolink {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-1);
+  margin: 0;
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+}
+
+.mprog__nolink { color: var(--tv-warning-text); white-space: nowrap; }
+
+.mprog__next-actions { display: flex; align-items: center; }
+
+.mprog__join {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  min-height: 44px;
+  padding: var(--tv-space-2) var(--tv-space-6);
+  background: var(--tv-primary);
+  color: var(--tv-text-inverse);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-semibold);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background var(--tv-duration-fast) var(--tv-ease);
+}
+
+.mprog__join:visited { color: var(--tv-text-inverse); }
+
+.mprog__join:hover,
+.mprog__join:focus,
+.mprog__join:active {
+  background: var(--tv-primary-hover);
+  color: var(--tv-text-inverse);
+}
+
+.mprog__join:focus-visible {
+  outline: 2px solid var(--tv-primary);
+  outline-offset: 2px;
+}
+
+/* ============ Blocks ============ */
+
+.mprog__block { display: flex; flex-direction: column; gap: var(--tv-space-3); }
+
+.mprog__block-title {
+  margin: 0;
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-medium);
+  letter-spacing: var(--tv-tracking-wider);
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+}
+
+.mprog__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--tv-border);
+}
+
+.mprog__row {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  gap: var(--tv-space-4);
+  align-items: center;
+  padding: var(--tv-space-3) 0;
+  border-bottom: 1px solid var(--tv-border);
+}
+
+/* A month that is not running is still on the record, so it stays in the list
+   and says why rather than disappearing from it. */
+.mprog__row--off .mprog__title,
+.mprog__row--off .mprog__day { color: var(--tv-text-muted); }
+
+.mprog__row--past .mprog__day { color: var(--tv-text-2); }
+
+.mprog__when {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.05;
+}
+
+.mprog__day {
+  font-family: var(--tv-font-display);
+  font-size: var(--tv-fs-md);
+  font-weight: var(--tv-fw-semibold);
+  font-variant-numeric: tabular-nums;
+  color: var(--tv-text);
+}
+
+.mprog__mon {
+  font-family: var(--tv-font-mono);
+  font-size: 0.625rem;
+  letter-spacing: var(--tv-tracking-wider);
+  color: var(--tv-text-muted);
+}
+
+.mprog__main { display: flex; flex-direction: column; gap: var(--tv-space-1); min-width: 0; }
+
+.mprog__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tv-space-2);
+  margin: 0;
+  font-size: var(--tv-fs-base);
+  font-weight: var(--tv-fw-medium);
+  color: var(--tv-text);
+}
+
+.mprog__pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--tv-space-2);
+  background: var(--tv-canvas-app);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-pill);
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  color: var(--tv-text-muted);
+}
+
+.mprog__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tv-space-2);
+  margin: 0;
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+}
+
+.mprog__dot { color: var(--tv-border-strong); }
+
+.mprog__recap,
+.mprog__note {
+  margin: 0;
+  padding-left: var(--tv-space-3);
+  max-width: var(--tv-prose-max);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  overflow-wrap: anywhere;
+}
+
+.mprog__recap { border-left: 2px solid var(--tv-primary-light); }
+.mprog__note  { border-left: 2px solid var(--tv-accent); }
+
+.mprog__link {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  padding: var(--tv-space-2) var(--tv-space-4);
+  background: transparent;
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-2);
+  text-decoration: none;
+  transition: border-color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.mprog__link:visited { color: var(--tv-text-2); }
+
+.mprog__link:hover,
+.mprog__link:focus {
+  border-color: var(--tv-border-strong);
+  color: var(--tv-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mprog__join,
+  .mprog__link { transition: none; }
+}
