@@ -2,14 +2,26 @@ import './Community.css'
 import { Link } from 'react-router-dom'
 import { RevealOnScroll } from '@/components/shared/RevealOnScroll/RevealOnScroll'
 import { TEAMS, personFor, initialsFor } from '@/lib/team'
+import { currentEdition } from '@/lib/vinethoughts'
 
 /* ============ Mini Vinethoughts cover ============ */
 
+// The three facts here used to be typed in. The meta line said Summer 2026
+// while the dashboard card said March 2026 about the same issue, and the line
+// underneath was one of the four official taglines rather than this issue's
+// own cover line.
 function VinethoughtsCover() {
+  const edition = currentEdition()
+  if (!edition) return null
+
   return (
     <div className="vt-cover">
-      <Link to="/resources" className="vt-cover__card" aria-label="Read Vinethoughts Issue 06">
-        <span className="vt-cover__numeral" aria-hidden="true">VI</span>
+      <Link
+        to="/resources"
+        className="vt-cover__card"
+        aria-label={`Read Vinethoughts Issue ${edition.num}`}
+      >
+        <span className="vt-cover__numeral" aria-hidden="true">{edition.roman}</span>
         <div className="vt-cover__content">
           <div className="vt-cover__masthead">
             <svg className="vt-cover__mark" viewBox="0 0 24 14" width="16" height="10" aria-hidden="true">
@@ -19,8 +31,8 @@ function VinethoughtsCover() {
             <span className="vt-cover__name">Vinethoughts</span>
           </div>
           <span className="vt-cover__rule" aria-hidden="true" />
-          <p className="vt-cover__meta">Issue 06 · Summer 2026</p>
-          <p className="vt-cover__tagline">Raising Christ-Centered Leaders Through Mentorship</p>
+          <p className="vt-cover__meta">Issue {edition.num} · {titleCase(edition.date)}</p>
+          <p className="vt-cover__tagline">{edition.coverline}</p>
         </div>
       </Link>
       <div className="vt-cover__links">
@@ -29,6 +41,14 @@ function VinethoughtsCover() {
       </div>
     </div>
   )
+}
+
+// The list stores dates in caps for the About rack; this cover sets them in
+// sentence case, so it converts rather than the list holding two shapes.
+function titleCase(value) {
+  return String(value ?? '')
+    .toLowerCase()
+    .replace(/\b[a-z0-9]/g, (c) => c.toUpperCase())
 }
 
 export function Community() {

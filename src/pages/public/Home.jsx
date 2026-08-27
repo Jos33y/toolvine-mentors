@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { HeroStack } from '@/components/home/HeroStack/HeroStack'
+import { HeroRotator } from '@/components/home/HeroRotator/HeroRotator'
 import { Conviction } from '@/components/home/Conviction/Conviction'
 import { Practices } from '@/components/home/Practices/Practices'
 import { Community } from '@/components/home/Community/Community'
@@ -109,7 +109,7 @@ export function Home() {
           </div>
 
           <div className="hero__media">
-            <HeroStack />
+            <HeroRotator />
           </div>
 
         </div>

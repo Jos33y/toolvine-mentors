@@ -15,6 +15,23 @@ export async function fetchCurrentVerse() {
   return data
 }
 
+// The marketing hero reads verse_public, not the table. verse_read_authed is
+// `auth.uid() IS NOT NULL`, so a visitor cannot see the table at all, and the
+// view drops created_by and filters out verses dated ahead of today. 0046.
+// Three rows, not one. The hero renders the verse as a stack, and the two
+// behind it are the two weeks before rather than empty cards: the depth stands
+// for a real series or it should not be there.
+export async function fetchPublicVerses(limit = 3) {
+  const { data, error } = await supabase
+    .from('verse_public')
+    .select('reference, body, source, week_of')
+    .order('week_of', { ascending: false })
+    .limit(limit)
+
+  if (error) throw error
+  return data ?? []
+}
+
 const STALE_AFTER_DAYS = 14
 const MS_PER_DAY = 24 * 60 * 60 * 1000
 

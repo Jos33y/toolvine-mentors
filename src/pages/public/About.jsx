@@ -5,6 +5,8 @@ import { Logo } from '@/components/shared/Logo/Logo'
 import { RevealOnScroll } from '@/components/shared/RevealOnScroll/RevealOnScroll'
 import michaelPhoto from '@/assets/portraits/michael-alade.jpg'
 import { BOARD as TEAM_BOARD, personFor, initialsFor } from '@/lib/team'
+import { EDITIONS, archiveEditions, isCurrentEdition } from '@/lib/vinethoughts'
+import { fetchPublicSchedule, nextBySlug, programmeWhenParts } from '@/lib/programmes'
 import './About.css'
 import './About.vine.css'
 
@@ -73,36 +75,6 @@ const EDITORIAL_NAMES = [
   'Oluwafunmike Fajana'
 ]
 
-const ISSUES = [
-  {
-    num: '06', date: 'MARCH 2026', featured: 'Mentor Yetunde Sorinola',
-    coverline: 'On faith, career, and rising through delays',
-    flipbook: 'https://heyzine.com/flip-book/1fa3ba745b.html',
-    stories: [
-      { type: 'EXCLUSIVE INTERVIEW', title: 'On faith, career, and the long climb to leadership', byline: 'Mentor Yetunde Sorinola',  subline: 'CFO, Egbin Power PLC',          quote: 'Faith has been my absolute compass. In seasons of uncertainty, my reliance on God gave me a shield and ordered my steps.' },
-      { type: 'FEATURED ARTICLE',    title: 'The Leadership of Pontius Pilate',                   byline: 'Mentor Dayo Adewole',       subline: '',                               quote: 'Pilate chose peace over justice. Leaders often face the temptation to maintain harmony at the expense of truth.' },
-      { type: 'SPEAKER SERIES',      title: 'From Desire to Reality',                             byline: 'Aramide Kayode',            subline: 'Founder, Talent Mike Academy',   quote: 'I had a choice to make. Driven by a deep conviction, I declined the investment banking job and signed up to teach in a rural community.' },
-      { type: 'BOOK REVIEW',         title: 'The Fourth Dimension, by David Yonggi Cho',          byline: 'Mentor Samuel Asawole',     subline: 'reviewer',                       quote: 'Faith must be intentional and incubated. Spiritual breakthroughs often grow quietly before appearing outwardly.' }
-    ]
-  },
-  {
-    num: '05', date: 'DEC 2025', featured: 'Dr. Busayo Oladepo',
-    coverline: 'Christmas Special',
-    flipbook: 'https://heyzine.com/flip-book/93ba1ab5de.html',
-    stories: [
-      { type: 'EXCLUSIVE INTERVIEW', title: 'On faith, nursing, and breaking barriers as an immigrant', byline: 'Dr. Busayo Oladepo', subline: 'DNP, Nurse Practitioner', quote: 'Never let anyone define your worth or your potential.' },
-      { type: 'SPEAKER SERIES',      title: 'Nurturing Mental Wellness and Healing in Uncertain Times', byline: 'Dr. Oluwatofunmi Eyekpegha', subline: '', quote: 'Mental wellness is not merely the absence of illness; it is the capacity to adapt, find meaning, and thrive.' },
-      { type: 'FEATURED ARTICLE',    title: 'It Is Not Your Fault',                                     byline: 'Grace Ochigbo',      subline: 'Author',   quote: 'You are not God. You do not control all outcomes. Release yourself from guilt that never belonged to you.' },
-      { type: 'BOOK REVIEW',         title: 'The 12 Week Year, by Brian P. Moran & Michael Lennington', byline: 'Ayodele Oladiran',   subline: 'reviewer', quote: 'Extraordinary results are often not the product of extraordinary talent, but of extraordinary focus applied over a short, intense period.' }
-    ]
-  },
-  { num: '04', date: 'Q3 2025', featured: 'Archive', coverline: 'Past edition',  flipbook: null, stories: [] },
-  { num: '03', date: 'Q2 2025', featured: 'Archive', coverline: 'Past edition',  flipbook: null, stories: [] },
-  { num: '02', date: 'Q1 2025', featured: 'Archive', coverline: 'Past edition',  flipbook: null, stories: [] },
-  { num: '01', date: 'Q4 2024', featured: 'Archive', coverline: 'First edition',
-    flipbook: 'https://heyzine.com/flip-book/fd3044c0be.html', stories: [] }
-]
-
 const SOCIALS = [
   { label: 'Instagram', icon: 'instagram', url: 'https://www.instagram.com/toolvine_mentors_initiative' },
   { label: 'Facebook',  icon: 'facebook',  url: 'https://www.facebook.com/Toolvinementors' },
@@ -111,16 +83,10 @@ const SOCIALS = [
   { label: 'X',         icon: 'x',         url: 'https://x.com/toolvinementors' }
 ]
 
-const NEXT_MEETING = {
-  date: 'Friday, 12 September 2026',
-  time: '7:00 PM WAT',
-  mode: 'Online'
-}
-
 /* ============ Vinethoughts cover ============ */
 
 function VineCover({ issue, featured }) {
-  const isCurrent = issue.num === '06'
+  const isCurrent = isCurrentEdition(issue.num)
   const skyId = `cover-sky-${issue.num}${featured ? '-f' : ''}`
 
   return (
@@ -237,7 +203,8 @@ function Portrait({ person }) {
 
 export function About() {
   const [heroIn, setHeroIn] = useState(false)
-  const [selectedIssue, setSelectedIssue] = useState('06')
+  const [selectedIssue, setSelectedIssue] = useState(EDITIONS[0]?.num ?? '')
+  const [nextMeeting, setNextMeeting] = useState(null)
   const rackRef = useRef(null)
 
   useEffect(() => {
@@ -245,8 +212,22 @@ export function About() {
     return () => clearTimeout(t)
   }, [])
 
-  const current = ISSUES.find(i => i.num === selectedIssue) || ISSUES[0]
-  const archive = ISSUES.filter(i => i.num !== selectedIssue)
+  // The next Family Meeting, derived from its rule rather than written down.
+  // Failing leaves the block unrendered: a marketing page with no date is
+  // better than one asserting a date that has moved.
+  useEffect(() => {
+    let cancelled = false
+    fetchPublicSchedule()
+      .then((rows) => {
+        if (cancelled) return
+        setNextMeeting(nextBySlug(rows).get('family_meeting') ?? null)
+      })
+      .catch((e) => console.warn('[about] next meeting unavailable:', e?.message || e))
+    return () => { cancelled = true }
+  }, [])
+
+  const current = EDITIONS.find((i) => i.num === selectedIssue) || EDITIONS[0]
+  const archive = archiveEditions(selectedIssue)
 
   function selectIssue(num) {
     setSelectedIssue(num)
@@ -534,13 +515,18 @@ export function About() {
         <div className="about__invite-inner">
           <p className="about__invite-asterism" aria-hidden="true">&lowast;&lowast;&lowast;</p>
 
-          <div className="about__invite-meeting">
-            <p className="about__invite-meeting-eyebrow">NEXT FAMILY MEETING</p>
-            <p className="about__invite-meeting-date">{NEXT_MEETING.date}</p>
-            <p className="about__invite-meeting-time">
-              {NEXT_MEETING.time} &middot; {NEXT_MEETING.mode}
-            </p>
-          </div>
+          {nextMeeting && (
+            <div className="about__invite-meeting">
+              <p className="about__invite-meeting-eyebrow">NEXT FAMILY MEETING</p>
+              <p className="about__invite-meeting-date">{meetingDate(nextMeeting)}</p>
+              {/* No mode line. programme_schedule_public withholds the location
+                  on purpose, so this page cannot know whether it is online and
+                  will not guess. */}
+              <p className="about__invite-meeting-time">
+                {programmeWhenParts(nextMeeting)?.time} {programmeWhenParts(nextMeeting)?.zone}
+              </p>
+            </div>
+          )}
 
           <p className="about__invite-line">
             Come to one meeting. See if this is for you.
@@ -571,4 +557,13 @@ export function About() {
       </section>
     </div>
   )
+}
+
+// Long form, matching the tone of the block it sits in: "Sunday, 20 September
+// 2026" rather than a numeral rail.
+function meetingDate(occurrence) {
+  if (!occurrence?.occurs_on) return ''
+  return new Intl.DateTimeFormat('en-GB', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC'
+  }).format(new Date(`${occurrence.occurs_on}T12:00:00Z`))
 }

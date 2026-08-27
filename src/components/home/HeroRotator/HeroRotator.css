@@ -1,0 +1,384 @@
+/* ============ Hero rotator ============
+   Holds the exact footprint HeroStack already occupies, 300px rising to 340px
+   at desktop on a 3/4 portrait, so switching faces never changes the height of
+   the hero. The two new faces are built in the volume's grammar: masthead,
+   hairline rule, the thing itself, rule, foot. */
+
+.hrot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}
+
+.hrot__stage {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  aspect-ratio: 3 / 4;
+}
+
+@media (min-width: 760px) {
+  .hrot__stage { max-width: 340px; }
+}
+
+/* Opacity only. HeroStack sets its own transform for the cursor tilt, and a
+   transform here would fight it. */
+.hrot__face {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 360ms var(--tv-ease), visibility 0s linear 360ms;
+}
+
+.hrot__face--on {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 360ms var(--tv-ease), visibility 0s;
+}
+
+/* ============ Stack ============
+   The volumes' device, reused. The two layers behind sit at the same offsets
+   HeroStack uses, so all three faces have one physics and the rotation reads
+   as a single object changing subject. */
+
+.hrot__stack {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+.hrot__layer {
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+  box-shadow:
+    0 4px 16px rgba(15, 23, 42, 0.06),
+    0 1px 3px rgba(15, 23, 42, 0.04);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hrot__layer--back { z-index: 1; transform: translate(36px, -28px) rotate(-2deg); }
+.hrot__layer--mid  { z-index: 2; transform: translate(18px, -14px) rotate(1.6deg); }
+
+/* Three inks, and each stack starts on its own. HeroStack runs white, teal,
+   amber from front to back, so the programme starts on teal and carries on
+   amber, white; the verse starts on amber and carries on white, teal. Same
+   sequence, different entry point, which is what makes the three faces read
+   as one publication rather than three colour schemes.
+
+   Only a corner of each layer is ever visible, so the ink is the whole job. */
+
+.hrot__stack--programme .hrot__layer--mid {
+  background: var(--tv-accent-soft);
+  border: 1px solid rgba(180, 83, 9, 0.22);
+}
+.hrot__stack--programme .hrot__layer--back {
+  background: #FFFFFF;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+}
+
+.hrot__stack--verse .hrot__layer--mid {
+  background: #FFFFFF;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+}
+.hrot__stack--verse .hrot__layer--back {
+  background: var(--tv-primary);
+  border: 1px solid var(--tv-primary-hover);
+}
+
+/* Fans open the way the volumes do, and only where a cursor exists. */
+@media (hover: hover) and (pointer: fine) {
+  .hrot__stack:hover .hrot__layer--back { transform: translate(46px, -38px) rotate(-3deg); }
+  .hrot__stack:hover .hrot__layer--mid  { transform: translate(26px, -21px) rotate(2.4deg); }
+  .hrot__stack:hover .hrot__card        { transform: translate(-6px, -4px) rotate(-0.4deg); }
+}
+
+/* ============ Card ============ */
+
+.hrot__card {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 22px 22px 20px;
+  overflow: hidden;
+  text-decoration: none;
+  z-index: 3;
+  box-shadow:
+    0 4px 16px rgba(15, 23, 42, 0.06),
+    0 1px 3px rgba(15, 23, 42, 0.04);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 760px) {
+  .hrot__card { padding: 26px 26px 22px; }
+}
+
+.hrot__card--programme {
+  background: var(--tv-primary);
+  border: 1px solid var(--tv-primary-hover);
+  color: #FFFFFF;
+}
+
+.hrot__card--verse {
+  background: var(--tv-accent-soft);
+  border: 1px solid rgba(180, 83, 9, 0.22);
+  color: var(--tv-accent-text);
+}
+
+.hrot__card:focus-visible {
+  outline: 2px solid var(--tv-primary);
+  outline-offset: 8px;
+}
+
+/* The watermark the volumes use for their Roman numeral, carrying the day
+   number and the quote mark instead. */
+.hrot__art {
+  position: absolute;
+  right: -6px;
+  bottom: -28px;
+  font-family: var(--tv-font-serif);
+  font-style: italic;
+  font-size: 160px;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+.hrot__card--programme .hrot__art { color: #FFFFFF; opacity: 0.13; }
+.hrot__card--verse .hrot__art     { color: var(--tv-accent-text); opacity: 0.12; }
+
+.hrot__art--quote { bottom: -70px; right: 4px; font-size: 200px; }
+
+/* ============ Masthead ============ */
+
+.hrot__masthead {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hrot__mark { display: inline-flex; flex-shrink: 0; }
+
+.hrot__pub {
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: 19px;
+  letter-spacing: -0.01em;
+}
+
+@media (min-width: 760px) {
+  .hrot__pub { font-size: 22px; }
+}
+
+.hrot__meta {
+  margin-left: auto;
+  font-family: var(--tv-font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tv-tracking-wider);
+  text-transform: uppercase;
+}
+
+.hrot__card--programme .hrot__meta { color: rgba(255, 255, 255, 0.78); }
+.hrot__card--verse .hrot__meta     { color: var(--tv-accent-text); opacity: 0.75; }
+
+.hrot__rule {
+  position: relative;
+  display: block;
+  height: 1px;
+  margin: 16px 0;
+}
+
+.hrot__card--programme .hrot__rule { background: rgba(255, 255, 255, 0.22); }
+.hrot__card--verse .hrot__rule     { background: rgba(180, 83, 9, 0.22); }
+
+/* ============ Content ============ */
+
+/* Both faces let their middle take the slack, so the foot sits on the bottom
+   edge whatever the length of what is above it. */
+.hrot__lead-block,
+.hrot__scripture {
+  position: relative;
+  flex: 1;
+  margin: 0;
+  overflow: hidden;
+}
+
+.hrot__lead-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hrot__lead {
+  margin: 0;
+  font-family: var(--tv-font-display);
+  font-weight: var(--tv-fw-semibold);
+  font-size: clamp(1.25rem, 2.4vw, 1.5rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: #FFFFFF;
+}
+
+.hrot__lead-when {
+  margin: 0;
+  font-family: var(--tv-font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tv-tracking-wide);
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/* ============ Schedule footer ============
+   The same two-column footer the featured volume uses for its interview and
+   its essay. Label, title, byline; here it is date, programme, time. */
+
+.hrot__grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.hrot__grid-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.hrot__grid-label {
+  margin: 0;
+  font-family: var(--tv-font-body);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--tv-accent-light);
+}
+
+/* Italic serif, exactly as the volume sets its feature titles. It is what
+   makes the two cards read as the same publication. */
+.hrot__grid-title {
+  margin: 0;
+  font-family: var(--tv-font-serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.22;
+  letter-spacing: -0.005em;
+  color: #FFFFFF;
+}
+
+.hrot__grid-time {
+  margin: 0;
+  font-family: var(--tv-font-body);
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.hrot__scripture {
+  font-family: var(--tv-font-serif);
+  font-style: italic;
+  font-size: clamp(1.0625rem, 2vw, 1.1875rem);
+  line-height: 1.5;
+  color: var(--tv-accent-text);
+}
+
+/* ============ Foot ============ */
+
+.hrot__foot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.hrot__foot-strong {
+  font-family: var(--tv-font-mono);
+  font-size: 11px;
+  letter-spacing: var(--tv-tracking-wide);
+  text-transform: uppercase;
+}
+
+.hrot__foot-weak {
+  font-family: var(--tv-font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tv-tracking-wide);
+  text-transform: uppercase;
+}
+
+.hrot__card--programme .hrot__foot-strong { color: #FFFFFF; }
+.hrot__card--programme .hrot__foot-weak   { color: rgba(255, 255, 255, 0.65); }
+.hrot__card--verse .hrot__foot-strong     { color: var(--tv-accent-text); }
+.hrot__card--verse .hrot__foot-weak       { color: var(--tv-accent-text); opacity: 0.7; }
+
+/* ============ Controls ============ */
+
+.hrot__controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hrot__dots { display: flex; align-items: center; gap: 6px; }
+
+/* 8px dot inside a 44px target. The dot is what is seen; the square is what
+   is pressed. */
+.hrot__dot {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hrot__dot::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--tv-border-strong);
+  transition: background var(--tv-duration-fast) var(--tv-ease),
+              transform var(--tv-duration-fast) var(--tv-ease);
+}
+
+.hrot__dot:hover::after { background: var(--tv-text-muted); }
+
+.hrot__dot--on::after {
+  background: var(--tv-primary);
+  transform: scale(1.35);
+}
+
+.hrot__dot:focus-visible {
+  outline: 2px solid var(--tv-primary);
+  outline-offset: -12px;
+  border-radius: var(--tv-radius-md);
+}
+
+.hrot__label {
+  font-family: var(--tv-font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tv-tracking-wider);
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+}
+
+/* The dots stay: switching faces is the reader's own act, and it is the
+   fading between them that respects the preference. */
+@media (prefers-reduced-motion: reduce) {
+  .hrot__face,
+  .hrot__face--on { transition: none; }
+  .hrot__dot::after { transition: none; }
+  .hrot__layer,
+  .hrot__card { transition: none; }
+}

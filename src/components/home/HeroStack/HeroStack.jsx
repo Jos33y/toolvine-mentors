@@ -1,6 +1,15 @@
 import { useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { recentEditions, heroFeatures, currentEdition } from '@/lib/vinethoughts'
 import './HeroStack.css'
+
+// The three most recent editions, read from the edition list.
+//
+// They used to be written into this file by hand, and all three were wrong.
+// The seasons said Winter 2025, Spring 2026 and Summer 2026 against a list
+// recording Q3 2025, DEC 2025 and MARCH 2026, and the line on each volume was
+// one of the four official taglines rather than that issue's own cover line.
+// The hero was showing a magazine that did not exist.
 
 function VolumeMark() {
   return (
@@ -42,7 +51,7 @@ function Volume({ issue, numeral, year, season, tagline, features, modifier }) {
       {features ? (
         <footer className="hero-stack__features">
           {features.map((f) => (
-            <div key={f.label} className="hero-stack__feature-card">
+            <div key={f.title} className="hero-stack__feature-card">
               <p className="hero-stack__feature-label">{f.label}</p>
               <p className="hero-stack__feature-title">{f.title}</p>
               <p className="hero-stack__feature-author">{f.author}</p>
@@ -58,8 +67,14 @@ function Volume({ issue, numeral, year, season, tagline, features, modifier }) {
   )
 }
 
+// Back to front, so the newest lands on top. recentEditions returns oldest
+// first for exactly this reason.
+const POSITIONS = ['back', 'mid', 'featured']
+
 export function HeroStack() {
   const stackRef = useRef(null)
+  const volumes  = recentEditions(3)
+  const current  = currentEdition()
 
   // Cursor-aware 3D tilt (hover devices only)
   useEffect(() => {
@@ -91,49 +106,46 @@ export function HeroStack() {
     }
   }, [])
 
+  if (volumes.length === 0) return null
+
   return (
     <Link
       to="/resources"
       className="hero-stack"
       ref={stackRef}
-      aria-label="Read Vinethoughts editorial, current Issue 06"
+      aria-label={`Read Vinethoughts, current Issue ${current?.num ?? ''}`}
     >
-      <Volume
-        issue="04"
-        numeral="IV"
-        year="2025"
-        season="Winter 2025"
-        tagline="Mentorship for Kingdom Impact"
-        modifier="back"
-      />
-      <Volume
-        issue="05"
-        numeral="V"
-        year="2026"
-        season="Spring 2026"
-        tagline="Building Godly Leaders for Global Influence"
-        modifier="mid"
-      />
-      <Volume
-        issue="06"
-        numeral="VI"
-        year="2026"
-        season="Summer 2026"
-        tagline="Raising Christ-Centered Leaders Through Mentorship"
-        modifier="featured"
-        features={[
-          {
-            label: 'The Essay',
-            title: 'The Leadership of Pontius Pilate',
-            author: 'by Mentor Dayo Adewole',
-          },
-          {
-            label: 'The Interview',
-            title: 'Mentor Yetunde Sorinola',
-            author: 'CFO, Egbin Power PLC',
-          },
-        ]}
-      />
+      {volumes.map((edition, i) => {
+        const isFront = i === volumes.length - 1
+        return (
+          <Volume
+            key={edition.num}
+            issue={edition.num}
+            numeral={edition.roman}
+            year={yearOf(edition.date)}
+            season={titleCase(edition.date)}
+            tagline={edition.coverline}
+            features={isFront ? heroFeatures(edition) : null}
+            modifier={POSITIONS[i] ?? 'featured'}
+          />
+        )
+      })}
     </Link>
   )
+}
+
+// The list stores dates in caps for the About rack. The volumes set them in
+// sentence case, so they convert here rather than the list carrying the same
+// date twice in two shapes.
+function titleCase(value) {
+  return String(value ?? '')
+    .toLowerCase()
+    .replace(/\b[a-z0-9]/g, (c) => c.toUpperCase())
+}
+
+// The colophon shows a year, and the dates are written as "Q3 2025" or
+// "MARCH 2026". The trailing four digits are the year in both.
+function yearOf(value) {
+  const match = String(value ?? '').match(/\d{4}/)
+  return match ? match[0] : ''
 }

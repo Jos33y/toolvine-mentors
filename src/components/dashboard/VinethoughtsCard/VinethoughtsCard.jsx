@@ -1,16 +1,14 @@
+import { currentEdition } from '@/lib/vinethoughts'
 import './vinethoughtsCard.css'
 
-// Source of truth: pages/public/About.jsx ISSUES[0]. Keep in sync when a
-// new edition is published. A future block can centralise this in src/lib/.
-const CURRENT = {
-  number:    '06',
-  date:      'March 2026',
-  featured:  'Mentor Yetunde Sorinola',
-  coverline: 'On faith, career, and rising through delays',
-  flipbook:  'https://heyzine.com/flip-book/1fa3ba745b.html'
-}
+// Reads the edition list rather than holding a copy of it. The copy here said
+// March 2026 while the home hero said Summer 2026 about the same issue, which
+// is what a hand-sync comment buys you.
 
 export function VinethoughtsCard() {
+  const current = currentEdition()
+  if (!current) return null
+
   return (
     <article className="vine-card">
       <header className="vine-card__head">
@@ -19,19 +17,19 @@ export function VinethoughtsCard() {
 
       <div className="vine-card__cover" aria-hidden="true">
         <span className="vine-card__cover-label">Vol.</span>
-        <span className="vine-card__cover-num">{CURRENT.number}</span>
+        <span className="vine-card__cover-num">{current.num}</span>
       </div>
 
       <div className="vine-card__body">
-        <p className="vine-card__date">{CURRENT.date}</p>
-        <p className="vine-card__coverline">{CURRENT.coverline}</p>
-        <p className="vine-card__featured">Featuring {CURRENT.featured}</p>
+        <p className="vine-card__date">{titleCase(current.date)}</p>
+        <p className="vine-card__coverline">{current.coverline}</p>
+        <p className="vine-card__featured">Featuring {current.featured}</p>
       </div>
 
       <footer className="vine-card__foot">
         <a
           className="vine-card__cta"
-          href={CURRENT.flipbook}
+          href={current.flipbook}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -41,4 +39,13 @@ export function VinethoughtsCard() {
       </footer>
     </article>
   )
+}
+
+// The list stores dates as MARCH 2026 because the About rack sets them in
+// caps. This card sets them in sentence case, so it converts rather than the
+// list carrying the same date twice in two shapes.
+function titleCase(value) {
+  return String(value ?? '')
+    .toLowerCase()
+    .replace(/\b[a-z]/g, (c) => c.toUpperCase())
 }
