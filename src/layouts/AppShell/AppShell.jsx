@@ -59,6 +59,7 @@ const NAV_ITEMS = [
 
   { to: '/admin/resources',    label: 'Manage library',   icon: 'bookOpen',   allow: [ROLES.ADMIN], group: 'content' },
   { to: '/admin/verse',        label: 'Verse of the week', icon: 'sunrise',   allow: [ROLES.ADMIN], group: 'content' },
+  { to: '/admin/programmes',   label: 'Programmes',       icon: 'calendar',   allow: [ROLES.ADMIN], group: 'content' },
   { to: '/admin/partners',     label: 'Partners',         icon: 'handshake',  allow: [ROLES.ADMIN], group: 'content' },
 
   // mail belongs to inbound post, so Invites moved off it above. Two rows

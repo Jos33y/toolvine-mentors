@@ -98,11 +98,11 @@
   position: relative; z-index: 1; overflow: hidden;
   background: linear-gradient(
     145deg,
-    #083832 0%,
-    #0F766E 30%,
-    #0b5c56 55%,
-    #072e2a 80%,
-    #0a3d38 100%
+    #05221E 0%,
+    #094742 30%,
+    #073734 55%,
+    #041C19 80%,
+    #062522 100%
   );
   color: var(--tv-text-inverse);
 }
@@ -110,10 +110,10 @@
 .prog__programs-glow {
   position: absolute; inset: 0; pointer-events: none;
   background:
-    radial-gradient(ellipse 55% 70% at 5% 0%, rgba(20, 184, 166, 0.22), transparent 55%),
+    radial-gradient(ellipse 55% 70% at 5% 0%, rgba(20, 184, 166, 0.10), transparent 55%),
     radial-gradient(ellipse 45% 55% at 95% 90%, rgba(7, 40, 36, 0.6), transparent 50%),
     radial-gradient(circle 400px at 80% 10%, rgba(217, 119, 6, 0.07), transparent 55%),
-    radial-gradient(ellipse 70% 35% at 40% 100%, rgba(15, 118, 110, 0.18), transparent 50%);
+    radial-gradient(ellipse 70% 35% at 40% 100%, rgba(15, 118, 110, 0.10), transparent 50%);
 }
 
 .prog__programs-grid {
@@ -156,7 +156,7 @@
   margin: var(--tv-space-4) 0 0;
   font-family: var(--tv-font-serif); font-style: italic;
   font-size: clamp(0.9375rem, 1.2vw, 1.0625rem); line-height: 1.6;
-  color: rgba(255, 255, 255, 0.7); max-width: 52ch;
+  color: rgba(255, 255, 255, 0.72); max-width: 52ch;
 }
 
 /* Program rows */
@@ -168,10 +168,10 @@
   grid-template-columns: clamp(64px, 9vw, 100px) 1fr;
   gap: clamp(var(--tv-space-4), 3vw, var(--tv-space-8));
   padding: clamp(var(--tv-space-8), 4.5vw, var(--tv-space-12)) 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
   align-items: start;
 }
-.prog__program:first-child { border-top: 1px solid rgba(255, 255, 255, 0.08); }
+.prog__program:first-child { border-top: 1px solid rgba(255, 255, 255, 0.10); }
 
 .prog__program-mark-wrap { padding-top: 4px; }
 
@@ -192,7 +192,7 @@
 
 .prog__program-desc {
   font-size: var(--tv-fs-base); line-height: 1.65;
-  color: rgba(255, 255, 255, 0.65); max-width: 56ch; margin: 0;
+  color: rgba(255, 255, 255, 0.7); max-width: 56ch; margin: 0;
 }
 
 .prog__program-detail {
@@ -200,20 +200,227 @@
   margin: var(--tv-space-2) 0 0;
   font-family: var(--tv-font-mono); font-size: 0.6875rem;
   letter-spacing: var(--tv-tracking-wider); text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.62);
 }
 
 .prog__program-detail-sep {
   color: var(--tv-accent-light); opacity: 0.7;
 }
 
+/* The row has a strong left pole in the serif letter and had nothing on the
+   right, so the description ran out mid-width and left the rest of the row
+   empty. The date takes that side: a serif letter against a display numeral,
+   the two ends of the same line. */
+@media (min-width: 1024px) {
+  .prog__program {
+    grid-template-columns: clamp(64px, 9vw, 100px) minmax(0, 1fr) clamp(150px, 15vw, 190px);
+  }
+}
+
+.prog__sr {
+  position: absolute; width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+.prog__when {
+  margin: var(--tv-space-4) 0 0;
+  padding-top: var(--tv-space-4);
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+/* Above the breakpoint it sits in its own column, aligned to the top of the
+   row rather than to the description that varies in length. */
+@media (min-width: 1024px) {
+  .prog__when {
+    margin: 0;
+    padding: clamp(4px, 0.5vw, 10px) 0 0 clamp(var(--tv-space-5), 2vw, var(--tv-space-8));
+    border-top: none;
+    border-left: 1px solid rgba(255, 255, 255, 0.10);
+    align-self: stretch;
+  }
+}
+
+/* Stacked on the wide layout, laid out along the line on narrow screens where
+   a tall block would push the next programme off the fold. */
+.prog__when-stack {
+  display: flex; flex-wrap: wrap; align-items: baseline;
+  gap: var(--tv-space-2) var(--tv-space-3);
+}
+
+@media (min-width: 1024px) {
+  .prog__when-stack {
+    display: grid;
+    justify-items: start;
+    gap: 0;
+  }
+}
+
+.prog__when-dow {
+  font-family: var(--tv-font-mono); font-size: 0.6875rem;
+  letter-spacing: var(--tv-tracking-wider); text-transform: uppercase;
+  color: var(--tv-accent-light);
+}
+
+/* The counterweight to the serif mark. Display face against that serif, white
+   against teal, a number against a letter. */
+.prog__when-day {
+  font-family: var(--tv-font-display); font-weight: var(--tv-fw-semibold);
+  font-size: clamp(2rem, 4vw, 3.25rem); line-height: 0.9;
+  letter-spacing: -0.03em; color: var(--tv-text-inverse);
+}
+
+@media (min-width: 1024px) {
+  .prog__when-day { margin: var(--tv-space-1) 0; }
+}
+
+.prog__when-month {
+  font-family: var(--tv-font-mono); font-size: 0.6875rem;
+  letter-spacing: var(--tv-tracking-wider); text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+/* Hidden on narrow screens, where the parts already sit on one line and a
+   rule between them would be dividing nothing. */
+.prog__when-rule { display: none; }
+
+@media (min-width: 1024px) {
+  .prog__when-rule {
+    display: block; width: 28px; height: 1px;
+    margin: var(--tv-space-3) 0;
+    background: rgba(255, 255, 255, 0.28);
+  }
+}
+
+.prog__when-time {
+  font-family: var(--tv-font-mono); font-size: 0.6875rem;
+  letter-spacing: var(--tv-tracking-wide);
+  color: rgba(255, 255, 255, 0.62);
+}
+
+/* Equip has no rule, so it says so rather than holding an empty plate. */
+.prog__when--none {
+  font-family: var(--tv-font-mono); font-size: 0.6875rem;
+  letter-spacing: var(--tv-tracking-wider); text-transform: uppercase;
+  color: var(--tv-accent-light); line-height: 1.6;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .prog__program { transition: background 300ms var(--tv-ease); }
   .prog__program:hover { background: rgba(255, 255, 255, 0.02); }
   .prog__program:hover .prog__program-mark { color: rgba(94, 234, 212, 0.85); }
-  .prog__program:hover .prog__program-desc { color: rgba(255, 255, 255, 0.82); }
-  .prog__program:hover .prog__program-detail { color: rgba(255, 255, 255, 0.75); }
+  .prog__program:hover .prog__program-desc { color: rgba(255, 255, 255, 0.88); }
+  .prog__program:hover .prog__program-detail { color: rgba(255, 255, 255, 0.8); }
+
+  /* Both poles answer the hover, and they answer it differently: the letter
+     warms, the numeral's rule extends. A uniform lift on every child is the
+     thing that reads as a template. */
+  .prog__when,
+  .prog__when-rule { transition: border-color 300ms var(--tv-ease), width 300ms var(--tv-ease), background 300ms var(--tv-ease); }
+  .prog__program:hover .prog__when { border-left-color: rgba(255, 255, 255, 0.18); }
+  .prog__program:hover .prog__when-rule { width: 52px; background: var(--tv-accent-light); }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .prog__program,
+  .prog__when,
+  .prog__when-rule { transition: none; }
+}
+
+/* Development only. Never rendered in a production build, so it is styled to
+   be seen and got rid of rather than to sit comfortably on the page. */
+.prog__devnote {
+  max-width: var(--tv-content-max);
+  margin: 0 auto;
+  padding: var(--tv-space-3) var(--tv-space-6);
+  background: var(--tv-error-bg);
+  color: var(--tv-error-text);
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  line-height: var(--tv-lh-base);
+}
+
+/* ============ Past gatherings: cream, dated rows ============ */
+
+.prog__past {
+  position: relative; z-index: 1;
+  background: var(--tv-canvas-brand);
+  border-bottom: 1px solid var(--tv-border);
+}
+
+.prog__past-inner {
+  max-width: var(--tv-content-max); margin: 0 auto;
+  padding: clamp(var(--tv-space-12), 6vw, var(--tv-space-16)) var(--tv-space-6);
+}
+
+.prog__past-header { margin-bottom: clamp(var(--tv-space-8), 4vw, var(--tv-space-10)); max-width: 56ch; }
+
+.prog__past-eyebrow {
+  font-family: var(--tv-font-mono); font-size: 0.6875rem;
+  letter-spacing: var(--tv-tracking-wider); text-transform: uppercase;
+  color: var(--tv-accent-text); margin: 0 0 var(--tv-space-4);
+}
+
+.prog__past-title {
+  font-family: var(--tv-font-display); font-weight: var(--tv-fw-semibold);
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem); letter-spacing: -0.02em;
+  color: var(--tv-text); margin: 0 0 var(--tv-space-4);
+}
+
+.prog__past-lede {
+  font-size: var(--tv-fs-md); line-height: 1.65;
+  color: var(--tv-text-2); margin: 0;
+}
+
+.prog__past-list { list-style: none; margin: 0; padding: 0; }
+
+/* Date rail on the left at desktop, stacked under 760px. Mirrors the cadence
+   list below it so the two sections read as one page rather than two. */
+.prog__past-row {
+  display: grid; grid-template-columns: 1fr;
+  gap: var(--tv-space-2);
+  padding: clamp(var(--tv-space-6), 3vw, var(--tv-space-8)) 0;
+  border-bottom: 1px solid var(--tv-border);
+}
+.prog__past-row:first-child { border-top: 1px solid var(--tv-border); }
+
+@media (min-width: 760px) {
+  .prog__past-row {
+    grid-template-columns: clamp(140px, 18vw, 200px) 1fr;
+    gap: clamp(var(--tv-space-4), 3vw, var(--tv-space-8));
+    align-items: baseline;
+  }
+}
+
+.prog__past-date {
+  font-family: var(--tv-font-mono); font-size: 0.6875rem;
+  letter-spacing: var(--tv-tracking-wider); text-transform: uppercase;
+  color: var(--tv-text-muted); margin: 0;
+}
+
+.prog__past-content { display: flex; flex-direction: column; gap: var(--tv-space-2); }
+
+.prog__past-row-title {
+  font-family: var(--tv-font-display); font-weight: var(--tv-fw-semibold);
+  font-size: clamp(1.0625rem, 1.8vw, 1.25rem); letter-spacing: -0.01em;
+  color: var(--tv-text); margin: 0;
+}
+
+.prog__past-body {
+  font-size: var(--tv-fs-base); line-height: 1.65;
+  color: var(--tv-text-2); max-width: 60ch; margin: 0;
+}
+
+/* A month that did not happen is still part of the record. Carried on the
+   amber rule rather than greyed out: greying it would read as an error. */
+.prog__past-note {
+  padding-left: var(--tv-space-4);
+  border-left: 2px solid var(--tv-accent);
+  font-size: var(--tv-fs-base); line-height: 1.65;
+  color: var(--tv-text-2); max-width: 60ch; margin: 0;
+}
+
+.prog__past-row--skipped .prog__past-row-title { color: var(--tv-text-2); }
 
 /* ============ Cadence: cream canvas, structural timeline ============ */
 

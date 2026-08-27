@@ -1,7 +1,15 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Icon } from '@/components/shared/Icon/Icon'
 import { Logo } from '@/components/shared/Logo/Logo'
 import { RevealOnScroll } from '@/components/shared/RevealOnScroll/RevealOnScroll'
+import {
+  fetchPublicSchedule,
+  nextBySlug,
+  pastWorthShowing,
+  programmeWhenParts,
+  programmeDayOnly
+} from '@/lib/programmes'
 import './Programs.css'
 
 /* ============ Data ============ */
@@ -11,6 +19,7 @@ const BADGES = ['Four programs', 'Monthly rhythm', 'Open to all', 'Free to join'
 const PROGRAMS = [
   {
     mark: 'A',
+    slug: 'family_meeting',
     title: 'Toolvine Family Meeting',
     body: 'Our monthly gathering. Guest speakers, mentoring interactions, discussions, prayer, and Q&A. Open to the whole community.',
     cadence: 'Monthly',
@@ -18,6 +27,7 @@ const PROGRAMS = [
   },
   {
     mark: 'B',
+    slug: 'pray',
     title: 'Toolvine Pray',
     body: 'Our monthly prayer meeting, led by a team drawn from across the community.',
     cadence: 'Monthly',
@@ -25,6 +35,7 @@ const PROGRAMS = [
   },
   {
     mark: 'C',
+    slug: 'pillars',
     title: 'Toolvine Pillars Meeting',
     body: "Every team leader brings the month's updates from their unit. This is how the initiative stays connected to itself.",
     cadence: 'Monthly',
@@ -32,6 +43,7 @@ const PROGRAMS = [
   },
   {
     mark: 'D',
+    slug: 'equip',
     title: 'Toolvine Equip',
     body: 'Training for mentors and mentees, present and incoming. Where the work of mentoring gets sharpened.',
     cadence: 'Ongoing',
@@ -72,9 +84,70 @@ const MENTOR_COMMITMENTS = [
   { icon: 'info', text: 'Refer up when the conversation is beyond mentoring.' }
 ]
 
+/* ============ Date plate ============ */
+
+// The visual stack is hidden from assistive tech and the whole sentence is
+// exposed once instead. "SUN 20 SEPTEMBER" read out is worse than "Sunday 20
+// September, 7:00 PM WAT", and reading both is worst of all.
+function WhenPlate({ row, slug }) {
+  const parts = programmeWhenParts(row)
+
+  if (!parts) {
+    return (
+      <p className="prog__when prog__when--none">
+        {slug === 'equip' ? 'Announced when scheduled' : 'Date to be confirmed'}
+      </p>
+    )
+  }
+
+  return (
+    <p className="prog__when">
+      <span className="prog__sr">Next: {parts.full}</span>
+      <span className="prog__when-stack" aria-hidden="true">
+        <span className="prog__when-dow">{parts.weekday}</span>
+        <span className="prog__when-day">{parts.day}</span>
+        <span className="prog__when-month">{parts.month}</span>
+        <span className="prog__when-rule" />
+        <span className="prog__when-time">{parts.time} {parts.zone}</span>
+      </span>
+    </p>
+  )
+}
+
 /* ============ Component ============ */
 
 export function Programs() {
+  const [rows, setRows] = useState([])
+  const [fetchError, setFetchError] = useState(null)
+
+  // A visitor still gets no spinner and no error banner: the dates are an
+  // addition to a page that reads completely without them. What changed is
+  // that the failure is no longer thrown away. Swallowing it meant a broken
+  // fetch and an empty result looked identical, which cost a debugging round
+  // trip that the console would have answered in ten seconds.
+  useEffect(() => {
+    let cancelled = false
+    fetchPublicSchedule()
+      .then((data) => {
+        if (cancelled) return
+        setRows(data)
+        setFetchError(null)
+        if (import.meta.env.DEV) {
+          console.info(`[programmes] ${data.length} occurrences loaded`)
+        }
+      })
+      .catch((e) => {
+        if (cancelled) return
+        setRows([])
+        setFetchError(e)
+        console.error('[programmes] schedule fetch failed:', e?.message || e, e)
+      })
+    return () => { cancelled = true }
+  }, [])
+
+  const next = nextBySlug(rows)
+  const past = pastWorthShowing(rows)
+
   return (
     <div className="prog">
       <div className="prog__atmosphere" aria-hidden="true" />
@@ -130,13 +203,61 @@ export function Programs() {
                       <span className="prog__program-detail-sep" aria-hidden="true">·</span>
                       <span>{p.audience}</span>
                     </p>
+
                   </div>
+
+                  {/* Q28. The next one only. The serif letter anchors the row
+                      on the left; this is what answers it on the right. */}
+                  <WhenPlate row={next.get(p.slug)} slug={p.slug} />
                 </article>
               </RevealOnScroll>
             ))}
           </div>
         </div>
       </section>
+
+      {import.meta.env.DEV && fetchError && (
+        <p className="prog__devnote" role="status">
+          Dates did not load: {fetchError.message || String(fetchError)}
+        </p>
+      )}
+
+      {/* ============ Past gatherings ============ */}
+      {/* Hides itself entirely when there is nothing to show. The migration
+          never backfills, so this is empty until a month has actually passed,
+          and an empty section on a live page is worse than no section. Same
+          principle as the verse card dropping itself once it goes stale. */}
+      {past.length > 0 && (
+        <section className="prog__past" aria-label="Past gatherings">
+          <div className="prog__past-inner">
+            <div className="prog__past-header">
+              <p className="prog__past-eyebrow">WHAT HAPPENED</p>
+              <h2 className="prog__past-title">Recent gatherings.</h2>
+              <p className="prog__past-lede">
+                The months behind us, and what was said in them.
+              </p>
+            </div>
+
+            <ol className="prog__past-list">
+              {past.map((o, i) => (
+                <RevealOnScroll key={o.occurrence_id} delay={i * 60} threshold={0.15}>
+                  <li className={'prog__past-row' + (o.is_skipped ? ' prog__past-row--skipped' : '')}>
+                    <p className="prog__past-date">{programmeDayOnly(o)}</p>
+                    <div className="prog__past-content">
+                      <h3 className="prog__past-row-title">{o.title}</h3>
+                      {o.is_skipped ? (
+                        <p className="prog__past-note">{o.skip_note}</p>
+                      ) : (
+                        <p className="prog__past-body">{o.recap || o.description}</p>
+                      )}
+                    </div>
+                  </li>
+                </RevealOnScroll>
+              ))}
+            </ol>
+          </div>
+        </section>
+      )}
 
       {/* ============ Cadence: what 12 weeks looks like ============ */}
       <section className="prog__cadence" aria-label="The cadence of a pairing">

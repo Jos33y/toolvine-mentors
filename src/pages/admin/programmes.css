@@ -1,0 +1,601 @@
+/* Admin programmes. Working surface, so the app canvas and the same hairline
+   list language as the users page rather than anything from the marketing
+   side. Shared by Programmes.jsx and ProgrammeOccurrences.jsx: one page, one
+   row family, one stylesheet. */
+
+.admin-prog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-8);
+}
+
+/* ============ Head ============ */
+
+.admin-prog__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-4);
+}
+
+.admin-prog__lede {
+  margin: var(--tv-space-2) 0 0;
+  max-width: var(--tv-prose-max);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+}
+
+.admin-prog__notice,
+.admin-prog__error {
+  margin: 0;
+  padding: var(--tv-space-3) var(--tv-space-4);
+  border-radius: var(--tv-radius-md);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+}
+
+.admin-prog__notice {
+  background: var(--tv-primary-soft);
+  color: var(--tv-primary);
+}
+
+.admin-prog__error {
+  background: var(--tv-error-bg);
+  color: var(--tv-error-text);
+}
+
+.admin-prog__state {
+  margin: 0;
+  padding: var(--tv-space-8) 0;
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-muted);
+  max-width: var(--tv-prose-max);
+}
+
+/* ============ Programme rows ============ */
+
+.admin-prog__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--tv-border);
+}
+
+.admin-prog__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--tv-space-4);
+  align-items: start;
+  padding: var(--tv-space-5) 0;
+  border-bottom: 1px solid var(--tv-border);
+}
+
+/* A hidden programme still runs; it just is not advertised. Dimming the whole
+   row would read as broken rather than as off. */
+.admin-prog__row--off .admin-prog__name { color: var(--tv-text-2); }
+
+.admin-prog__row-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-2);
+  min-width: 0;
+}
+
+.admin-prog__row-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tv-space-3);
+}
+
+.admin-prog__name {
+  margin: 0;
+  font-family: var(--tv-font-display);
+  font-size: var(--tv-fs-md);
+  font-weight: var(--tv-fw-semibold);
+  letter-spacing: -0.01em;
+  color: var(--tv-text);
+}
+
+.admin-prog__pill--next {
+  background: var(--tv-primary-soft);
+  border-color: transparent;
+  color: var(--tv-primary);
+}
+
+.admin-prog__pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--tv-space-2);
+  background: var(--tv-canvas-app);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-pill);
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  color: var(--tv-text-muted);
+}
+
+/* The rule in words. Mono because it is a setting, not prose. */
+.admin-prog__rule {
+  margin: 0;
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  color: var(--tv-text-2);
+}
+
+.admin-prog__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tv-space-2);
+  margin: 0;
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+}
+
+.admin-prog__next { color: var(--tv-text-2); font-weight: var(--tv-fw-medium); }
+.admin-prog__next--none { color: var(--tv-warning-text); }
+
+.admin-prog__dot { color: var(--tv-border-strong); }
+
+.admin-prog__warn {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-1);
+  margin: 0;
+  font-size: var(--tv-fs-xs);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-warning-text);
+}
+
+/* ============ Buttons ============ */
+
+.admin-prog__action,
+.admin-prog__cancel,
+.admin-prog__more {
+  min-height: 36px;
+  padding: var(--tv-space-2) var(--tv-space-4);
+  background: transparent;
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-2);
+  cursor: pointer;
+  transition: border-color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.admin-prog__action:hover:not(:disabled),
+.admin-prog__cancel:hover:not(:disabled),
+.admin-prog__more:hover { border-color: var(--tv-border-strong); }
+
+.admin-prog__action:disabled,
+.admin-prog__cancel:disabled { opacity: 0.5; cursor: default; }
+
+.admin-prog__add,
+.admin-prog__save {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  min-height: 40px;
+  padding: var(--tv-space-2) var(--tv-space-5);
+  background: var(--tv-primary);
+  color: var(--tv-text-inverse);
+  border: none;
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-semibold);
+  cursor: pointer;
+  transition: background var(--tv-duration-fast) var(--tv-ease);
+}
+
+.admin-prog__add:hover,
+.admin-prog__save:hover:not(:disabled) { background: var(--tv-primary-hover); }
+
+/* Neutral rather than faded brand. A washed-out teal still reads pressable. */
+.admin-prog__save:disabled,
+.admin-prog__save:disabled:hover {
+  background: var(--tv-border);
+  color: var(--tv-text-muted);
+  cursor: default;
+}
+
+.admin-prog__more { align-self: flex-start; }
+
+/* ============ Forms ============ */
+
+.admin-prog__form,
+.admin-prog__inline {
+  grid-column: 1 / -1;
+  margin-top: var(--tv-space-4);
+  padding: var(--tv-space-5);
+  background: var(--tv-canvas-app);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-lg);
+}
+
+.admin-prog__field { display: flex; flex-direction: column; gap: var(--tv-space-2); }
+
+.admin-prog__field + .admin-prog__field,
+.admin-prog__field-row + .admin-prog__field,
+.admin-prog__field + .admin-prog__field-row,
+.admin-prog__field-row + .admin-prog__field-row { margin-top: var(--tv-space-4); }
+
+.admin-prog__field-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--tv-space-4);
+}
+
+@media (min-width: 760px) {
+  .admin-prog__field-row { grid-template-columns: 1fr 1fr; }
+}
+
+.admin-prog__label {
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+}
+
+.admin-prog__input {
+  width: 100%;
+  min-height: 44px;
+  padding: var(--tv-space-2) var(--tv-space-3);
+  background: var(--tv-surface);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text);
+}
+
+.admin-prog__input:focus {
+  outline: none;
+  border-color: var(--tv-primary);
+  box-shadow: var(--tv-shadow-focus);
+}
+
+.admin-prog__input::placeholder { color: var(--tv-text-muted); }
+
+.admin-prog__input--area {
+  min-height: 0;
+  padding: var(--tv-space-3);
+  line-height: var(--tv-lh-base);
+  resize: vertical;
+}
+
+.admin-prog__input--filter { width: auto; min-width: 200px; }
+
+.admin-prog__hint {
+  margin: 0;
+  font-size: var(--tv-fs-xs);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-muted);
+}
+
+.admin-prog__hint--warn { color: var(--tv-warning-text); }
+
+.admin-prog__check {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-3);
+  margin-top: var(--tv-space-4);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-2);
+  cursor: pointer;
+}
+
+.admin-prog__form-error {
+  margin: 0 0 var(--tv-space-4);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-error-text);
+}
+
+.admin-prog__form-actions,
+.admin-prog__inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tv-space-3);
+  margin-top: var(--tv-space-5);
+}
+
+/* ============ Occurrences ============ */
+
+.admin-prog__occ {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-4);
+}
+
+.admin-prog__occ-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-3);
+}
+
+@media (min-width: 760px) {
+  .admin-prog__occ-head {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+}
+
+.admin-prog__occ-title {
+  margin: 0 0 var(--tv-space-2);
+  font-family: var(--tv-font-display);
+  font-size: var(--tv-fs-lg);
+  font-weight: var(--tv-fw-semibold);
+  letter-spacing: -0.01em;
+  color: var(--tv-text);
+}
+
+.admin-prog__filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tv-space-3);
+}
+
+.admin-prog__scope {
+  display: inline-flex;
+  gap: var(--tv-space-1);
+  padding: var(--tv-space-1);
+  background: var(--tv-canvas-app);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+}
+
+.admin-prog__scope-btn {
+  min-height: 34px;
+  padding: var(--tv-space-1) var(--tv-space-4);
+  background: transparent;
+  border: none;
+  border-radius: var(--tv-radius-sm);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text-muted);
+  cursor: pointer;
+}
+
+.admin-prog__scope-btn--on {
+  background: var(--tv-surface);
+  color: var(--tv-primary);
+  font-weight: var(--tv-fw-medium);
+}
+
+.admin-prog__occ-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--tv-border);
+}
+
+/* ============ Month grouping ============ */
+
+.admin-prog__months { display: flex; flex-direction: column; }
+
+/* No styling of its own. It exists so each month's heading and rows form one
+   scroll group, which is what the sticky heading sticks within. */
+.admin-prog__month { display: block; }
+
+/* The heading carries the month and the year once, which is what let the row
+   rail drop from three lines to two. */
+.admin-prog__month-label {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  margin: 0;
+  padding: var(--tv-space-3) 0 var(--tv-space-2);
+  background: var(--tv-canvas-app);
+  border-bottom: 1px solid var(--tv-border);
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-medium);
+  letter-spacing: var(--tv-tracking-wider);
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+}
+
+/* Date rail, body, actions. Same three-part row as the meetings list so the
+   two working surfaces read as one product. */
+.admin-prog__occ-row {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: var(--tv-space-4);
+  align-items: center;
+  padding: var(--tv-space-3) 0;
+  border-bottom: 1px solid var(--tv-border);
+}
+
+@media (min-width: 760px) {
+  .admin-prog__occ-row { grid-template-columns: 44px minmax(0, 1fr) auto; }
+}
+
+.admin-prog__occ-row--skipped .admin-prog__occ-name { color: var(--tv-text-muted); }
+.admin-prog__occ-row--skipped .admin-prog__occ-day  { color: var(--tv-text-muted); }
+
+.admin-prog__occ-when {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.05;
+}
+
+.admin-prog__occ-day {
+  font-family: var(--tv-font-display);
+  font-size: var(--tv-fs-lg);
+  font-weight: var(--tv-fw-semibold);
+  font-variant-numeric: tabular-nums;
+  color: var(--tv-text);
+}
+
+.admin-prog__occ-dow {
+  font-family: var(--tv-font-mono);
+  font-size: 0.625rem;
+  letter-spacing: var(--tv-tracking-wider);
+  color: var(--tv-text-muted);
+}
+
+
+.admin-prog__occ-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-2);
+  min-width: 0;
+}
+
+.admin-prog__occ-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tv-space-2);
+  margin: 0;
+}
+
+.admin-prog__occ-name {
+  font-size: var(--tv-fs-base);
+  font-weight: var(--tv-fw-medium);
+  color: var(--tv-text);
+}
+
+.admin-prog__occ-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tv-space-2);
+  margin: 0;
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+}
+
+.admin-prog__occ-body {
+  margin: 0;
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  max-width: var(--tv-prose-max);
+  overflow-wrap: anywhere;
+}
+
+/* The recap is the thing the public page shows, so it carries the brand rule
+   rather than sitting as one more grey paragraph. */
+.admin-prog__occ-recap {
+  margin: 0;
+  padding-left: var(--tv-space-3);
+  border-left: 2px solid var(--tv-primary-light);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  max-width: var(--tv-prose-max);
+  overflow-wrap: anywhere;
+}
+
+.admin-prog__occ-note {
+  margin: 0;
+  padding-left: var(--tv-space-3);
+  border-left: 2px solid var(--tv-accent);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+  max-width: var(--tv-prose-max);
+  overflow-wrap: anywhere;
+}
+
+.admin-prog__occ-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tv-space-2);
+  grid-column: 2 / -1;
+}
+
+@media (min-width: 760px) {
+  .admin-prog__occ-actions { grid-column: auto; justify-content: flex-end; }
+}
+
+/* On a pointer device the actions wait until the row is hovered or something
+   inside it has focus. Twelve rows carrying two permanent buttons each is
+   twenty-four boxes competing with the dates the list exists to show. Touch
+   keeps them, per the no-hover-only rule. */
+@media (hover: hover) and (pointer: fine) {
+  .admin-prog__occ-actions {
+    opacity: 0;
+    transition: opacity var(--tv-duration-fast) var(--tv-ease);
+  }
+  .admin-prog__occ-row:hover .admin-prog__occ-actions,
+  .admin-prog__occ-row:focus-within .admin-prog__occ-actions { opacity: 1; }
+  .admin-prog__occ-row:hover { background: var(--tv-surface); }
+}
+
+/* ============ Shared link ============ */
+
+.admin-prog__shared {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--tv-space-4);
+  align-items: start;
+  padding: var(--tv-space-4) var(--tv-space-5);
+  background: var(--tv-canvas-app);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-lg);
+}
+
+.admin-prog__shared--empty { border-color: var(--tv-warning-text); }
+
+.admin-prog__shared-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tv-space-1);
+  min-width: 0;
+}
+
+.admin-prog__shared-label {
+  margin: 0;
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+}
+
+/* Mono, because it is a value to be checked character by character rather
+   than read. */
+.admin-prog__shared-url {
+  margin: 0;
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-sm);
+  color: var(--tv-text);
+  overflow-wrap: anywhere;
+}
+
+.admin-prog__shared-none {
+  margin: 0;
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-warning-text);
+}
+
+.admin-prog__link {
+  margin: 0;
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.admin-prog__link--shared { color: var(--tv-text-muted); font-style: normal; }
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-prog__occ-actions,
+  .admin-prog__action,
+  .admin-prog__cancel,
+  .admin-prog__more,
+  .admin-prog__add,
+  .admin-prog__save { transition: none; }
+}
