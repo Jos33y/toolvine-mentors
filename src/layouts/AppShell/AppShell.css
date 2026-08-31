@@ -133,6 +133,27 @@
   margin-right: var(--tv-space-2);
 }
 
+/* ============ Nav count badge ============ */
+
+/* Sits on the row that has something waiting. Absent at zero, so the badge
+   only ever appears when there is work, which is what makes it worth looking
+   at. Reads on the dark sidebar and on the dark sheet without a second rule. */
+.shell-nav-count,
+.shell-sheet-count {
+  margin-left: auto;
+  min-width: 20px;
+  padding: 0 6px;
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  line-height: 18px;
+  text-align: center;
+  color: var(--tv-sidebar-bg);
+  background: var(--tv-primary-softer);
+  border-radius: var(--tv-radius-pill);
+  flex-shrink: 0;
+}
+
 /* ============ Sidebar identity block (desktop foot) ============ */
 
 .shell-identity {
@@ -239,9 +260,12 @@
   border-bottom: 1px solid var(--tv-border);
 }
 
-/* Suppress topbar bottom border when the onboarding banner is mounted below;
-   otherwise the two hairlines stack into a doubled rule. */
-.shell-main:has(.onbb) .shell-topbar {
+/* Suppress the topbar bottom border when a banner is mounted below it;
+   otherwise the two hairlines stack into a doubled rule. The onboarding
+   banner was the only one when this was written and there are four now, so
+   the selector lists them rather than naming one. */
+.shell-main:has(.onbb) .shell-topbar,
+.shell-main:has(.tstb) .shell-topbar {
   border-bottom-color: transparent;
 }
 

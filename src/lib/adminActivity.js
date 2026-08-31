@@ -57,6 +57,17 @@ export async function fetchActivityPage({
 // the 21 rows in the log were falling through to the slug fallback below.
 // The two apparent orphans are left in place until the code that would write
 // them has actually been read.
+//
+// Seven more were added after diffing the logged action names against this
+// list rather than against the log. Five had never fired because logIfAdmin
+// only writes when an admin is the actor and no admin had scheduled,
+// completed, cancelled or reopened a meeting since the log shipped. Two were
+// mine, from item 6, and had no template at all. D90: the pair ships together.
+//
+// Two naming conventions coexist here. Actions on people and relationships
+// read verb first (approve_mentor, end_pairing); content objects read noun
+// first (resource_created, submission_archived). Testimonies are a moderation
+// queue like submissions, so they follow that side.
 const TEMPLATES = {
   approve_mentor:    'approved {target} as mentor',
   confirm_mentee:    'confirmed {target} as mentee',
@@ -79,7 +90,28 @@ const TEMPLATES = {
   archive_resource:  'archived the resource {target}',
   submission_read:   'opened a submission from {target}',
   submission_replied:'replied to a submission from {target}',
-  submission_archived:'archived a submission from {target}'
+  submission_archived:'archived a submission from {target}',
+
+  // Meetings. reschedule_meeting was already here; the rest were logged by
+  // meetings.js with nothing to render them.
+  schedule_meeting:  'scheduled a meeting for {target}',
+  complete_meeting:  'marked a meeting complete for {target}',
+  cancel_meeting:    'cancelled a meeting for {target}',
+  reopen_meeting:    'reopened a meeting for {target}',
+  reassign_pairing:  'reassigned {target}',
+
+  // Convened meetings, item 6.
+  add_meeting_attendees:   'added people to {target}',
+  remove_meeting_attendee: 'removed somebody from {target}',
+
+  // Testimonies, item 7.
+  testimony_recorded:  'recorded a testimony from {target}',
+  testimony_requested: 'asked {target} for a testimony',
+  testimony_approved:  'published a testimony from {target}',
+  testimony_declined:  'declined a testimony from {target}',
+  testimony_featured:  'featured a testimony from {target}',
+  testimony_edited:    'corrected a testimony from {target}',
+  testimony_deleted:   'removed a declined testimony'
 }
 
 export function templateForAction(action) {

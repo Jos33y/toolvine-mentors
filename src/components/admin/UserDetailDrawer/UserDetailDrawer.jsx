@@ -171,6 +171,10 @@ function Details({ user }) {
 
   const rows = [
     ['Joined',        longDate(user.created_at)],
+    // Null is dropped by the filter below rather than rendered as "never".
+    // The column only began recording when touch_last_seen shipped, so an
+    // absent value means before that, not somebody who has never signed in.
+    ['Last seen',     relativeDays(user.last_seen_at)],
     ['WhatsApp',      user.whatsapp_phone],
     ['Other phone',   user.other_phone],
     ['Country',       user.country],

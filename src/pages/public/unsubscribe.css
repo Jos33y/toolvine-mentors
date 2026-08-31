@@ -1,0 +1,112 @@
+/* Unsubscribe. One card, one message, warm cream. A marketing surface by
+   canvas but a utility page by job, so it stays quiet. */
+
+.unsub {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: var(--tv-space-16) var(--tv-space-5);
+  background: var(--tv-canvas-brand);
+}
+
+.unsub__card {
+  max-width: var(--tv-prose-max);
+  width: 100%;
+  padding: var(--tv-space-8);
+  background: var(--tv-surface);
+  border: var(--tv-border-width) solid var(--tv-border);
+  border-radius: var(--tv-radius-lg);
+}
+
+.unsub__title {
+  margin: 0 0 var(--tv-space-4);
+  font-family: var(--tv-font-display);
+  font-size: var(--tv-fs-lg);
+  font-weight: var(--tv-fw-semibold);
+  line-height: var(--tv-lh-snug);
+  letter-spacing: var(--tv-tracking-tight);
+  color: var(--tv-text);
+}
+
+.unsub__body {
+  margin: 0 0 var(--tv-space-4);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-base);
+  line-height: var(--tv-lh-relaxed);
+  color: var(--tv-text-2);
+}
+
+.unsub__note {
+  margin: 0 0 var(--tv-space-6);
+  padding-top: var(--tv-space-4);
+  border-top: var(--tv-border-width) solid var(--tv-border);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-muted);
+}
+
+.unsub__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tv-space-4);
+}
+
+.unsub__cta {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--tv-space-5);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-medium);
+  text-decoration: none;
+  border-radius: var(--tv-radius-md);
+  transition: background var(--tv-duration-fast) var(--tv-ease);
+}
+
+/* Pinned across every state including visited. A global a:hover rule takes
+   the label colour on one of them otherwise, and only the hovered one ever
+   gets noticed. */
+.unsub__cta,
+.unsub__cta:hover,
+.unsub__cta:focus-visible,
+.unsub__cta:active,
+.unsub__cta:visited {
+  color: var(--tv-text-inverse);
+  background: var(--tv-primary);
+}
+
+.unsub__cta:hover,
+.unsub__cta:focus-visible { background: var(--tv-primary-hover); }
+.unsub__cta:focus-visible { outline: none; box-shadow: var(--tv-shadow-focus); }
+
+.unsub__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  border-radius: var(--tv-radius-sm);
+}
+
+.unsub__link,
+.unsub__link:visited { color: var(--tv-text-2); }
+
+.unsub__link:hover,
+.unsub__link:focus-visible { color: var(--tv-text); }
+.unsub__link:focus-visible { outline: none; box-shadow: var(--tv-shadow-focus); }
+
+/* ============ Mobile ============ */
+
+@media (max-width: 759px) {
+  .unsub { padding: var(--tv-space-10) var(--tv-space-4); }
+  .unsub__card { padding: var(--tv-space-5); }
+  .unsub__actions { flex-direction: column; align-items: stretch; }
+  .unsub__cta,
+  .unsub__link { justify-content: center; }
+}

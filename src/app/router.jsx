@@ -27,6 +27,7 @@ import { Partners } from '@/pages/public/Partners'
 import { Privacy } from '@/pages/public/Privacy'
 import { Terms } from '@/pages/public/Terms'
 import { CommunityGuidelines } from '@/pages/public/CommunityGuidelines'
+import { Unsubscribe } from '@/pages/public/Unsubscribe'
 import { NotFound } from '@/pages/NotFound'
 
 // Auth pages keep their place in the entry chunk to avoid a fallback flash
@@ -55,6 +56,7 @@ const AdminPairings = lazy(() => import('@/pages/admin/Pairings').then((m) => ({
 const AdminResources = lazy(() => import('@/pages/admin/Resources').then((m) => ({ default: m.Resources })))
 const AdminVerse     = lazy(() => import('@/pages/admin/Verse').then((m) => ({ default: m.Verse })))
 const AdminProgrammes = lazy(() => import('@/pages/admin/Programmes').then((m) => ({ default: m.Programmes })))
+const AdminTestimonies = lazy(() => import('@/pages/admin/Testimonies').then((m) => ({ default: m.Testimonies })))
 const ProgrammesPage  = lazy(() => import('@/pages/programmes/Programmes').then((m) => ({ default: m.Programmes })))
 const Mentees      = lazy(() => import('@/pages/mentor/Mentees').then((m) => ({ default: m.Mentees })))
 const MyMentor     = lazy(() => import('@/pages/mentee/Mentor').then((m) => ({ default: m.Mentor })))
@@ -62,6 +64,7 @@ const MeetingsPage = lazy(() => import('@/pages/meetings/Meetings').then((m) => 
 const LibraryPage  = lazy(() => import('@/pages/library/Library').then((m) => ({ default: m.Library })))
 const NotificationsPage = lazy(() => import('@/pages/notifications/NotificationsRoute').then((m) => ({ default: m.NotificationsRoute })))
 const MeetingPage  = lazy(() => import('@/pages/meetings/Meeting').then((m) => ({ default: m.Meeting })))
+const TestimonyPage = lazy(() => import('@/pages/testimony/Testimony').then((m) => ({ default: m.Testimony })))
 
 /* ============ Root ============
    useRouteAnalytics mounts here because it depends on useLocation, which
@@ -143,7 +146,12 @@ const router = createBrowserRouter([
           { path: '/get-involved',         element: <GetInvolved /> },
           { path: '/privacy',              element: <Privacy /> },
           { path: '/terms',                element: <Terms /> },
-          { path: '/community-guidelines', element: <CommunityGuidelines /> }
+          { path: '/community-guidelines', element: <CommunityGuidelines /> },
+
+          /* Reached from a reminder footer, on a device that is almost never
+             signed in. The token is the authority, the same reasoning that
+             keeps /auth/verify-email public. */
+          { path: '/unsubscribe',          element: <Unsubscribe /> }
         ]
       },
 
@@ -214,6 +222,16 @@ const router = createBrowserRouter([
                 element: <LazyRoute><NotificationsPage /></LazyRoute>
               },
 
+              /* No role guard. Q44 says mentors and mentees both, and an
+                 admin who is also being mentored has a story of their own.
+                 The page reads the caller's own row, so there is nothing here
+                 to guard against. testimony_approved and testimony_rejected
+                 notifications open this path. */
+              {
+                path: '/testimony',
+                element: <LazyRoute><TestimonyPage /></LazyRoute>
+              },
+
               /* Every admin-guarded surface lives under /admin. The old root
                  paths redirect rather than 404 so links written before the
                  move keep working. */
@@ -234,7 +252,8 @@ const router = createBrowserRouter([
                   { path: 'invites',     element: <LazyRoute><AdminInvites  /></LazyRoute> },
                   { path: 'resources',   element: <LazyRoute><AdminResources /></LazyRoute> },
                   { path: 'verse',       element: <LazyRoute><AdminVerse /></LazyRoute> },
-                  { path: 'programmes',  element: <LazyRoute><AdminProgrammes /></LazyRoute> }
+                  { path: 'programmes',  element: <LazyRoute><AdminProgrammes /></LazyRoute> },
+                  { path: 'testimonies', element: <LazyRoute><AdminTestimonies /></LazyRoute> }
                 ]
               },
 

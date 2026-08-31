@@ -7,11 +7,17 @@ import { logAdminAction } from '@/lib/adminLog'
 // user_focus is what somebody offers to mentor in or wants mentoring in, and
 // it is the signal a pairing is actually made on. It was collected at
 // onboarding and read by nothing.
+//
+// last_seen_at was the same story one step earlier: touch_last_seen has
+// written it on every session bootstrap since it shipped and it was in none of
+// these three selects, so it never reached the client at all. It reads next to
+// the reminder count in the drawer, because three reminders spent and last
+// seen five weeks ago say something together that neither says alone.
 export async function fetchAdminUsers() {
   const [pRes, rRes, fRes] = await Promise.all([
     supabase
       .from('profiles')
-      .select('id, full_name, email, photo_url, is_active, onboarded, role_intent, role_undecided, email_verified, whatsapp_phone, other_phone, country, location, timezone, monthly_hours, referral_source, socials, created_at, verification_reminder_count, verification_last_reminder_at, onboarding_reminder_count, onboarding_last_reminder_at')
+      .select('id, full_name, email, photo_url, is_active, onboarded, role_intent, role_undecided, email_verified, whatsapp_phone, other_phone, country, location, timezone, monthly_hours, referral_source, socials, created_at, last_seen_at, verification_reminder_count, verification_last_reminder_at, onboarding_reminder_count, onboarding_last_reminder_at')
       .order('created_at', { ascending: false }),
     supabase
       .from('user_roles')

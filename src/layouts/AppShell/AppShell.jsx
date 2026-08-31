@@ -6,9 +6,11 @@ import { Logo } from '@/components/shared/Logo/Logo'
 import { Icon } from '@/components/shared/Icon/Icon'
 import { OnboardingBanner } from '@/components/shared/OnboardingBanner/OnboardingBanner'
 import { ProgrammeBanner } from '@/components/shared/ProgrammeBanner/ProgrammeBanner'
+import { TestimonyBanner } from '@/components/shared/TestimonyBanner/TestimonyBanner'
 import { VerifyEmailBanner } from '@/components/shared/VerifyEmailBanner/VerifyEmailBanner'
 import { NotificationBell } from '@/components/shared/NotificationBell/NotificationBell'
 import { useNotifications } from '@/hooks/useNotifications'
+import { usePendingTestimoniesCount } from '@/hooks/useAdminTestimonies'
 import './AppShell.css'
 
 // NAV_ITEMS is the registry. Display order is then overridden per role via
@@ -67,12 +69,22 @@ const NAV_ITEMS = [
   // mail belongs to inbound post, so Invites moved off it above. Two rows
   // carrying the same glyph read as the same row twice at 18px on dark.
   { to: '/admin/submissions',  label: 'Contact messages', icon: 'mail',       allow: [ROLES.ADMIN], group: 'oversight' },
+
+  // checkCircle rather than a quote glyph, because the registry has none and
+  // an icon name that does not exist renders nothing quietly. A tick in a
+  // circle says approval queue, which is what this is, and it collides with
+  // no other row.
+  { to: '/admin/testimonies',  label: 'Testimonies',      icon: 'checkCircle', allow: [ROLES.ADMIN], group: 'oversight', badge: 'testimonies' },
   { to: '/admin/insights',     label: 'Analytics',        icon: 'trendingUp', allow: [ROLES.ADMIN], group: 'oversight' },
   { to: '/admin/activity',     label: 'Activity log',     icon: 'activity',   allow: [ROLES.ADMIN], group: 'oversight' },
 
-  // Notifications and Profile last. Both low-frequency and settings-tier:
-  // the bell in the topbar is the way into notifications day to day.
+  // Notifications, the member's own testimony, and Profile last. All three
+  // are low-frequency and personal: the bell in the topbar is the way into
+  // notifications day to day, and the testimony banner is the way into this
+  // one. The row exists so somebody who dismissed the banner can still find
+  // it, and so an author can take theirs down whenever they like.
   { to: '/notifications', label: 'Notifications', icon: 'bell', allow: null, group: 'account' },
+  { to: '/testimony',     label: 'Your story',    icon: 'edit', allow: null, group: 'account' },
   { to: '/profile',       label: 'Profile',       icon: 'user', allow: null, group: 'account' }
 ]
 
@@ -183,6 +195,16 @@ export function AppShell() {
   // channel of its own.
   const notifications = useNotifications({ enabled: Boolean(profile) })
 
+  // Only an admin sees the row this counts for, and hooks cannot be called
+  // conditionally, so the flag is what keeps a mentee from firing the query.
+  const isAdmin = roles.includes(ROLES.ADMIN)
+  const pendingTestimonies = usePendingTestimoniesCount({ enabled: isAdmin })
+
+  const badges = useMemo(
+    () => ({ testimonies: pendingTestimonies.count }),
+    [pendingTestimonies.count]
+  )
+
   // Page title for the topbar. Derived from the active route. We sort by `to`
   // length so '/mentees' beats '/' when both prefix-match an item.
   const pageTitle = useMemo(() => {
@@ -248,6 +270,7 @@ export function AppShell() {
                       >
                         <Icon name={item.icon} size={18} />
                         <span>{item.label}</span>
+                        <NavCount item={item} badges={badges} />
                       </NavLink>
                     ))}
                   </div>
@@ -262,6 +285,7 @@ export function AppShell() {
                 >
                   <Icon name={item.icon} size={18} />
                   <span>{item.label}</span>
+                  <NavCount item={item} badges={badges} />
                 </NavLink>
               ))}
         </nav>
@@ -298,9 +322,13 @@ export function AppShell() {
           />
         </header>
 
+        {/* Order is severity. Verify and onboarding are things the platform is
+            waiting on before it works properly, a programme is time-bound, and
+            being asked for a testimony is an invitation. Last is right. */}
         <VerifyEmailBanner />
         <OnboardingBanner />
         <ProgrammeBanner />
+        <TestimonyBanner />
 
         <main id="main" className="shell-content" tabIndex={-1}>
           <Outlet context={{ notifications }} />
@@ -372,6 +400,7 @@ export function AppShell() {
                         >
                           <Icon name={item.icon} size={20} />
                           <span>{item.label}</span>
+                          <NavCount item={item} badges={badges} />
                         </NavLink>
                       ))}
                     </div>
@@ -387,6 +416,7 @@ export function AppShell() {
                   >
                     <Icon name={item.icon} size={20} />
                     <span>{item.label}</span>
+                    <NavCount item={item} badges={badges} />
                   </NavLink>
                 ))}
           </nav>
@@ -408,6 +438,18 @@ export function AppShell() {
         </button>
       </aside>
     </div>
+  )
+}
+
+// Absent at zero rather than rendered as a nought. A badge reading zero is a
+// badge nobody learns to trust, which is the rule the Requests tab already
+// follows on the meetings surface.
+function NavCount({ item, badges }) {
+  if (!item.badge) return null
+  const count = badges[item.badge] ?? 0
+  if (count < 1) return null
+  return (
+    <span className="shell-nav-count" aria-label={`${count} waiting`}>{count}</span>
   )
 }
 

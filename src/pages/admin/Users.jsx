@@ -504,6 +504,10 @@ const MEMBER_COLUMNS = [
   { label: 'Location',               value: (u) => u.location || '' },
   { label: 'Monthly hours',          value: (u) => u.monthly_hours ?? '' },
   { label: 'Joined',                 value: (u) => isoDate(u.created_at) },
+  // Guarded rather than handed straight to isoDate. Every other date column
+  // here is NOT NULL; this one is not, and an unread csv.js turning null into
+  // "Invalid Date" is the kind of thing nobody notices in a spreadsheet.
+  { label: 'Last seen',              value: (u) => (u.last_seen_at ? isoDate(u.last_seen_at) : '') },
   { label: 'Verification reminders', value: (u) => u.verification_reminder_count ?? 0 },
   { label: 'Onboarding reminders',   value: (u) => u.onboarding_reminder_count ?? 0 }
 ]

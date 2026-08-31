@@ -1,228 +1,168 @@
-/* WallOfWitness. Drifting testimony columns + organic vine spine.
-   Stripped to essentials: text, spine, motion. No decorative layers. */
+/* WallOfWitness. Testimonies hanging off a vine.
+   No infinite drift, no hover-only reveals, no half the content deleted on
+   phones. The composition reads at one card and at sixty. */
 
 .witness {
   background: var(--tv-canvas-brand);
-  padding: 80px 24px 56px;
+  padding: var(--tv-space-16) var(--tv-space-5) var(--tv-space-12);
   position: relative;
   overflow: hidden;
-  isolation: isolate;
-}
-
-/* ============ Atmospheric wash (single, restrained) ============ */
-
-.witness::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background: radial-gradient(
-    ellipse 1000px 600px at 50% 40%,
-    rgba(217, 119, 6, 0.05),
-    transparent 60%
-  );
-}
-
-.witness__header,
-.witness__columns,
-.witness__footer {
-  position: relative;
-  z-index: 1;
 }
 
 /* ============ Header ============ */
 
 .witness__header {
   text-align: center;
-  margin-bottom: 48px;
+  margin-bottom: var(--tv-space-12);
 }
 
 .witness__eyebrow {
   font-family: var(--tv-font-body);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.24em;
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  letter-spacing: var(--tv-tracking-wider);
   text-transform: uppercase;
   color: var(--tv-accent-text);
-  margin: 0 0 14px;
+  margin: 0 0 var(--tv-space-3);
 }
 
 .witness__heading {
   font-family: var(--tv-font-serif);
   font-style: italic;
-  font-weight: 400;
-  font-size: clamp(26px, 3vw, 38px);
-  line-height: 1.25;
-  letter-spacing: -0.015em;
+  font-weight: var(--tv-fw-regular);
+  font-size: clamp(var(--tv-fs-xl), 3vw, var(--tv-fs-2xl));
+  line-height: var(--tv-lh-snug);
+  letter-spacing: var(--tv-tracking-tight);
   color: var(--tv-text);
   margin: 0;
 }
 
-/* ============ Columns ============ */
+/* ============ Vine ============ */
 
-.witness__columns {
+.witness__vine {
   position: relative;
-  display: flex;
-  gap: 0;
   max-width: 1040px;
   margin: 0 auto;
-  height: clamp(440px, 58vh, 600px);
 }
 
-/* ============ Vine Spine ============ */
-
-.witness__spine {
-  flex: 0 0 100px;
-  position: relative;
-  display: flex;
-  align-items: stretch;
-  justify-content: center;
-}
-
-.spine {
-  display: block;
-  width: 100%;
-  height: 100%;
-  color: var(--tv-accent);
-  opacity: 0.30;
-}
-
-.spine__trunk,
-.spine__branch {
-  opacity: 0;
-}
-
-.spine__trunk {
-  stroke-dasharray: 600;
-  stroke-dashoffset: 600;
-}
-
-.spine__branch {
-  stroke-dasharray: 80;
-  stroke-dashoffset: 80;
-}
-
-.spine__node {
-  opacity: 0;
-  transform-origin: center;
-  transform: scale(0);
-}
-
-.spine--visible .spine__trunk {
-  opacity: 1;
-  animation: spine-stroke 600ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.spine--visible .spine__branch {
-  opacity: 1;
-  animation: spine-stroke 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.spine--visible .spine__node {
-  opacity: 1;
-  animation: spine-node 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards,
-             spine-pulse 8s ease-in-out var(--pulse-delay, 0s) infinite 2s;
-}
-
-@keyframes spine-stroke {
-  to { stroke-dashoffset: 0; }
-}
-
-@keyframes spine-node {
-  to { transform: scale(1); }
-}
-
-@keyframes spine-pulse {
-  0%, 100% { opacity: 0.30; }
-  12% { opacity: 0.70; }
-  24% { opacity: 0.30; }
-}
-
-/* ============ Column ============ */
-
-.witness-col {
-  flex: 1;
-  overflow: hidden;
-  position: relative;
-  min-width: 0;
-}
-
-.witness-col::before,
-.witness-col::after {
-  content: '';
+/* The stem is a 1px column rather than an SVG, so its height follows the
+   cards in normal flow and nothing has to compute a viewBox. */
+.witness__stem {
   position: absolute;
-  left: 0;
-  right: 0;
-  height: 80px;
-  z-index: 2;
-  pointer-events: none;
-}
-
-.witness-col::before {
   top: 0;
-  background: linear-gradient(to bottom, var(--tv-canvas-brand), transparent);
-}
-
-.witness-col::after {
   bottom: 0;
-  background: linear-gradient(to top, var(--tv-canvas-brand), transparent);
+  left: 50%;
+  width: 1px;
+  background: var(--tv-accent);
+  opacity: 0.35;
+  transform: scaleY(0);
+  transform-origin: top center;
+  transition: transform var(--tv-duration-slow) var(--tv-ease);
 }
 
-/* ============ Track ============ */
-
-.witness-col__track {
-  display: flex;
-  flex-direction: column;
-  will-change: transform;
+.witness__vine--in .witness__stem {
+  transform: scaleY(1);
 }
 
-.witness-col[data-direction="up"] .witness-col__track {
-  animation: witness-drift-up 55s linear infinite;
+.witness__list {
+  display: grid;
+  gap: var(--tv-space-10);
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.witness-col[data-direction="down"] .witness-col__track {
-  animation: witness-drift-down 60s linear infinite;
-}
-
-@keyframes witness-drift-up {
-  from { transform: translateY(0); }
-  to { transform: translateY(-50%); }
-}
-
-@keyframes witness-drift-down {
-  from { transform: translateY(-50%); }
-  to { transform: translateY(0); }
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .witness-col:hover .witness-col__track {
-    animation-play-state: paused;
-  }
-}
-
-/* ============ Card (naked — no background, no border) ============ */
+/* ============ Card ============ */
 
 .witness-card {
-  padding: 18px 24px 20px;
+  position: relative;
+  width: calc(50% - var(--tv-space-10));
+  opacity: 0;
+  transform: translateY(var(--tv-space-3));
+  transition:
+    opacity var(--tv-duration-slow) var(--tv-ease) var(--stagger, 0ms),
+    transform var(--tv-duration-slow) var(--tv-ease) var(--stagger, 0ms);
+}
+
+.witness__vine--in .witness-card {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.witness-card--left {
+  justify-self: start;
+  text-align: right;
+}
+
+.witness-card--right {
+  justify-self: end;
+  text-align: left;
+}
+
+/* Branch and node reach from the card back to the stem. Both are drawn from
+   the card, so nothing needs to know how many cards there are. */
+.witness-card__branch {
+  position: absolute;
+  top: var(--tv-space-5);
+  width: var(--tv-space-10);
+  height: 1px;
+  background: var(--tv-accent);
+  opacity: 0.3;
+  transform: scaleX(0);
+  transition: transform var(--tv-duration) var(--tv-ease) var(--stagger, 0ms);
+}
+
+.witness-card--left .witness-card__branch {
+  left: 100%;
+  transform-origin: right center;
+}
+
+.witness-card--right .witness-card__branch {
+  right: 100%;
+  transform-origin: left center;
+}
+
+.witness__vine--in .witness-card__branch {
+  transform: scaleX(1);
+}
+
+.witness-card__node {
+  position: absolute;
+  top: calc(var(--tv-space-5) - 2px);
+  width: 5px;
+  height: 5px;
+  border-radius: var(--tv-radius-pill);
+  background: var(--tv-accent);
+  opacity: 0.55;
+  transform: scale(0);
+  transition: transform var(--tv-duration) var(--tv-ease) var(--stagger, 0ms);
+}
+
+.witness-card--left .witness-card__node {
+  left: calc(100% + var(--tv-space-10) - 2px);
+}
+
+.witness-card--right .witness-card__node {
+  right: calc(100% + var(--tv-space-10) - 2px);
+}
+
+.witness__vine--in .witness-card__node {
+  transform: scale(1);
+}
+
+/* ============ Card content ============ */
+
+.witness-card__quote {
+  margin: 0;
 }
 
 .witness-card__text {
   font-family: var(--tv-font-body);
-  font-weight: 400;
-  font-size: clamp(14px, 1.4vw, 15.5px);
-  line-height: 1.6;
+  font-weight: var(--tv-fw-regular);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-relaxed);
   color: var(--tv-text-2);
-  margin: 0 0 10px;
-}
-
-.witness-card__rule {
-  display: block;
-  width: 28px;
-  height: 1px;
-  background: var(--tv-accent);
-  opacity: 0.55;
-  margin-bottom: 10px;
+  margin: 0 0 var(--tv-space-3);
 }
 
 .witness-card__meta {
@@ -231,17 +171,20 @@
   gap: var(--tv-space-2);
 }
 
+.witness-card--left .witness-card__meta {
+  flex-direction: row-reverse;
+}
+
 .witness-card__avatar {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
+  width: var(--tv-space-6);
+  height: var(--tv-space-6);
+  border-radius: var(--tv-radius-pill);
   font-family: var(--tv-font-display);
-  font-weight: 600;
-  font-size: 10px;
-  letter-spacing: 0;
+  font-weight: var(--tv-fw-semibold);
+  font-size: var(--tv-fs-xs);
   background: var(--tv-accent-soft);
   color: var(--tv-accent-text);
   flex-shrink: 0;
@@ -254,127 +197,214 @@
 
 .witness-card__attr {
   font-family: var(--tv-font-mono);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.22em;
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-medium);
+  letter-spacing: var(--tv-tracking-wide);
   text-transform: uppercase;
   color: var(--tv-text-muted);
   margin: 0;
 }
 
-/* ============ Featured card (one per column, the anchor voice) ============ */
+/* ============ Featured ============ */
+
+/* One voice carries the section. At a count of one it is the only card, and
+   the treatment is what stops a single testimony reading as a leftover. */
+.witness-card--featured {
+  width: calc(50% - var(--tv-space-8));
+}
 
 .witness-card--featured .witness-card__text {
   font-family: var(--tv-font-serif);
   font-style: italic;
-  font-weight: 400;
-  font-size: clamp(19px, 2vw, 24px);
-  line-height: 1.4;
+  font-size: clamp(var(--tv-fs-md), 2vw, var(--tv-fs-lg));
+  line-height: var(--tv-lh-snug);
   color: var(--tv-text);
 }
 
-/* ============ Right column: attr mirrors ============ */
+/* ============ Loading ============ */
 
-.witness-col[data-direction="down"] .witness-card__meta {
-  flex-direction: row-reverse;
+.witness__loading {
+  position: relative;
+  max-width: 1040px;
+  margin: 0 auto;
+  display: grid;
+  gap: var(--tv-space-10);
 }
 
-.witness-col[data-direction="down"] .witness-card__rule {
-  margin-left: auto;
+.witness__loading-stem {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: var(--tv-border);
 }
 
-/* ============ Footer (caption + CTA) ============ */
+.witness__loading-card {
+  width: calc(50% - var(--tv-space-10));
+  height: var(--tv-space-16);
+  border-radius: var(--tv-radius-md);
+  background: var(--tv-border);
+  opacity: 0.4;
+}
+
+.witness__loading-card:nth-child(3) {
+  justify-self: end;
+}
+
+/* ============ Empty ============ */
+
+.witness__empty {
+  max-width: var(--tv-prose-max);
+  margin: 0 auto;
+  text-align: center;
+}
+
+.witness__empty-body {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-base);
+  line-height: var(--tv-lh-relaxed);
+  color: var(--tv-text-2);
+  margin: 0;
+}
+
+/* ============ Footer ============ */
 
 .witness__footer {
   text-align: center;
-  margin-top: 40px;
+  margin-top: var(--tv-space-12);
 }
 
 .witness__caption {
   font-family: var(--tv-font-body);
   font-style: italic;
-  font-weight: 400;
-  font-size: 13px;
+  font-size: var(--tv-fs-sm);
   color: var(--tv-text-muted);
-  margin: 0 0 20px;
+  margin: 0 0 var(--tv-space-5);
 }
 
 .witness__cta {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--tv-space-2);
+  min-height: 44px;
+  padding: var(--tv-space-2) var(--tv-space-3);
   font-family: var(--tv-font-display);
-  font-weight: 500;
-  font-size: 15px;
+  font-weight: var(--tv-fw-medium);
+  font-size: var(--tv-fs-base);
   color: var(--tv-primary);
   text-decoration: none;
-  padding: 8px 4px;
-  transition: gap 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-              color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: var(--tv-radius-md);
+  transition: gap var(--tv-duration) var(--tv-ease),
+              color var(--tv-duration) var(--tv-ease);
 }
 
-.witness__cta:hover {
+/* Every state pinned. A global a:hover rule otherwise wins on one of them and
+   only the hovered one gets noticed. */
+.witness__cta:hover,
+.witness__cta:focus-visible,
+.witness__cta:active,
+.witness__cta:visited {
   color: var(--tv-primary-hover);
-  gap: 14px;
+}
+
+.witness__cta:hover,
+.witness__cta:focus-visible {
+  gap: var(--tv-space-3);
+}
+
+.witness__cta:focus-visible {
+  outline: none;
+  box-shadow: var(--tv-shadow-focus);
 }
 
 .witness__cta-arrow {
-  font-size: 18px;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform var(--tv-duration) var(--tv-ease);
 }
 
 .witness__cta:hover .witness__cta-arrow {
   transform: translateX(3px);
 }
 
-/* ============ Mobile ============ */
-
-@media (max-width: 759px) {
-  .witness { padding: 64px 20px 48px; }
-
-  .witness__columns {
-    height: clamp(380px, 52vh, 500px);
-  }
-
-  .witness-col[data-direction="down"],
-  .witness__spine {
-    display: none;
-  }
-
-  .witness-card { padding: 14px 8px 16px; }
-}
-
 /* ============ Tablet ============ */
 
-@media (min-width: 760px) and (max-width: 1024px) {
-  .witness__columns { max-width: 760px; }
-  .witness__spine { flex: 0 0 72px; }
+@media (max-width: 1024px) {
+  .witness__vine,
+  .witness__loading { max-width: 760px; }
+  .witness-card,
+  .witness-card--featured { width: calc(50% - var(--tv-space-8)); }
+  .witness-card__branch { width: var(--tv-space-8); }
+  .witness-card--left .witness-card__node  { left: calc(100% + var(--tv-space-8) - 2px); }
+  .witness-card--right .witness-card__node { right: calc(100% + var(--tv-space-8) - 2px); }
+}
+
+/* ============ Mobile ============ */
+
+/* The stem moves to the edge and every card hangs off one side. Nothing is
+   dropped, which is what the two-column version did with half of them. */
+@media (max-width: 759px) {
+  .witness { padding: var(--tv-space-12) var(--tv-space-4) var(--tv-space-10); }
+  .witness__header { margin-bottom: var(--tv-space-8); }
+
+  .witness__stem,
+  .witness__loading-stem { left: 0; }
+
+  .witness__list,
+  .witness__loading { gap: var(--tv-space-6); }
+
+  .witness-card,
+  .witness-card--featured,
+  .witness__loading-card {
+    width: calc(100% - var(--tv-space-8));
+    justify-self: end;
+    text-align: left;
+  }
+
+  .witness-card__branch {
+    left: auto;
+    right: 100%;
+    width: var(--tv-space-8);
+    transform-origin: left center;
+  }
+
+  .witness-card__node {
+    left: auto;
+    right: calc(100% + var(--tv-space-8) - 2px);
+  }
+
+  .witness-card--left .witness-card__meta { flex-direction: row; }
 }
 
 /* ============ Desktop ============ */
 
 @media (min-width: 1025px) {
-  .witness { padding: 96px 32px 64px; }
-  .witness__header { margin-bottom: 56px; }
+  .witness { padding: var(--tv-space-20) var(--tv-space-8) var(--tv-space-16); }
+  .witness__header { margin-bottom: var(--tv-space-16); }
 }
 
 /* ============ Reduced motion ============ */
 
-.witness--static .witness-col__track { animation: none !important; }
-.witness-col--static { overflow: visible; }
-.witness--static .witness-col::before,
-.witness--static .witness-col::after { display: none; }
-.witness--static .witness__columns { height: auto; }
-
-.witness--static .spine__trunk,
-.witness--static .spine__branch {
-  opacity: 1; stroke-dashoffset: 0; animation: none !important;
-}
-
-.witness--static .spine__node {
-  opacity: 0.5; transform: scale(1); animation: none !important;
-}
-
+/* The composition is the content. With motion off everything is simply
+   already there, which is the same page without the reveal. */
 @media (prefers-reduced-motion: reduce) {
-  .witness-col__track { animation: none !important; }
+  .witness-card,
+  .witness__stem,
+  .witness-card__branch,
+  .witness-card__node,
+  .witness__cta,
+  .witness__cta-arrow {
+    transition: none;
+  }
 }
+
+.witness--static .witness-card,
+.witness--static .witness__stem,
+.witness--static .witness-card__branch,
+.witness--static .witness-card__node {
+  opacity: 1;
+  transform: none;
+}
+
+.witness--static .witness__stem { opacity: 0.35; }
+.witness--static .witness-card__branch { opacity: 0.3; }
+.witness--static .witness-card__node { opacity: 0.55; }

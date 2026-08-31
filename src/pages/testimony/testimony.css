@@ -1,0 +1,308 @@
+/* Member testimony page. Working surface, one task, prose width. */
+
+.tsty {
+  max-width: var(--tv-prose-max);
+}
+
+/* ============ Head ============ */
+
+.tsty__head { margin-bottom: var(--tv-space-6); }
+
+.tsty__eyebrow {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  letter-spacing: var(--tv-tracking-wide);
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+  margin: 0 0 var(--tv-space-2);
+}
+
+.tsty__title {
+  font-family: var(--tv-font-display);
+  font-size: var(--tv-fs-xl);
+  font-weight: var(--tv-fw-semibold);
+  letter-spacing: var(--tv-tracking-tight);
+  color: var(--tv-text);
+  margin: 0 0 var(--tv-space-3);
+}
+
+.tsty__lede {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-relaxed);
+  color: var(--tv-text-2);
+  margin: 0;
+}
+
+/* ============ Card ============ */
+
+.tsty__card,
+.tsty__form,
+.tsty__answered {
+  padding: var(--tv-space-5);
+  background: var(--tv-surface);
+  border: var(--tv-border-width) solid var(--tv-border);
+  border-radius: var(--tv-radius-lg);
+}
+
+.tsty__answered { margin-bottom: var(--tv-space-4); }
+
+.tsty__answered-title {
+  margin: 0 0 var(--tv-space-2);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-semibold);
+  color: var(--tv-text);
+}
+
+.tsty__answered-body {
+  margin: 0 0 var(--tv-space-2);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-relaxed);
+  color: var(--tv-text-2);
+}
+
+.tsty__answered-body:last-child { margin-bottom: 0; }
+
+.tsty__status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tv-space-2);
+  margin-bottom: var(--tv-space-4);
+}
+
+.tsty__pill {
+  padding: 2px var(--tv-space-3);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-medium);
+  border-radius: var(--tv-radius-pill);
+  color: var(--tv-text-2);
+  background: var(--tv-canvas-app);
+}
+
+.tsty__pill--pending  { color: var(--tv-warning-text); background: var(--tv-warning-bg); }
+.tsty__pill--approved { color: var(--tv-success-text); background: var(--tv-success-bg); }
+.tsty__pill--featured { color: var(--tv-accent-text);  background: var(--tv-accent-soft); }
+
+.tsty__body {
+  margin: 0 0 var(--tv-space-4);
+  font-family: var(--tv-font-serif);
+  font-size: var(--tv-fs-md);
+  line-height: var(--tv-lh-relaxed);
+  color: var(--tv-text);
+  white-space: pre-wrap;
+}
+
+.tsty__attr {
+  margin: 0 0 var(--tv-space-2);
+  font-family: var(--tv-font-mono);
+  font-size: var(--tv-fs-xs);
+  letter-spacing: var(--tv-tracking-wide);
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+}
+
+.tsty__note {
+  margin: 0;
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+}
+
+/* ============ Form ============ */
+
+.tsty__field {
+  display: grid;
+  gap: var(--tv-space-2);
+  min-width: 0;
+  margin: 0 0 var(--tv-space-4);
+  padding: 0;
+  border: none;
+}
+
+.tsty__row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--tv-space-4);
+}
+
+.tsty__row .tsty__field { margin-bottom: var(--tv-space-4); }
+
+.tsty__label {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  letter-spacing: var(--tv-tracking-wide);
+  text-transform: uppercase;
+  color: var(--tv-text-2);
+  padding: 0;
+}
+
+.tsty__input,
+.tsty__textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: var(--tv-space-2) var(--tv-space-3);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-base);
+  color: var(--tv-text);
+  background: var(--tv-surface);
+  border: var(--tv-border-width) solid var(--tv-border-input);
+  border-radius: var(--tv-radius-md);
+}
+
+.tsty__textarea {
+  line-height: var(--tv-lh-relaxed);
+  resize: vertical;
+}
+
+.tsty__input:focus-visible,
+.tsty__textarea:focus-visible {
+  outline: none;
+  border-color: var(--tv-primary);
+  box-shadow: var(--tv-shadow-focus);
+}
+
+.tsty__hint {
+  font-size: var(--tv-fs-xs);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-muted);
+}
+
+.tsty__choices { display: flex; gap: var(--tv-space-2); }
+
+.tsty__choice {
+  flex: 1;
+  min-height: 44px;
+  padding: 0 var(--tv-space-4);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-medium);
+  color: var(--tv-text-2);
+  background: var(--tv-surface);
+  border: var(--tv-border-width) solid var(--tv-border-input);
+  border-radius: var(--tv-radius-md);
+  cursor: pointer;
+}
+
+.tsty__choice:focus-visible { outline: none; box-shadow: var(--tv-shadow-focus); }
+
+.tsty__choice--active {
+  color: var(--tv-primary-hover);
+  border-color: var(--tv-primary);
+  background: var(--tv-primary-soft);
+}
+
+/* ============ Actions ============ */
+
+.tsty__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tv-space-3);
+  margin-top: var(--tv-space-5);
+  padding-top: var(--tv-space-4);
+  border-top: var(--tv-border-width) solid var(--tv-border);
+}
+
+.tsty__confirm {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-muted);
+}
+
+.tsty__action,
+.tsty__save {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  min-height: 44px;
+  padding: 0 var(--tv-space-4);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-medium);
+  border-radius: var(--tv-radius-md);
+  cursor: pointer;
+  text-decoration: none;
+  transition: color var(--tv-duration-fast) var(--tv-ease),
+              border-color var(--tv-duration-fast) var(--tv-ease),
+              background var(--tv-duration-fast) var(--tv-ease);
+}
+
+.tsty__action {
+  color: var(--tv-text-2);
+  background: var(--tv-surface);
+  border: var(--tv-border-width) solid var(--tv-border-input);
+}
+
+/* Every state pinned, including visited. An anchor styled as a button loses
+   its colour to a global a:hover rule otherwise, and only one of the three
+   ever gets noticed. */
+.tsty__action:hover,
+.tsty__action:focus-visible,
+.tsty__action:active,
+.tsty__action:visited {
+  color: var(--tv-text);
+  border-color: var(--tv-text-2);
+}
+
+.tsty__action:focus-visible { outline: none; box-shadow: var(--tv-shadow-focus); }
+
+.tsty__action--danger,
+.tsty__action--danger:visited { color: var(--tv-error-text); }
+
+.tsty__action--danger:hover,
+.tsty__action--danger:focus-visible {
+  color: var(--tv-error-text);
+  border-color: var(--tv-error);
+}
+
+.tsty__save {
+  color: var(--tv-text-inverse);
+  background: var(--tv-primary);
+  border: var(--tv-border-width) solid var(--tv-primary);
+}
+
+.tsty__save:hover,
+.tsty__save:focus-visible {
+  background: var(--tv-primary-hover);
+  border-color: var(--tv-primary-hover);
+}
+
+.tsty__save:focus-visible { outline: none; box-shadow: var(--tv-shadow-focus); }
+
+.tsty__action:disabled,
+.tsty__save:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ============ States ============ */
+
+.tsty__alert {
+  margin: 0 0 var(--tv-space-4);
+  padding: var(--tv-space-3);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-error-text);
+  background: var(--tv-error-bg);
+  border-radius: var(--tv-radius-sm);
+}
+
+.tsty__skeleton {
+  height: var(--tv-space-24);
+  background: var(--tv-surface);
+  border: var(--tv-border-width) solid var(--tv-border);
+  border-radius: var(--tv-radius-lg);
+}
+
+/* ============ Mobile ============ */
+
+@media (max-width: 759px) {
+  .tsty__row { grid-template-columns: minmax(0, 1fr); }
+  .tsty__actions { flex-direction: column; align-items: stretch; }
+  .tsty__confirm { order: -1; }
+  .tsty__action,
+  .tsty__save { justify-content: center; }
+}

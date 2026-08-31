@@ -1,0 +1,109 @@
+/* Testimony prompt. Sits in the AppShell banner slot, behind verify and
+   onboarding. Amber rather than teal, because it is an invitation and not a
+   thing the platform is waiting on to work. */
+
+.tstb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--tv-space-4);
+  padding: var(--tv-space-3) var(--tv-space-4);
+  background: var(--tv-accent-soft);
+  border: var(--tv-border-width) solid var(--tv-accent-light);
+  border-radius: var(--tv-radius-md);
+}
+
+.tstb__body {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--tv-space-3);
+  min-width: 0;
+  flex: 1;
+}
+
+.tstb__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--tv-accent-text);
+}
+
+.tstb__text { min-width: 0; }
+
+.tstb__title {
+  margin: 0 0 var(--tv-space-1);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-semibold);
+  line-height: var(--tv-lh-snug);
+  color: var(--tv-text);
+}
+
+.tstb__sub {
+  margin: 0;
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+}
+
+.tstb__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  flex-shrink: 0;
+}
+
+.tstb__cta {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--tv-space-4);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-medium);
+  text-decoration: none;
+  border-radius: var(--tv-radius-md);
+  transition: background var(--tv-duration-fast) var(--tv-ease);
+}
+
+/* Pinned across every state. A global a:hover rule otherwise takes the label
+   colour on one of them and only the hovered one gets noticed. */
+.tstb__cta,
+.tstb__cta:hover,
+.tstb__cta:focus-visible,
+.tstb__cta:active,
+.tstb__cta:visited {
+  color: var(--tv-text-inverse);
+  background: var(--tv-primary);
+}
+
+.tstb__cta:hover,
+.tstb__cta:focus-visible { background: var(--tv-primary-hover); }
+.tstb__cta:focus-visible { outline: none; box-shadow: var(--tv-shadow-focus); }
+
+.tstb__dismiss {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  color: var(--tv-text-muted);
+  background: none;
+  border: none;
+  border-radius: var(--tv-radius-sm);
+  cursor: pointer;
+  transition: color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.tstb__dismiss:hover,
+.tstb__dismiss:focus-visible { color: var(--tv-text); }
+.tstb__dismiss:focus-visible { outline: none; box-shadow: var(--tv-shadow-focus); }
+
+/* ============ Mobile ============ */
+
+@media (max-width: 759px) {
+  .tstb { align-items: stretch; }
+  .tstb__actions { width: 100%; }
+  .tstb__cta { flex: 1; justify-content: center; }
+}

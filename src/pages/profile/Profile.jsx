@@ -88,6 +88,17 @@ export function Profile() {
   const [saved, setSaved] = useState(false)
   const [photoBusy,  setPhotoBusy]  = useState(false)
   const [photoError, setPhotoError] = useState('')
+
+  // Reminders sit outside the form on purpose. It is a preference rather than
+  // a field: writing it immediately is the point, and a toggle that needs a
+  // Save press afterwards is a toggle people flip and then abandon.
+  const [optOut,   setOptOut]   = useState(Boolean(profile?.reminders_opted_out))
+  const [optBusy,  setOptBusy]  = useState(false)
+  const [optError, setOptError] = useState('')
+
+  useEffect(() => {
+    setOptOut(Boolean(profile?.reminders_opted_out))
+  }, [profile?.reminders_opted_out])
   const fileInputRef = useRef(null)
   // Only a Save click flips this; defends against unrelated submit events.
   const saveClickedRef = useRef(false)
@@ -124,6 +135,23 @@ export function Profile() {
       setSubmitError(friendlyError(err))
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  // Optimistic, and it rolls back on failure rather than leaving the switch
+  // showing a state the database does not hold.
+  const handleRemindersToggle = async () => {
+    const next = !optOut
+    setOptOut(next)
+    setOptBusy(true)
+    setOptError('')
+    try {
+      await updateProfile({ reminders_opted_out: next })
+    } catch (err) {
+      setOptOut(!next)
+      setOptError(friendlyError(err))
+    } finally {
+      setOptBusy(false)
     }
   }
 
@@ -489,6 +517,57 @@ export function Profile() {
                     />
                   </div>
                 </div>
+              </div>
+            </section>
+
+            <section className="pfp__section" aria-labelledby="pfp-sec-email">
+              <header className="pfp__section-head">
+                <p className="pfp__section-anchor">
+                  <span className="pfp__section-num">03</span>
+                  <span className="pfp__section-sep" aria-hidden="true">·</span>
+                  <span className="pfp__section-tag">Email</span>
+                </p>
+                <h3 className="pfp__section-title" id="pfp-sec-email">What we send you</h3>
+                <p className="pfp__section-lede">Saved as you change it. No need to press anything below.</p>
+              </header>
+
+              <div className="pfp__section-body">
+                <div className="pfp__toggle">
+                  <div className="pfp__toggle-text">
+                    <p className="pfp__toggle-title">Reminders about finishing your setup</p>
+                    {/* Says what stopping them does not stop, because that is
+                        what somebody hesitating over this is worried about. */}
+                    <p className="pfp__toggle-sub">
+                      Up to three, then we stop either way. Turning these off does not
+                      affect anything else: you will still hear when a mentor is assigned
+                      or a meeting is scheduled.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={!optOut}
+                    aria-label="Reminders about finishing your setup"
+                    className={'pfp__switch' + (optOut ? '' : ' pfp__switch--on')}
+                    onClick={handleRemindersToggle}
+                    disabled={optBusy}
+                  >
+                    <span className="pfp__switch-knob" aria-hidden="true" />
+                  </button>
+                </div>
+
+                <p className="pfp__toggle-state" role="status">
+                  {optBusy
+                    ? 'Saving'
+                    : optOut
+                      ? 'Off. We will not send you reminders.'
+                      : 'On. We may send you up to three reminders.'}
+                </p>
+
+                {optError && (
+                  <div className="pfp__alert pfp__alert--error" role="alert">{optError}</div>
+                )}
               </div>
             </section>
 
