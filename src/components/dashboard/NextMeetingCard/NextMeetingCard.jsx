@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Icon } from '@/components/shared/Icon/Icon'
 import { meetingWhen } from '@/lib/format'
-import { MODE_LABELS, mentorPhone, modeUsesMentorPhone, isPast } from '@/lib/meetings'
+import { MODE_LABELS, mentorPhone, modeUsesMentorPhone, isPast, MEETING_KIND } from '@/lib/meetings'
 import './nextMeetingCard.css'
 
 const MODE_ICONS = {
@@ -38,16 +38,21 @@ export function NextMeetingCard({ meeting = null, paired = false, loading = fals
     )
   }
 
-  const { mode, mentor, location, externalLink, scheduledFor, durationMinutes } = meeting
-  const phone   = modeUsesMentorPhone(mode) ? mentorPhone(mentor) : null
-  const overdue = isPast(scheduledFor)
+  const { mode, mentor, location, externalLink, scheduledFor, durationMinutes, attendees } = meeting
+
+  // fetchNextMeeting returns the soonest meeting the viewer can see, which
+  // since 0048 includes one an admin convened them into. It has no mentor, so
+  // "With your mentor" would have been a sentence about nobody.
+  const convened = meeting.kind === MEETING_KIND.ADMIN
+  const phone    = !convened && modeUsesMentorPhone(mode) ? mentorPhone(mentor) : null
+  const overdue  = isPast(scheduledFor)
 
   return (
     <article className="next-meet">
-      <Head title={meetingWhen(scheduledFor)} />
+      <Head title={convened ? (meeting.title || 'Convened meeting') : meetingWhen(scheduledFor)} />
 
       <p className="next-meet__with">
-        With {mentor?.full_name ?? 'your mentor'}
+        {convened ? meetingWhen(scheduledFor) : `With ${mentor?.full_name ?? 'your mentor'}`}
         <span className="next-meet__mode">
           <Icon name={MODE_ICONS[mode]} size={12} strokeWidth={1.75} />
           {MODE_LABELS[mode] ?? mode}
@@ -69,9 +74,18 @@ export function NextMeetingCard({ meeting = null, paired = false, loading = fals
         </p>
       )}
 
+      {convened && attendees?.length > 0 && (
+        <p className="next-meet__detail">
+          <Icon name="pairings" size={14} strokeWidth={1.75} />
+          <span>{`${attendees.length} ${attendees.length === 1 ? 'person' : 'people'} in the room`}</span>
+        </p>
+      )}
+
       {overdue && (
         <p className="next-meet__overdue">
-          This time has passed. Your mentor will mark what happened.
+          {convened
+            ? 'This time has passed. Our team will mark what happened.'
+            : 'This time has passed. Your mentor will mark what happened.'}
         </p>
       )}
 

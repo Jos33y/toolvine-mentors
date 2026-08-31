@@ -443,3 +443,54 @@
   .item__check,
   .item__cancel { transition: none; }
 }
+
+/* ============ Other authors ============ */
+
+/* 0048 made notes one row per author. On a pairing meeting this block is
+   usually absent; on a convened meeting it is where the other record keepers
+   appear, read only. */
+.record__others {
+  margin-top: var(--tv-space-5);
+  padding-top: var(--tv-space-5);
+  border-top: 1px solid var(--tv-border);
+}
+
+.record__others-title {
+  margin: 0 0 var(--tv-space-3);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  letter-spacing: var(--tv-tracking-wide);
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+}
+
+.record__note-list {
+  display: grid;
+  gap: var(--tv-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.record__note {
+  padding: var(--tv-space-4);
+  background: var(--tv-canvas-app);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+}
+
+.record__note-who {
+  margin: 0 0 var(--tv-space-1);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-semibold);
+  color: var(--tv-text-2);
+}
+
+.record__note-body {
+  margin: 0;
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-relaxed);
+  color: var(--tv-text);
+  white-space: pre-wrap;
+}

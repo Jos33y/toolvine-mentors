@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Icon } from '@/components/shared/Icon/Icon'
 import { formatSessionTime, dateStub } from '@/lib/format'
-import { isPast } from '@/lib/meetings'
+import { isPast, MEETING_KIND } from '@/lib/meetings'
 import './nextSessionsCard.css'
 
 // Lead card: the answer to "what's next?". The soonest session sits in a
@@ -75,11 +75,19 @@ function Header() {
 function SessionStub({ session, variant, onComplete, busy }) {
   const stub   = dateStub(session.scheduled_for)
   const when   = formatSessionTime(session.scheduled_for)
-  const who    = session.mentee?.full_name ?? 'Mentee'
   const isLead = variant === 'lead'
+
+  // A convened meeting has no mentee of this mentor's in it, so it is named by
+  // its title. Falling through to "Session with Mentee" would have read as a
+  // pairing that does not exist.
+  const convened = session.kind === MEETING_KIND.ADMIN
+  const who      = session.mentee?.full_name ?? 'Mentee'
+  const heading  = convened
+    ? (session.title || 'Convened meeting')
+    : (isLead ? `Session with ${who}` : `with ${who}`)
   // Marking complete before the session has happened is almost always a
   // misclick, so the control appears only once the time has passed.
-  const canComplete = Boolean(onComplete) && isPast(session.scheduled_for)
+  const canComplete = Boolean(onComplete) && !convened && isPast(session.scheduled_for)
 
   return (
     <div className={`session-stub session-stub--${variant}`}>
@@ -88,9 +96,7 @@ function SessionStub({ session, variant, onComplete, busy }) {
         <span className="session-stub__mon">{stub.month}</span>
       </div>
       <div className="session-stub__body">
-        <h3 className="session-stub__who">
-          {isLead ? `Session with ${who}` : `with ${who}`}
-        </h3>
+        <h3 className="session-stub__who">{heading}</h3>
         <p className="session-stub__when">
           <span>{when}</span>
           <ModeChip mode={session.mode} />

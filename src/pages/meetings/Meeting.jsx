@@ -6,6 +6,9 @@ import { isOn, FLAG_KEYS } from '@/lib/flags'
 import { Icon } from '@/components/shared/Icon/Icon'
 import { meetingWhen } from '@/lib/format'
 import { MeetingRecord } from './MeetingRecord'
+import { ReschedulePanel, ConfirmDialog } from './MeetingPanels'
+import { canWriteNote } from '@/lib/meetingNotes'
+import { fetchMeetingContacts, contactNumber } from '@/lib/meetingAttendees'
 import {
   fetchMeeting,
   completeMeeting,
@@ -17,12 +20,7 @@ import {
   withdrawMeetingRequest,
   sendMeetingEmail,
   availableModes,
-  modeNeedsLink,
-  modeNeedsLocation,
-  toLocalInputValue,
   fromLocalInputValue,
-  DURATION_MIN,
-  DURATION_MAX,
   friendlyMeetingError,
   counterpartTime,
   mentorPhone,
@@ -32,6 +30,7 @@ import {
   isStaleRequest,
   opensForCompletionIn,
   MEETING_STATUS,
+  MEETING_KIND,
   MODE_ICONS,
   MODE_LABELS,
   STATUS_LABELS
@@ -49,6 +48,7 @@ export function Meeting() {
   const isMentor = roles.includes('mentor')
 
   const [meeting, setMeeting] = useState(null)
+  const [contacts, setContacts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error,   setError]   = useState('')
   const [notice,  setNotice]  = useState('')
@@ -64,7 +64,19 @@ export function Meeting() {
     setLoading(true)
     setError('')
     try {
-      setMeeting(await fetchMeeting(id))
+      const row = await fetchMeeting(id)
+      setMeeting(row)
+
+      // meeting_contacts returns nothing unless the mode is a call and the
+      // caller is on the meeting, so this is asked for rather than guarded.
+      // An empty result is the normal case.
+      if (row) {
+        try {
+          setContacts(await fetchMeetingContacts(row.id))
+        } catch {
+          setContacts([])
+        }
+      }
     } catch (e) {
       setError(friendlyMeetingError(e))
     } finally {
@@ -90,7 +102,7 @@ export function Meeting() {
         <div className="meeting__empty">
           <p className="meeting__empty-title">That meeting is not here</p>
           <p className="meeting__empty-body">
-            It may have been removed, or it belongs to a pairing you are not part of.
+            It may have been removed, or it belongs to people you are not among.
           </p>
           <Link className="meeting__cta" to="/meetings">Back to meetings</Link>
         </div>
@@ -98,19 +110,32 @@ export function Meeting() {
     )
   }
 
-  const { mentor, mentee, status, mode, scheduledFor, durationMinutes, location, externalLink } = meeting
+  const {
+    mentor, mentee, status, mode, scheduledFor, durationMinutes,
+    location, externalLink, kind, title, attendees
+  } = meeting
+
+  const convened = kind === MEETING_KIND.ADMIN
 
   // The mentee is the counterpart when you are the mentor, and the other way
-  // round. An admin is neither, so they see both people's local time.
+  // round. An admin is neither, so they see both people's local time. A
+  // convened meeting has neither, and its people arrive as attendees.
   const viewerIsMentor = profile?.id === mentor?.id
   const viewerIsMentee = profile?.id === mentee?.id
   const canManage = isAdmin || (isMentor && viewerIsMentor)
 
-  const phone   = modeUsesMentorPhone(mode) ? mentorPhone(mentor) : null
+  // Who keeps the record. On a pairing that is the mentor. On a convened
+  // meeting it is whoever the admin marked, which is a column rather than a
+  // role, because a user can hold mentor and mentee at once.
+  const notesAccess = canWriteNote(meeting, profile?.id, { isAdmin, attendees })
+
+  const phone   = !convened && modeUsesMentorPhone(mode) ? mentorPhone(mentor) : null
   const overdue = status === MEETING_STATUS.SCHEDULED && isPast(scheduledFor)
 
   // A request is not a meeting yet. The bell links here, so this page has to
   // be able to answer one rather than showing a session with no controls.
+  // meetings_kind_status_check keeps every request state off a convened
+  // meeting, so none of this can fire on one.
   const isRequest   = isRequestStatus(status)
   const pending     = status === MEETING_STATUS.PENDING
   const canAnswer   = pending && (isAdmin || viewerIsMentor)
@@ -124,21 +149,34 @@ export function Meeting() {
   const canComplete = canManage && status === MEETING_STATUS.SCHEDULED && isPast(scheduledFor)
   const canCancel   = canManage && status === MEETING_STATUS.SCHEDULED
 
+  // What the admin log calls this row. A convened meeting has no pair to name.
+  const label = convened
+    ? (title || 'Convened meeting')
+    : `${mentor?.full_name} and ${mentee?.full_name}`
+
+  // meeting-notify resolves its recipients through the pairing, so it has
+  // nothing to send for a convened meeting. The bell notice from
+  // meeting_attendees_notify covers it until that function learns attendees.
+  const emails = !convened
+
   async function run(action) {
     setBusy(true)
     setError('')
     try {
-      const label = `${mentor?.full_name} and ${mentee?.full_name}`
       if (action === 'complete') {
         await completeMeeting(meeting.id, { asAdmin: isAdmin, label })
         setNotice('Marked as completed. This meeting is now part of the record.')
       } else if (action === 'cancel') {
         await cancelMeeting(meeting.id, { asAdmin: isAdmin, label })
-        const mail = await sendMeetingEmail(meeting.id, 'cancelled')
-        setNotice(
-          'Cancelled. It stays on the record rather than disappearing. ' +
-          (mail.sent ? 'Both of you have been emailed.' : 'The notification email did not send.')
-        )
+        if (emails) {
+          const mail = await sendMeetingEmail(meeting.id, 'cancelled')
+          setNotice(
+            'Cancelled. It stays on the record rather than disappearing. ' +
+            (mail.sent ? 'Both of you have been emailed.' : 'The notification email did not send.')
+          )
+        } else {
+          setNotice('Cancelled. It stays on the record rather than disappearing, and everyone on it has been notified.')
+        }
       } else if (action === 'reopen') {
         await reopenMeeting(meeting.id, label)
         setNotice('Reopened and back to scheduled.')
@@ -156,7 +194,7 @@ export function Meeting() {
     }
   }
 
-  async function answer(action, reason) {
+  async function answer(action, why) {
     setBusy(true)
     setError('')
     try {
@@ -168,7 +206,7 @@ export function Meeting() {
           (mail.sent ? 'Both of you have been emailed.' : 'The notification email did not send.')
         )
       } else if (action === 'reject') {
-        await rejectMeetingRequest(meeting.id, reason)
+        await rejectMeetingRequest(meeting.id, why)
         setNotice(
           `Declined. ${mentee?.full_name ?? 'Your mentee'} can read your reason and ask for another time.`
         )
@@ -187,7 +225,6 @@ export function Meeting() {
   // The old time is what makes the notice worth sending, so it comes back
   // from the write rather than being read again afterwards.
   async function onReschedule(form) {
-    const label = `${mentor?.full_name} and ${mentee?.full_name}`
     const { before } = await rescheduleMeeting(
       meeting.id,
       {
@@ -200,11 +237,16 @@ export function Meeting() {
       { asAdmin: isAdmin, label }
     )
 
-    const mail = await sendMeetingEmail(meeting.id, 'rescheduled', before.scheduledFor)
-    setNotice(
-      'Meeting moved. ' +
-      (mail.sent ? 'Both of you have been emailed.' : 'The notification email did not send.')
-    )
+    if (emails) {
+      const mail = await sendMeetingEmail(meeting.id, 'rescheduled', before.scheduledFor)
+      setNotice(
+        'Meeting moved. ' +
+        (mail.sent ? 'Both of you have been emailed.' : 'The notification email did not send.')
+      )
+    } else {
+      setNotice('Meeting moved. Everyone on it has been notified.')
+    }
+
     setEditing(false)
     await load()
   }
@@ -215,8 +257,9 @@ export function Meeting() {
 
       <header className="meeting__head">
         <div className="meeting__head-text">
-          <p className="meeting__eyebrow">Meeting</p>
-          <h1 className="meeting__title">{meetingWhen(scheduledFor)}</h1>
+          <p className="meeting__eyebrow">{convened ? 'Convened meeting' : 'Meeting'}</p>
+          <h1 className="meeting__title">{convened ? title : meetingWhen(scheduledFor)}</h1>
+          {convened && <p className="meeting__subtitle">{meetingWhen(scheduledFor)}</p>}
         </div>
         <span className={`meeting__status meeting__status--${status}`}>
           {STATUS_LABELS[status] ?? status}
@@ -229,7 +272,11 @@ export function Meeting() {
       {overdue && (
         <div className="meeting__warn" role="note">
           This time has passed and the meeting is still marked as scheduled.
-          {canManage ? ' Mark what happened so the record stays true.' : ' Your mentor will update it.'}
+          {canManage
+            ? ' Mark what happened so the record stays true.'
+            : convened
+              ? ' Our team will update it.'
+              : ' Your mentor will update it.'}
         </div>
       )}
 
@@ -265,11 +312,15 @@ export function Meeting() {
       )}
 
       <article className="meeting__panel">
-        <div className="meeting__people">
-          <Person person={mentor} role="Mentor" you={viewerIsMentor} />
-          <span className="meeting__join" aria-hidden="true"><Icon name="pairings" size={18} /></span>
-          <Person person={mentee} role="Mentee" you={viewerIsMentee} />
-        </div>
+        {convened ? (
+          <Attendees people={attendees} viewerId={profile?.id} />
+        ) : (
+          <div className="meeting__people">
+            <Person person={mentor} role="Mentor" you={viewerIsMentor} />
+            <span className="meeting__join" aria-hidden="true"><Icon name="pairings" size={18} /></span>
+            <Person person={mentee} role="Mentee" you={viewerIsMentee} />
+          </div>
+        )}
 
         <dl className="meeting__facts">
           <Fact label="How" value={
@@ -284,15 +335,19 @@ export function Meeting() {
 
         {/* D19. Only rendered when the other person actually has a timezone
             saved. Five of twelve profiles do not, and showing a Lagos time for
-            someone in the UK is worse than showing nothing. */}
-        <CounterpartClock
-          scheduledFor={scheduledFor}
-          mentor={mentor}
-          mentee={mentee}
-          viewerIsMentor={viewerIsMentor}
-          viewerIsMentee={viewerIsMentee}
-          viewerWhen={meetingWhen(scheduledFor)}
-        />
+            someone in the UK is worse than showing nothing. Absent on a
+            convened meeting: profiles_visible withholds the timezone, and
+            guessing one would be worse than saying nothing. */}
+        {!convened && (
+          <CounterpartClock
+            scheduledFor={scheduledFor}
+            mentor={mentor}
+            mentee={mentee}
+            viewerIsMentor={viewerIsMentor}
+            viewerIsMentee={viewerIsMentee}
+            viewerWhen={meetingWhen(scheduledFor)}
+          />
+        )}
 
         {isRequest && meeting.requestNote && (
           <div className="meeting__block">
@@ -333,7 +388,7 @@ export function Meeting() {
           </div>
         )}
 
-        {modeUsesMentorPhone(mode) && (
+        {!convened && modeUsesMentorPhone(mode) && (
           <div className="meeting__block">
             <h2 className="meeting__block-title">Phone</h2>
             <p className={'meeting__where' + (phone ? '' : ' meeting__where--missing')}>
@@ -344,6 +399,28 @@ export function Meeting() {
                   : `${mentor?.full_name ?? 'Your mentor'} has no phone number saved yet`}
               </span>
             </p>
+          </div>
+        )}
+
+        {/* Numbers come from meeting_contacts, which is scoped to the meeting
+            and to its mode rather than read off anybody's profile. An empty
+            result renders nothing at all rather than an absence. */}
+        {convened && contacts.length > 0 && (
+          <div className="meeting__block">
+            <h2 className="meeting__block-title">Numbers</h2>
+            <ul className="meeting__clocks">
+              {contacts.map((c) => {
+                const number = contactNumber(contacts, c.profile_id)
+                if (!number) return null
+                return (
+                  <li key={c.profile_id} className="meeting__clock">
+                    <Icon name="phone" size={14} strokeWidth={1.75} />
+                    <span className="meeting__clock-name">{c.full_name}</span>
+                    <span className="meeting__clock-when">{number}</span>
+                  </li>
+                )
+              })}
+            </ul>
           </div>
         )}
 
@@ -493,12 +570,15 @@ export function Meeting() {
       {!isRequest && (
         <MeetingRecord
           meetingId={meeting.id}
-          canWriteNotes={canManage}
+          canWriteNotes={notesAccess}
+          canReadNotes={notesAccess}
           canManageItems={canManage}
           authorId={profile?.id ?? null}
           mentor={mentor}
           mentee={mentee}
           viewerId={profile?.id ?? null}
+          kind={kind}
+          attendees={attendees}
         />
       )}
 
@@ -512,156 +592,6 @@ export function Meeting() {
         />
       )}
     </section>
-  )
-}
-
-/* ============ Reschedule ============ */
-
-function ReschedulePanel({ meeting, modes, onCancel, onSubmit }) {
-  const [form, setForm] = useState({
-    scheduledFor:    toLocalInputValue(meeting.scheduledFor),
-    durationMinutes: String(meeting.durationMinutes ?? 60),
-    mode:            meeting.mode,
-    externalLink:    meeting.externalLink ?? '',
-    location:        meeting.location ?? ''
-  })
-  const [saving, setSaving] = useState(false)
-  const [err, setErr]       = useState('')
-
-  const set = (patch) => setForm((f) => ({ ...f, ...patch }))
-  const needsLink     = modeNeedsLink(form.mode)
-  const needsLocation = modeNeedsLocation(form.mode)
-  const past = isPast(fromLocalInputValue(form.scheduledFor))
-
-  const duration = Number(form.durationMinutes)
-  const durationBad = !Number.isFinite(duration) || duration < DURATION_MIN || duration > DURATION_MAX
-  const unchanged = fromLocalInputValue(form.scheduledFor) === meeting.scheduledFor
-    && Number(form.durationMinutes) === meeting.durationMinutes
-    && form.mode === meeting.mode
-    && (form.externalLink || '') === (meeting.externalLink || '')
-    && (form.location || '') === (meeting.location || '')
-
-  const ready = form.scheduledFor
-    && !durationBad
-    && !unchanged
-    && (!needsLink || form.externalLink.trim())
-    && (!needsLocation || form.location.trim())
-
-  async function submit() {
-    if (!ready) return
-    setSaving(true)
-    setErr('')
-    try {
-      await onSubmit(form)
-    } catch (e) {
-      setErr(friendlyMeetingError(e))
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  return (
-    <div className="meeting__edit">
-      <h2 className="meeting__edit-title">Move this meeting</h2>
-      <p className="meeting__edit-hint">
-        Both of you are emailed with the old time and the new one. Everything else about the
-        meeting stays as it is.
-      </p>
-
-      {err && <p className="meeting__edit-error" role="alert">{err}</p>}
-
-      <div className="meeting__edit-fields">
-        <label className="meeting__field">
-          <span className="meeting__field-label">Date and time</span>
-          <input
-            type="datetime-local"
-            className="meeting__input"
-            value={form.scheduledFor}
-            onChange={(e) => set({ scheduledFor: e.target.value })}
-          />
-          {past && (
-            <span className="meeting__field-hint">
-              That time has already passed. Fine if you are correcting the record.
-            </span>
-          )}
-        </label>
-
-        <label className="meeting__field">
-          <span className="meeting__field-label">Length in minutes</span>
-          <input
-            type="number"
-            inputMode="numeric"
-            className="meeting__input"
-            min={DURATION_MIN}
-            max={DURATION_MAX}
-            step="5"
-            value={form.durationMinutes}
-            onChange={(e) => set({ durationMinutes: e.target.value })}
-          />
-          {durationBad && (
-            <span className="meeting__field-hint">
-              Between {DURATION_MIN} and {DURATION_MAX} minutes.
-            </span>
-          )}
-        </label>
-
-        <fieldset className="meeting__field meeting__field--wide">
-          <legend className="meeting__field-label">How you are meeting</legend>
-          <div className="meeting__modes">
-            {modes.map((m) => (
-              <button
-                key={m.value}
-                type="button"
-                className={'meeting__mode-btn' + (form.mode === m.value ? ' meeting__mode-btn--active' : '')}
-                onClick={() => set({ mode: m.value, externalLink: '', location: '' })}
-                aria-pressed={form.mode === m.value}
-              >
-                <Icon name={MODE_ICONS[m.value]} size={16} />
-                <span className="meeting__mode-btn-label">{m.label}</span>
-              </button>
-            ))}
-          </div>
-        </fieldset>
-
-        {needsLink && (
-          <label className="meeting__field meeting__field--wide">
-            <span className="meeting__field-label">Meeting link</span>
-            <input
-              type="url"
-              className="meeting__input"
-              placeholder="https://"
-              value={form.externalLink}
-              onChange={(e) => set({ externalLink: e.target.value })}
-              autoComplete="off"
-              spellCheck="false"
-            />
-          </label>
-        )}
-
-        {needsLocation && (
-          <label className="meeting__field meeting__field--wide">
-            <span className="meeting__field-label">Where</span>
-            <input
-              type="text"
-              className="meeting__input"
-              placeholder="Street address, church, or place name"
-              value={form.location}
-              onChange={(e) => set({ location: e.target.value })}
-              autoComplete="off"
-            />
-          </label>
-        )}
-      </div>
-
-      <div className="meeting__edit-actions">
-        <button type="button" className="meeting__action" onClick={onCancel} disabled={saving}>
-          Keep as is
-        </button>
-        <button type="button" className="meeting__cta" onClick={submit} disabled={!ready || saving}>
-          {saving ? 'Moving' : 'Move meeting'}
-        </button>
-      </div>
-    </div>
   )
 }
 
@@ -691,6 +621,45 @@ function Person({ person, role, you }) {
         <span className="meeting__person-mail">{person.email}</span>
       </span>
     </span>
+  )
+}
+
+// Attendees come through profiles_visible, which returns a name, a photo, a
+// title and a role label. No email, which is why this is not Person with a
+// different label: the row it reads is a different row.
+function Attendees({ people, viewerId }) {
+  if (!people || people.length === 0) {
+    return (
+      <p className="meeting__empty-body">
+        Nobody has been added to this meeting yet.
+      </p>
+    )
+  }
+
+  return (
+    <ul className="meeting__attendees">
+      {people.map((p) => (
+        <li className="meeting__attendee" key={p.profileId}>
+          <span className="meeting__avatar" aria-hidden="true">
+            {p.photoUrl
+              ? <img src={p.photoUrl} alt="" className="meeting__avatar-img" />
+              : initials(p.fullName)}
+          </span>
+          <span className="meeting__person-text">
+            <span className="meeting__person-role">
+              {roleWord(p.roleLabel)}{p.profileId === viewerId ? ' (you)' : ''}
+            </span>
+            <span className="meeting__person-name">{p.fullName ?? 'Unnamed'}</span>
+            {p.displayTitle && (
+              <span className="meeting__person-mail">{p.displayTitle}</span>
+            )}
+          </span>
+          {p.canWriteNotes && (
+            <span className="meeting__attendee-tag">Keeps notes</span>
+          )}
+        </li>
+      ))}
+    </ul>
   )
 }
 
@@ -738,53 +707,11 @@ function Fact({ label, value }) {
   )
 }
 
-function ConfirmDialog({ kind, meeting, busy, onCancel, onConfirm }) {
-  const who = meeting.mentee?.full_name ?? 'your mentee'
-  const mentorName = meeting.mentor?.full_name ?? 'your mentor'
-
-  const copy = {
-    cancel: {
-      title:   `Cancel this meeting with ${who}?`,
-      body:    'It stays on the record as cancelled rather than disappearing. You can schedule a new one at any time.',
-      confirm: 'Cancel meeting',
-      danger:  true
-    },
-    reopen: {
-      title:   'Reopen this meeting?',
-      body:    'It goes back to scheduled and its completion time is cleared. Use this only when it was marked completed by mistake.',
-      confirm: 'Reopen',
-      danger:  false
-    },
-    withdraw: {
-      title:   'Withdraw this request?',
-      body:    `${mentorName} will see that you took it back. Nothing is lost, and you can ask for another time whenever you are ready.`,
-      confirm: 'Withdraw request',
-      danger:  true
-    }
-  }[kind]
-
-  return (
-    <div className="meeting__overlay" role="dialog" aria-modal="true" aria-labelledby="meeting-confirm">
-      <div className="meeting__dialog">
-        <h2 className="meeting__dialog-title" id="meeting-confirm">{copy.title}</h2>
-        <p className="meeting__dialog-body">{copy.body}</p>
-        <div className="meeting__dialog-actions">
-          <button type="button" className="meeting__action" onClick={onCancel} disabled={busy}>
-            Keep as is
-          </button>
-          <button
-            type="button"
-            className={'meeting__cta' + (copy.danger ? ' meeting__cta--danger' : '')}
-            onClick={onConfirm}
-            disabled={busy}
-            autoFocus
-          >
-            {busy ? 'Working' : copy.confirm}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
+function roleWord(roleLabel) {
+  if (roleLabel === 'admin')  return 'Admin'
+  if (roleLabel === 'mentor') return 'Mentor'
+  if (roleLabel === 'mentee') return 'Mentee'
+  return 'Attendee'
 }
 
 // Pulls "9:05 AM" out of either long form so the two can be compared.
@@ -795,7 +722,7 @@ function clockOf(label) {
 
 function initials(full) {
   const parts = (full || '').trim().split(/\s+/).filter(Boolean)
-  if (parts.length === 0) return '·'
+  if (parts.length === 0) return '\u00B7'
   if (parts.length === 1) return parts[0][0].toUpperCase()
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
 }

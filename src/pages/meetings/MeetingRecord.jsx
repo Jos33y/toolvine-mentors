@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Icon } from '@/components/shared/Icon/Icon'
-import { fetchNote, saveNote, friendlyNoteError } from '@/lib/meetingNotes'
+import { fetchMyNote, fetchNotes, saveNote, friendlyNoteError } from '@/lib/meetingNotes'
 import {
   fetchActionItemsForMeeting,
   createActionItem,
@@ -12,6 +12,7 @@ import {
   dueLabel,
   ITEM_STATUS
 } from '@/lib/meetingActionItems'
+import { MEETING_KIND } from '@/lib/meetingStatus'
 import './meetingRecord.css'
 
 // The record of a meeting: what was said, and what was agreed. One component
@@ -24,25 +25,55 @@ import './meetingRecord.css'
 // Privacy runs one way. The mentor's notes stay private. What a mentee writes
 // about finishing an item travels up to the mentor, and it lives on
 // meeting_action_items rather than anywhere near meeting_notes.
+//
+// 0048 made notes one row per author rather than one row per meeting, because
+// a convened meeting with four mentors in it has no single mentor to own the
+// record. Your own note is editable; anybody else's is read only, which is
+// what the update policy enforces.
 export function MeetingRecord({
   meetingId,
   canWriteNotes,
+  canReadNotes,
   canManageItems,
   authorId,
   mentor,
   mentee,
-  viewerId
+  viewerId,
+  kind = MEETING_KIND.PAIRING,
+  attendees = []
 }) {
+  const convened = kind === MEETING_KIND.ADMIN
+
+  // Defaults to the write flag so an existing caller behaves exactly as it did
+  // before attendees existed.
+  const readNotes = canReadNotes ?? canWriteNotes
+
+  // Everyone this screen can name. Used for the assignee picker and for
+  // putting a name on somebody else's note. A missing name renders as a gap
+  // rather than as an invented one.
+  const people = useMemo(() => {
+    if (convened) {
+      return attendees.map((a) => ({ id: a.profileId, full_name: a.fullName }))
+    }
+    return [mentee, mentor].filter(Boolean)
+  }, [convened, attendees, mentor, mentee])
+
   return (
     <section className="record" aria-label="Meeting record">
-      {canWriteNotes && (
-        <NotesBlock meetingId={meetingId} authorId={authorId} />
+      {readNotes && (
+        <NotesBlock
+          meetingId={meetingId}
+          authorId={authorId}
+          canWrite={canWriteNotes}
+          convened={convened}
+          people={people}
+        />
       )}
       <ItemsBlock
         meetingId={meetingId}
         canManage={canManageItems}
-        mentor={mentor}
-        mentee={mentee}
+        people={people}
+        convened={convened}
         viewerId={viewerId}
         authorId={authorId}
       />
@@ -52,23 +83,32 @@ export function MeetingRecord({
 
 /* ============ Notes ============ */
 
-function NotesBlock({ meetingId, authorId }) {
-  const [value, setValue]   = useState('')
-  const [saved, setSaved]   = useState('')
-  const [state, setState]   = useState('loading')
-  const [error, setError]   = useState('')
+function NotesBlock({ meetingId, authorId, canWrite, convened, people }) {
+  const [value,  setValue]  = useState('')
+  const [saved,  setSaved]  = useState('')
+  const [others, setOthers] = useState([])
+  const [state,  setState]  = useState('loading')
+  const [error,  setError]  = useState('')
 
   const savedRef = useRef('')
 
+  const nameFor = useCallback((id) => {
+    return people.find((p) => p.id === id)?.full_name ?? null
+  }, [people])
+
   useEffect(() => {
     let cancelled = false
-    fetchNote(meetingId)
-      .then((row) => {
+
+    // Two reads rather than one filtered in JS. The own-note read is what the
+    // editor binds to and it must not depend on the list resolving.
+    Promise.all([fetchMyNote(meetingId, authorId), fetchNotes(meetingId)])
+      .then(([mine, all]) => {
         if (cancelled) return
-        const text = row?.notes ?? ''
+        const text = mine?.notes ?? ''
         setValue(text)
         setSaved(text)
         savedRef.current = text
+        setOthers(all.filter((n) => n.author_id !== authorId && (n.notes ?? '').trim().length > 0))
         setState('idle')
       })
       .catch((e) => {
@@ -76,8 +116,9 @@ function NotesBlock({ meetingId, authorId }) {
         setError(friendlyNoteError(e))
         setState('idle')
       })
+
     return () => { cancelled = true }
-  }, [meetingId])
+  }, [meetingId, authorId])
 
   // Auto-save on blur, per the UX principles. Not on keystroke, and not on a
   // no-op: blurring a field nobody touched should not toast.
@@ -106,10 +147,12 @@ function NotesBlock({ meetingId, authorId }) {
         <div>
           <h2 className="record__title">Notes</h2>
           <p className="record__hint">
-            Visible to you and our team. Your mentee never sees this, on this page or anywhere else.
+            {convened
+              ? 'Visible to the people keeping the record on this meeting, and to our team.'
+              : 'Visible to you and our team. Your mentee never sees this, on this page or anywhere else.'}
           </p>
         </div>
-        <StatusChip state={state} dirty={dirty} />
+        {canWrite && <StatusChip state={state} dirty={dirty} />}
       </header>
 
       {error && <p className="record__error" role="alert">{error}</p>}
@@ -117,15 +160,39 @@ function NotesBlock({ meetingId, authorId }) {
       {state === 'loading' ? (
         <div className="record__skeleton" aria-busy="true" />
       ) : (
-        <textarea
-          className="record__textarea"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          onBlur={onBlur}
-          rows={8}
-          placeholder="What was discussed, what you noticed, what to pick up next time."
-          spellCheck="true"
-        />
+        <>
+          {canWrite && (
+            <textarea
+              className="record__textarea"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              onBlur={onBlur}
+              rows={8}
+              placeholder="What was discussed, what you noticed, what to pick up next time."
+              spellCheck="true"
+            />
+          )}
+
+          {others.length > 0 && (
+            <div className="record__others">
+              <h3 className="record__others-title">
+                {canWrite ? 'Also written on this meeting' : 'Written on this meeting'}
+              </h3>
+              <ul className="record__note-list">
+                {others.map((note) => (
+                  <li className="record__note" key={note.id}>
+                    <p className="record__note-who">{nameFor(note.author_id) ?? 'Another attendee'}</p>
+                    <p className="record__note-body">{note.notes}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {!canWrite && others.length === 0 && (
+            <p className="record__empty">Nothing written on this meeting yet.</p>
+          )}
+        </>
       )}
     </article>
   )
@@ -151,7 +218,7 @@ function StatusChip({ state, dirty }) {
 
 /* ============ Action items ============ */
 
-function ItemsBlock({ meetingId, canManage, mentor, mentee, viewerId, authorId }) {
+function ItemsBlock({ meetingId, canManage, people, convened, viewerId, authorId }) {
   const [items,   setItems]   = useState([])
   const [loading, setLoading] = useState(true)
   const [error,   setError]   = useState('')
@@ -217,18 +284,19 @@ function ItemsBlock({ meetingId, canManage, mentor, mentee, viewerId, authorId }
   const open = items.filter((i) => i.status === ITEM_STATUS.OPEN)
   const rest = items.filter((i) => i.status !== ITEM_STATUS.OPEN)
 
+  // An admin can only assign to somebody on the meeting, which the insert
+  // policy checks. With no attendees loaded there is nobody to pick, so the
+  // control is absent rather than opening onto an empty select.
+  const canAdd = canManage && people.length > 0
+
   return (
     <article className="record__block">
       <header className="record__head">
         <div>
           <h2 className="record__title">Action items</h2>
-          <p className="record__hint">
-            {canManage
-              ? 'What either of you agreed to do. When your mentee marks one done they say what happened, and you read it here.'
-              : 'What you agreed to do. Mark each one done and write a line about how it went.'}
-          </p>
+          <p className="record__hint">{itemsHint(canManage, convened)}</p>
         </div>
-        {canManage && !adding && (
+        {canAdd && !adding && (
           <button type="button" className="record__add" onClick={() => setAdding(true)}>
             <Icon name="plus" size={14} />
             <span>Add item</span>
@@ -240,8 +308,7 @@ function ItemsBlock({ meetingId, canManage, mentor, mentee, viewerId, authorId }
 
       {adding && (
         <ItemForm
-          mentor={mentor}
-          mentee={mentee}
+          people={people}
           onCancel={() => setAdding(false)}
           onSubmit={onCreate}
         />
@@ -250,11 +317,7 @@ function ItemsBlock({ meetingId, canManage, mentor, mentee, viewerId, authorId }
       {loading ? (
         <div className="record__skeleton" aria-busy="true" />
       ) : items.length === 0 ? (
-        <p className="record__empty">
-          {canManage
-            ? 'Nothing agreed yet. Add what either of you committed to and it appears on their dashboard.'
-            : 'Nothing set from this session.'}
-        </p>
+        <p className="record__empty">{itemsEmpty(canManage, convened)}</p>
       ) : (
         <>
           <ul className="record__items">
@@ -292,6 +355,24 @@ function ItemsBlock({ meetingId, canManage, mentor, mentee, viewerId, authorId }
       )}
     </article>
   )
+}
+
+// Copy differs by meeting kind because the relationship does. A convened
+// meeting has no mentee of yours in it, so naming one would be wrong.
+function itemsHint(canManage, convened) {
+  if (!canManage) {
+    return 'What you agreed to do. Mark each one done and write a line about how it went.'
+  }
+  return convened
+    ? 'What was agreed in this meeting. When somebody marks one done they say what happened, and you read it here.'
+    : 'What either of you agreed to do. When your mentee marks one done they say what happened, and you read it here.'
+}
+
+function itemsEmpty(canManage, convened) {
+  if (!canManage) return 'Nothing set from this session.'
+  return convened
+    ? 'Nothing agreed yet. Add what was committed to and it appears on that person\u2019s dashboard.'
+    : 'Nothing agreed yet. Add what either of you committed to and it appears on their dashboard.'
 }
 
 function ItemRow({ item, canManage, canToggle, viewerId, busy, onSetStatus, onCancel }) {
@@ -436,14 +517,13 @@ function ItemRow({ item, canManage, canToggle, viewerId, busy, onSetStatus, onCa
   )
 }
 
-function ItemForm({ mentor, mentee, onCancel, onSubmit }) {
-  // Exactly two people. The insert policy rejects anyone else, so the picker
-  // offers no way to get it wrong.
-  const people = [mentee, mentor].filter(Boolean)
-
+function ItemForm({ people, onCancel, onSubmit }) {
+  // The people on this meeting and nobody else. On a pairing that is two; on a
+  // convened meeting it is whoever the admin put in the room. The insert
+  // policy rejects anyone else, so the picker offers no way to get it wrong.
   const [form, setForm] = useState({
     body:       '',
-    assignedTo: mentee?.id ?? mentor?.id ?? '',
+    assignedTo: people[0]?.id ?? '',
     dueOn:      ''
   })
   const [saving, setSaving] = useState(false)
@@ -490,7 +570,7 @@ function ItemForm({ mentor, mentee, onCancel, onSubmit }) {
             onChange={(e) => set({ assignedTo: e.target.value })}
           >
             {people.map((p) => (
-              <option key={p.id} value={p.id}>{p.full_name}</option>
+              <option key={p.id} value={p.id}>{p.full_name ?? 'Unnamed'}</option>
             ))}
           </select>
         </label>

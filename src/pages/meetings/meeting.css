@@ -673,3 +673,52 @@
 @media (prefers-reduced-motion: reduce) {
   .meeting__mode-btn { transition: none; }
 }
+
+/* ============ Attendees ============ */
+
+/* A convened meeting has no pair to place either side of a join glyph, so the
+   people stack instead. Reflows to one column under 600px on its own, since
+   the minimum column width does the work. */
+.meeting__attendees {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--tv-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.meeting__attendee {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-3);
+  padding: var(--tv-space-3);
+  background: var(--tv-canvas-app);
+  border: var(--tv-border-width) solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+}
+
+/* Sits after the name block, so it needs the leftover space rather than a
+   fixed width. */
+.meeting__attendee-tag {
+  margin-left: auto;
+  flex-shrink: 0;
+  padding: var(--tv-space-1) var(--tv-space-2);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-medium);
+  color: var(--tv-text-2);
+  background: var(--tv-surface);
+  border: var(--tv-border-width) solid var(--tv-border-strong);
+  border-radius: var(--tv-radius-pill);
+}
+
+/* The date moves under the title on a convened meeting, because the title is
+   what the heading has to say. */
+.meeting__subtitle {
+  margin: var(--tv-space-1) 0 0;
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-2);
+}

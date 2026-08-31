@@ -1,20 +1,14 @@
-// Four official taglines, mapped to surfaces per docs/client-voice.md.
-// Treat this module as the single source of truth. Do not hardcode taglines elsewhere.
+// Q45. One official tagline across auth, the seven email footers, the OG card
+// and the social square. index.html already carried it; this closes the rest.
+export const TAGLINE = 'Raising Kingdom Leaders. Impacting Generations.'
 
+// The three marketing lines from docs/client-voice.md. None is referenced by
+// any surface today, which is why the auth line was the only one Q45 needed to
+// move. Kept because they are client voice rather than code.
 export const TAGLINES = {
-  homeHero:    'Raising Godly Mentors and Leaders',
-  aboutHero:   'Building Godly Leaders for Global Influence',
-  programs:    'Mentorship for Kingdom Impact',
-  authScreens: 'Raising Christ-Centered Leaders Through Mentorship'
-}
-
-export const ALL_TAGLINES = Object.values(TAGLINES)
-
-// Footer carries a rotating line beneath the legal name.
-// Picked once per page load, stable for the session via useState in the consumer.
-export function pickFooterTagline() {
-  const i = Math.floor(Math.random() * ALL_TAGLINES.length)
-  return ALL_TAGLINES[i]
+  homeHero:  'Raising Godly Mentors and Leaders',
+  aboutHero: 'Building Godly Leaders for Global Influence',
+  programs:  'Mentorship for Kingdom Impact'
 }
 
 // Naming forms by surface, per docs/client-voice.md.

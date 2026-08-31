@@ -744,3 +744,173 @@
   .meetings__mode,
   .meetings__filter { transition: none; }
 }
+
+/* ============ Type filter ============ */
+
+/* A second axis under the scope tabs, not a fifth tab. Lighter than
+   .meetings__filter on purpose: the scope is the question, the type is the
+   qualifier. */
+.meetings__kinds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tv-space-2);
+  margin-bottom: var(--tv-space-4);
+}
+
+.meetings__kind {
+  padding: var(--tv-space-1) var(--tv-space-3);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-medium);
+  color: var(--tv-text-2);
+  background: transparent;
+  border: var(--tv-border-width) solid var(--tv-border);
+  border-radius: var(--tv-radius-pill);
+  cursor: pointer;
+  transition: color var(--tv-duration-fast) var(--tv-ease),
+              border-color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.meetings__kind:hover,
+.meetings__kind:focus-visible {
+  color: var(--tv-text);
+  border-color: var(--tv-border-strong);
+}
+
+.meetings__kind:focus-visible {
+  outline: none;
+  box-shadow: var(--tv-shadow-focus);
+}
+
+.meetings__kind--active,
+.meetings__kind--active:hover,
+.meetings__kind--active:focus-visible {
+  color: var(--tv-primary-hover);
+  border-color: var(--tv-primary);
+  background: var(--tv-primary-soft);
+}
+
+/* ============ Convened rows ============ */
+
+.meetings__kind-tag {
+  margin-left: var(--tv-space-2);
+  padding: 0 var(--tv-space-2);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-medium);
+  color: var(--tv-text-2);
+  background: var(--tv-canvas-app);
+  border: var(--tv-border-width) solid var(--tv-border);
+  border-radius: var(--tv-radius-pill);
+}
+
+.meetings__attendees {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-2);
+  margin: var(--tv-space-1) 0 0;
+  font-size: var(--tv-fs-xs);
+  line-height: var(--tv-lh-base);
+  color: var(--tv-text-muted);
+}
+
+/* ============ Convene picker ============ */
+
+.convene__people {
+  display: grid;
+  gap: var(--tv-space-2);
+  max-height: 20rem;
+  overflow-y: auto;
+  margin: var(--tv-space-2) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.convene__person {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-3);
+  padding: var(--tv-space-2) var(--tv-space-3);
+  background: var(--tv-surface);
+  border: var(--tv-border-width) solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  transition: border-color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.convene__person:hover { border-color: var(--tv-border-strong); }
+
+.convene__person--on,
+.convene__person--on:hover {
+  border-color: var(--tv-primary);
+  background: var(--tv-primary-soft);
+}
+
+/* The whole row is the target, so it clears 44px on touch without a fixed
+   height fighting the wrapped name. */
+.convene__pick {
+  display: flex;
+  align-items: center;
+  gap: var(--tv-space-3);
+  flex: 1;
+  min-height: 2.25rem;
+  cursor: pointer;
+}
+
+.convene__box {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  accent-color: var(--tv-primary);
+  cursor: pointer;
+}
+
+.convene__name {
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-sm);
+  font-weight: var(--tv-fw-medium);
+  color: var(--tv-text);
+}
+
+.convene__title {
+  font-size: var(--tv-fs-xs);
+  color: var(--tv-text-muted);
+}
+
+.convene__notes {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tv-space-1);
+  flex-shrink: 0;
+  padding: var(--tv-space-1) var(--tv-space-2);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-medium);
+  color: var(--tv-text-muted);
+  background: var(--tv-surface);
+  border: var(--tv-border-width) solid var(--tv-border-strong);
+  border-radius: var(--tv-radius-pill);
+  cursor: pointer;
+  transition: color var(--tv-duration-fast) var(--tv-ease),
+              border-color var(--tv-duration-fast) var(--tv-ease);
+}
+
+.convene__notes:focus-visible {
+  outline: none;
+  box-shadow: var(--tv-shadow-focus);
+}
+
+/* The tick is always in the DOM so the pill does not resize when it turns on,
+   which would shift the row under the pointer. */
+.convene__notes svg { opacity: 0; }
+
+.convene__notes--on {
+  color: var(--tv-primary-hover);
+  border-color: var(--tv-primary);
+  background: var(--tv-surface);
+}
+
+.convene__notes--on svg { opacity: 1; }
+
+@media (max-width: 600px) {
+  .convene__person { flex-wrap: wrap; }
+  .convene__notes  { margin-left: auto; }
+}

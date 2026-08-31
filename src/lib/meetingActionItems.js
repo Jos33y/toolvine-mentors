@@ -1,11 +1,11 @@
 import { supabase } from '@/lib/supabase'
 
-// pairing_id is NOT NULL and every RLS policy keys off it, but nothing here
-// supplies it. meeting_action_items_set_pairing is a BEFORE INSERT trigger
-// that derives it from the meeting and overwrites anything sent, verified
-// against pg_get_functiondef on 12 August. The tracker, the handoff, and
-// dev-track v4 all state the opposite; they were written against an empty
-// table and never tested.
+// pairing_id is nullable since 0048 and nothing here supplies it.
+// meeting_action_items_set_pairing is a BEFORE INSERT trigger that derives it
+// from the meeting and overwrites anything sent, verified against
+// pg_get_functiondef on 12 August and unchanged by 0048. On a convened meeting
+// there is no pairing, so it writes null and membership is read from
+// meeting_attendees instead.
 
 export const ITEM_STATUS = Object.freeze({
   OPEN:      'open',
@@ -77,7 +77,9 @@ export async function fetchOpenItemsForMentee(menteeId, { limit = 10 } = {}) {
 }
 
 // Open-task counts per pairing. Used to flavour MenteesListCard status and
-// to badge rows with "N open". Returns a Map keyed by pairing_id.
+// to badge rows with "N open". Returns a Map keyed by pairing_id. Items on a
+// convened meeting have no pairing and are absent by design: this badge is
+// about one mentoring relationship, not about everything a person owes.
 export async function countOpenItemsByPairing(pairingIds) {
   if (!pairingIds || pairingIds.length === 0) return new Map()
 
@@ -123,7 +125,8 @@ export async function fetchActionItemsForMeeting(meetingId) {
 
 // pairing_id is omitted on purpose. The trigger derives it, so sending one
 // is at best redundant and at worst a way to point an item at a pairing its
-// meeting does not belong to.
+// meeting does not belong to. On a convened meeting the assignee must be an
+// attendee, which the insert policy checks rather than this function.
 export async function createActionItem({ meetingId, assignedTo, body, dueOn = null, createdBy }) {
   const { data, error } = await supabase
     .from('meeting_action_items')
@@ -234,7 +237,7 @@ export function friendlyItemError(err) {
     return 'That item is in an inconsistent state. Reload and try again.'
   }
   if (code === '42501' || /row-level security|permission denied/i.test(raw)) {
-    return 'You can only assign items to the two people in this pairing.'
+    return 'You can only assign items to the people on this meeting.'
   }
   if (/Only open or done/i.test(raw)) {
     return 'An item can be marked open or done. Ask your mentor to cancel it instead.'

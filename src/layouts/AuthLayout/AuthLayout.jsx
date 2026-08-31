@@ -1,6 +1,6 @@
 import { Link, Outlet } from 'react-router-dom'
 import { Logo } from '@/components/shared/Logo/Logo'
-import { TAGLINES, NAMES } from '@/lib/taglines'
+import { TAGLINE, NAMES } from '@/lib/taglines'
 import './AuthLayout.css'
 
 // UK long-form date, fixed at first render for the page session.
@@ -23,7 +23,7 @@ export function AuthLayout() {
 
           <div className="auth__inscription">
             <span className="auth__inscription-rule" aria-hidden="true" />
-            <p className="auth__inscription-text">{TAGLINES.authScreens}</p>
+            <p className="auth__inscription-text">{TAGLINE}</p>
           </div>
         </div>
       </main>

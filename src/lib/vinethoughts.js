@@ -16,6 +16,19 @@
 
 export const EDITIONS = [
   {
+    num:       '07',
+    roman:     'VII',
+    date:      'JUNE 2026',
+    featured:  'Mentor Babatunde Ayeni',
+    coverline: 'On stewardship, quiet leadership, and the years before the title',
+    flipbook:  'https://heyzine.com/flip-book/b0606681cf.html',
+    stories: [
+      { type: 'EXCLUSIVE INTERVIEW', title: 'On stewardship, quiet leadership, and the years before the title', byline: 'Mentor Babatunde Ayeni', subline: 'Budgeting and Financial Analysis, downstream oil and gas', quote: 'Many see the title but not the years of preparation. Leadership is not mainly about position; it is about responsibility, solving problems, serving.' },
+      { type: 'FEATURED ARTICLE',    title: 'Stewardship and Financial Wisdom: Managing Resources God\u2019s Way', byline: 'Dr. Festus Adejoro', subline: '', quote: 'Financial stewardship is not about how much we have but how faithfully we manage what has been entrusted.' },
+      { type: 'BOOK REVIEW',         title: 'The Purpose Driven Life, by Rick Warren', byline: '', subline: 'reviewer', quote: 'The most important question is not what I want from life, but what God wants to accomplish through my life.' }
+    ]
+  },
+  {
     num:       '06',
     roman:     'VI',
     date:      'MARCH 2026',

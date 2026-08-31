@@ -11,6 +11,7 @@ import {
   fetchRequestablePairing,
   countPendingRequests,
   createMeeting,
+  createConvenedMeeting,
   completeMeeting,
   cancelMeeting,
   requestMeeting,
@@ -21,27 +22,27 @@ import {
   friendlyMeetingError,
   availableModes,
   requestableModes,
-  modeNeedsLink,
-  modeNeedsLocation,
   modeUsesMentorPhone,
   mentorPhone,
   fromLocalInputValue,
   isPast,
   dayNumber,
   monthShort,
-  defaultMeetingSlot,
   opensForCompletionIn,
+  meetingHeading,
   MEETING_FILTERS,
   DEFAULT_MEETING_FILTER,
+  KIND_FILTERS,
+  DEFAULT_KIND_FILTER,
   MEETING_STATUS,
+  MEETING_KIND,
   MODE_ICONS,
   MODE_LABELS,
-  STATUS_LABELS,
-  DURATION_MIN,
-  DURATION_MAX,
-  DEFAULT_DURATION
+  STATUS_LABELS
 } from '@/lib/meetings'
 import { RequestPanel, RequestRow } from './MeetingRequests'
+import { SchedulePanel } from './MeetingSchedule'
+import { ConvenePanel } from './MeetingConvene'
 import './meetings.css'
 
 export function Meetings() {
@@ -56,6 +57,12 @@ export function Meetings() {
   const rawFilter = searchParams.get('filter')
   const filter = MEETING_FILTERS.some((f) => f.key === rawFilter) ? rawFilter : DEFAULT_MEETING_FILTER
 
+  // Q21. One list, filtered by type. Kind is a second axis across the four
+  // scopes rather than a fifth scope, because a convened meeting is still
+  // upcoming or still past.
+  const rawKind = searchParams.get('type')
+  const kind = KIND_FILTERS.some((k) => k.key === rawKind) ? rawKind : DEFAULT_KIND_FILTER
+
   const [rows,    setRows]    = useState([])
   const [loading, setLoading] = useState(true)
   const [error,   setError]   = useState('')
@@ -67,18 +74,19 @@ export function Meetings() {
   const [pendingCount, setPendingCount] = useState(0)
   const [panelOpen,    setPanelOpen]    = useState(false)
   const [requestOpen,  setRequestOpen]  = useState(false)
+  const [conveneOpen,  setConveneOpen]  = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
-      setRows(await fetchMeetings({ scope: filter }))
+      setRows(await fetchMeetings({ scope: filter, kind }))
     } catch (e) {
       setError(friendlyMeetingError(e))
     } finally {
       setLoading(false)
     }
-  }, [filter])
+  }, [filter, kind])
 
   useEffect(() => { load() }, [load])
 
@@ -111,6 +119,13 @@ export function Meetings() {
     const params = new URLSearchParams(searchParams)
     if (next === DEFAULT_MEETING_FILTER) params.delete('filter')
     else params.set('filter', next)
+    setSearchParams(params, { replace: true })
+  }
+
+  const setKind = (next) => {
+    const params = new URLSearchParams(searchParams)
+    if (next === DEFAULT_KIND_FILTER) params.delete('type')
+    else params.set('type', next)
     setSearchParams(params, { replace: true })
   }
 
@@ -172,6 +187,35 @@ export function Meetings() {
     await load()
   }
 
+  // Two writes and no RPC, so the meeting can exist for a moment with nobody
+  // on it. createConvenedMeeting comments the seam; that direction is the safe
+  // one, since an attendeeless meeting is admin-only and can be filled in.
+  //
+  // No email. Q31 settled the same question for programmes: bell and banner,
+  // no email, while email_events is broken. meeting_attendees_notify writes
+  // the bell notice on every add.
+  async function onConvene(form) {
+    await createConvenedMeeting({
+      title:           form.title,
+      scheduledFor:    fromLocalInputValue(form.scheduledFor),
+      durationMinutes: Number(form.durationMinutes),
+      mode:            form.mode,
+      externalLink:    form.externalLink,
+      location:        form.location,
+      attendees:       form.attendees,
+      createdBy:       profile?.id ?? null,
+      label:           form.title
+    })
+
+    setNotice(
+      `Meeting convened. ${form.attendees.length} ${form.attendees.length === 1 ? 'person has' : 'people have'} been notified.`
+    )
+    setConveneOpen(false)
+    setKind('admin')
+    setFilter('upcoming')
+    await load()
+  }
+
   async function onComplete(meeting) {
     setBusyId(meeting.id)
     try {
@@ -189,11 +233,15 @@ export function Meetings() {
     setBusyId(meeting.id)
     try {
       await cancelMeeting(meeting.id, { asAdmin: isAdmin, label: labelFor(meeting) })
-      const mail = await sendMeetingEmail(meeting.id, 'cancelled')
-      setNotice(
-        'Meeting cancelled. ' +
-        (mail.sent ? 'Both of you have been emailed.' : 'The notification email did not send.')
-      )
+      if (meeting.kind === MEETING_KIND.ADMIN) {
+        setNotice('Meeting cancelled. Everyone on it has been notified.')
+      } else {
+        const mail = await sendMeetingEmail(meeting.id, 'cancelled')
+        setNotice(
+          'Meeting cancelled. ' +
+          (mail.sent ? 'Both of you have been emailed.' : 'The notification email did not send.')
+        )
+      }
       await load()
     } catch (e) {
       setError(friendlyMeetingError(e))
@@ -266,7 +314,7 @@ export function Meetings() {
             <button
               type="button"
               className="meetings__new"
-              onClick={() => { setPanelOpen(true); setRequestOpen(false); setNotice('') }}
+              onClick={() => { setPanelOpen(true); setRequestOpen(false); setConveneOpen(false); setNotice('') }}
             >
               <Icon name="plus" size={16} />
               <span>Schedule meeting</span>
@@ -276,10 +324,22 @@ export function Meetings() {
             <button
               type="button"
               className={canSchedule ? 'meetings__action' : 'meetings__new'}
-              onClick={() => { setRequestOpen(true); setPanelOpen(false); setNotice('') }}
+              onClick={() => { setRequestOpen(true); setPanelOpen(false); setConveneOpen(false); setNotice('') }}
             >
               <Icon name="calendar" size={16} />
               <span>Request a meeting</span>
+            </button>
+          )}
+          {/* Admin only. meeting_attendees_admin_insert is what enforces it;
+              this is the second layer. */}
+          {isAdmin && !conveneOpen && (
+            <button
+              type="button"
+              className="meetings__action"
+              onClick={() => { setConveneOpen(true); setPanelOpen(false); setRequestOpen(false); setNotice('') }}
+            >
+              <Icon name="pairings" size={16} />
+              <span>Convene a meeting</span>
             </button>
           )}
         </div>
@@ -294,6 +354,14 @@ export function Meetings() {
           modes={modes}
           onCancel={() => setPanelOpen(false)}
           onSubmit={onSchedule}
+        />
+      )}
+
+      {conveneOpen && (
+        <ConvenePanel
+          modes={modes}
+          onCancel={() => setConveneOpen(false)}
+          onSubmit={onConvene}
         />
       )}
 
@@ -325,6 +393,24 @@ export function Meetings() {
         ))}
       </nav>
 
+      {/* Absent on Requests: meetings_kind_status_check keeps every request
+          state off a convened meeting, so the axis has nothing to filter. */}
+      {!onRequests && (
+        <nav className="meetings__kinds" aria-label="Filter by type">
+          {KIND_FILTERS.map((k) => (
+            <button
+              key={k.key}
+              type="button"
+              className={'meetings__kind' + (kind === k.key ? ' meetings__kind--active' : '')}
+              onClick={() => setKind(k.key)}
+              aria-pressed={kind === k.key}
+            >
+              {k.label}
+            </button>
+          ))}
+        </nav>
+      )}
+
       {loading ? (
         <ul className="meetings__list" aria-busy="true">
           {[0, 1, 2].map((i) => <li key={i} className="meetings__row meetings__row--skel" />)}
@@ -332,6 +418,8 @@ export function Meetings() {
       ) : rows.length === 0 ? (
         <EmptyPanel
           filter={filter}
+          kind={kind}
+          onClearKind={() => setKind(DEFAULT_KIND_FILTER)}
           canSchedule={canSchedule}
           canRequest={canRequest}
           onSchedule={panelOpen ? null : () => setPanelOpen(true)}
@@ -358,6 +446,7 @@ export function Meetings() {
             <MeetingRow
               key={m.id}
               meeting={m}
+              viewerId={profile?.id ?? null}
               canManage={canSchedule}
               busy={busyId === m.id}
               showStatus={filter === 'past'}
@@ -372,214 +461,16 @@ export function Meetings() {
   )
 }
 
-/* ============ Schedule panel ============ */
-
-function SchedulePanel({ pairings, modes, onCancel, onSubmit }) {
-  const [form, setForm] = useState({
-    pairingId:       pairings[0]?.id ?? '',
-    scheduledFor:    defaultMeetingSlot(),
-    durationMinutes: String(DEFAULT_DURATION),
-    mode:            'external',
-    externalLink:    '',
-    location:        ''
-  })
-  const [saving, setSaving] = useState(false)
-  const [err, setErr] = useState('')
-
-  useEffect(() => {
-    if (!form.pairingId && pairings[0]?.id) {
-      setForm((f) => ({ ...f, pairingId: pairings[0].id }))
-    }
-  }, [pairings, form.pairingId])
-
-  const set = (patch) => setForm((f) => ({ ...f, ...patch }))
-  const needsLink     = modeNeedsLink(form.mode)
-  const needsLocation = modeNeedsLocation(form.mode)
-  const usesPhone     = modeUsesMentorPhone(form.mode)
-  const past = isPast(fromLocalInputValue(form.scheduledFor))
-
-  const selected = pairings.find((p) => p.id === form.pairingId) ?? null
-  const phone    = usesPhone ? mentorPhone(selected?.mentor) : null
-
-  const duration = Number(form.durationMinutes)
-  const durationBad = !Number.isFinite(duration) || duration < DURATION_MIN || duration > DURATION_MAX
-  const ready = form.pairingId
-    && form.scheduledFor
-    && !durationBad
-    && (!needsLink || form.externalLink.trim())
-    && (!needsLocation || form.location.trim())
-
-  async function submit() {
-    if (!ready) return
-    setSaving(true)
-    setErr('')
-    try {
-      await onSubmit(form)
-    } catch (e) {
-      setErr(friendlyMeetingError(e))
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  if (pairings.length === 0) {
-    return (
-      <div className="meetings__panel">
-        <h2 className="meetings__panel-title">No active pairings</h2>
-        <p className="meetings__panel-hint">
-          Meetings sit under a pairing. Once you have an active pairing you can schedule against it.
-        </p>
-        <div className="meetings__panel-actions">
-          <button type="button" className="meetings__action" onClick={onCancel}>Close</button>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className="meetings__panel">
-      <h2 className="meetings__panel-title">Schedule a meeting</h2>
-      <p className="meetings__panel-hint">
-        One screen. Pick who, when, and how you are meeting.
-      </p>
-
-      {err && <p className="meetings__form-error" role="alert">{err}</p>}
-
-      <div className="meetings__fields">
-        <label className="meetings__field meetings__field--wide">
-          <span className="meetings__label">Pairing</span>
-          <select
-            className="meetings__input"
-            value={form.pairingId}
-            onChange={(e) => set({ pairingId: e.target.value })}
-          >
-            {pairings.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.mentor?.full_name} and {p.mentee?.full_name}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="meetings__field">
-          <span className="meetings__label">Date and time</span>
-          <input
-            type="datetime-local"
-            className="meetings__input"
-            value={form.scheduledFor}
-            onChange={(e) => set({ scheduledFor: e.target.value })}
-          />
-          {/* D18. Backfilling a meeting that already happened is legitimate
-              and this community will do it, so this warns rather than blocks. */}
-          {past && (
-            <span className="meetings__hint meetings__hint--warn">
-              That time has already passed. Fine if you are recording a meeting that happened.
-            </span>
-          )}
-        </label>
-
-        <label className="meetings__field">
-          <span className="meetings__label">Length in minutes</span>
-          <input
-            type="number"
-            inputMode="numeric"
-            className="meetings__input"
-            min={DURATION_MIN}
-            max={DURATION_MAX}
-            step="5"
-            value={form.durationMinutes}
-            onChange={(e) => set({ durationMinutes: e.target.value })}
-          />
-          {durationBad && (
-            <span className="meetings__hint meetings__hint--warn">
-              Between {DURATION_MIN} and {DURATION_MAX} minutes.
-            </span>
-          )}
-        </label>
-
-        <fieldset className="meetings__field meetings__field--wide">
-          <legend className="meetings__label">How you are meeting</legend>
-          <div className="meetings__modes">
-            {modes.map((m) => (
-              <button
-                key={m.value}
-                type="button"
-                className={'meetings__mode' + (form.mode === m.value ? ' meetings__mode--active' : '')}
-                onClick={() => set({ mode: m.value, externalLink: '', location: '' })}
-                aria-pressed={form.mode === m.value}
-              >
-                <Icon name={MODE_ICONS[m.value]} size={16} />
-                <span className="meetings__mode-label">{m.label}</span>
-                <span className="meetings__mode-hint">{m.hint}</span>
-              </button>
-            ))}
-          </div>
-        </fieldset>
-
-        {needsLink && (
-          <label className="meetings__field meetings__field--wide">
-            <span className="meetings__label">Meeting link</span>
-            <input
-              type="url"
-              className="meetings__input"
-              placeholder="https://"
-              value={form.externalLink}
-              onChange={(e) => set({ externalLink: e.target.value })}
-              autoComplete="off"
-              spellCheck="false"
-            />
-          </label>
-        )}
-
-        {needsLocation && (
-          <label className="meetings__field meetings__field--wide">
-            <span className="meetings__label">Where</span>
-            <input
-              type="text"
-              className="meetings__input"
-              placeholder="Street address, church, or place name"
-              value={form.location}
-              onChange={(e) => set({ location: e.target.value })}
-              autoComplete="off"
-            />
-            <span className="meetings__hint">
-              Both of you see this on the meeting, so write it the way you would give directions.
-            </span>
-          </label>
-        )}
-
-        {/* A phone meeting has no field. The number is read off the mentor's
-            profile rather than copied onto the meeting row. */}
-        {usesPhone && (
-          <div className="meetings__field meetings__field--wide">
-            <span className="meetings__label">Phone</span>
-            <p className={'meetings__phone' + (phone ? '' : ' meetings__phone--missing')}>
-              {phone
-                ? `${selected?.mentor?.full_name ?? 'The mentor'} will call from ${phone}. Your mentee sees this on the meeting.`
-                : `${selected?.mentor?.full_name ?? 'The mentor'} has no phone number saved, so the mentee will not know who to expect a call from. Add one on the profile page.`}
-            </p>
-          </div>
-        )}
-      </div>
-
-      <div className="meetings__panel-actions">
-        <button type="button" className="meetings__action" onClick={onCancel} disabled={saving}>
-          Cancel
-        </button>
-        <button type="button" className="meetings__save" onClick={submit} disabled={!ready || saving}>
-          {saving ? 'Scheduling' : 'Schedule meeting'}
-        </button>
-      </div>
-    </div>
-  )
-}
-
 /* ============ Row ============ */
 
-function MeetingRow({ meeting, canManage, busy, showStatus, isNext, onComplete, onCancel }) {
-  const { scheduledFor, durationMinutes, mode, status, mentor, mentee, location } = meeting
-  const overdue = status === MEETING_STATUS.SCHEDULED && isPast(scheduledFor)
-  const phone   = modeUsesMentorPhone(mode) ? mentorPhone(mentor) : null
+function MeetingRow({ meeting, viewerId, canManage, busy, showStatus, isNext, onComplete, onCancel }) {
+  const { scheduledFor, durationMinutes, mode, status, mentor, mentee, location, attendees } = meeting
+  const convened = meeting.kind === MEETING_KIND.ADMIN
+  const overdue  = status === MEETING_STATUS.SCHEDULED && isPast(scheduledFor)
+
+  // Numbers on a convened meeting come from meeting_contacts on the detail
+  // page, and 0049 confines that view to pairings. Nothing to read here.
+  const phone = !convened && modeUsesMentorPhone(mode) ? mentorPhone(mentor) : null
 
   // Completing a meeting that has not happened is a misclick, and D16 makes it
   // expensive: only an admin can undo it. Cancel is the opposite and stays
@@ -608,8 +499,22 @@ function MeetingRow({ meeting, canManage, busy, showStatus, isNext, onComplete, 
       <div className="meetings__body">
         <p className="meetings__who">
           {isNext && <span className="meetings__next">Next up</span>}
-          <span>{mentor?.full_name ?? 'Mentor'} and {mentee?.full_name ?? 'Mentee'}</span>
+          <span>
+            {convened
+              ? meetingHeading(meeting, viewerId)
+              : `${mentor?.full_name ?? 'Mentor'} and ${mentee?.full_name ?? 'Mentee'}`}
+          </span>
+          {convened && <span className="meetings__kind-tag">Convened</span>}
         </p>
+
+        {/* The title says what it is; this says who is in it. Truncated at
+            three, because a row is not a roster. */}
+        {convened && attendees?.length > 0 && (
+          <p className="meetings__attendees">
+            <Icon name="pairings" size={12} strokeWidth={1.75} />
+            <span>{attendeeSummary(attendees)}</span>
+          </p>
+        )}
 
         <p className="meetings__meta">
           <span>{meetingWhen(scheduledFor)}</span>
@@ -680,7 +585,23 @@ function MeetingRow({ meeting, canManage, busy, showStatus, isNext, onComplete, 
 
 /* ============ Empty ============ */
 
-function EmptyPanel({ filter, canSchedule, canRequest, onSchedule, onRequest }) {
+function EmptyPanel({ filter, kind, onClearKind, canSchedule, canRequest, onSchedule, onRequest }) {
+  // A filtered empty list is not an empty list. Saying "nothing scheduled"
+  // while a type filter is on teaches people the page is broken.
+  if (kind && kind !== DEFAULT_KIND_FILTER) {
+    return (
+      <div className="meetings__empty">
+        <p className="meetings__empty-title">
+          {kind === MEETING_KIND.ADMIN ? 'No convened meetings here' : 'No pairing meetings here'}
+        </p>
+        <p className="meetings__empty-body">
+          Nothing under this tab matches that type. There may be others.
+        </p>
+        <button type="button" className="meetings__save" onClick={onClearKind}>Show all types</button>
+      </div>
+    )
+  }
+
   const copy = {
     upcoming: {
       title: 'Nothing scheduled',
@@ -736,5 +657,16 @@ function ledeFor({ canSchedule, canRequest }) {
 }
 
 function labelFor(meeting) {
+  if (meeting.kind === MEETING_KIND.ADMIN) return meeting.title || 'Convened meeting'
   return `${meeting.mentor?.full_name} and ${meeting.mentee?.full_name}`
+}
+
+// Names, then a count for the rest. A missing name is dropped rather than
+// rendered as a gap, because profiles_visible withholding a row is not the
+// same as somebody having no name.
+function attendeeSummary(attendees) {
+  const named = attendees.map((a) => a.fullName).filter(Boolean)
+  if (named.length === 0) return `${attendees.length} in the room`
+  if (named.length <= 3) return named.join(', ')
+  return `${named.slice(0, 3).join(', ')} and ${named.length - 3} more`
 }
