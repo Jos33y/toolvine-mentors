@@ -8,6 +8,7 @@ import {
   bodyProblem,
   BODY_MAX
 } from '@/lib/testimonies'
+import { optionLabelFor, incompleteLabelsFor } from '@/lib/people'
 
 // Not every testimony arrives through the platform. Some are told in a
 // meeting, some come over WhatsApp, some are said in person. This is where an
@@ -76,6 +77,11 @@ export function TestimonyRecordPanel({ recordedBy, onCancel, onSaved }) {
 
   const linked = Boolean(form.authorId)
 
+  // Linking somebody who cannot reach their account makes the withdrawal right
+  // theoretical, so the form says so rather than reading as a clean consent.
+  const picked = people.find((p) => p.id === form.authorId)
+  const unfinished = picked ? (incompleteLabelsFor(picked).join(' and ') || null) : null
+
   return (
     <div className="tst__panel">
       <h2 className="tst__panel-title">Record a testimony</h2>
@@ -112,8 +118,12 @@ export function TestimonyRecordPanel({ recordedBy, onCancel, onSaved }) {
             disabled={loading}
           >
             <option value="">Somebody without an account</option>
+            {/* A native select holds one line, so name, role and email go on
+                it together. Two active accounts share a name and picking the
+                wrong one publishes somebody's words under another person's
+                account. */}
             {people.map((p) => (
-              <option key={p.id} value={p.id}>{p.full_name}</option>
+              <option key={p.id} value={p.id}>{optionLabelFor(p)}</option>
             ))}
           </select>
         </label>
@@ -149,12 +159,16 @@ export function TestimonyRecordPanel({ recordedBy, onCancel, onSaved }) {
 
         {/* The consequence of the picker, said plainly, because it is the one
             thing on this form that cannot be undone later. */}
-        <p className={'tst__consent' + (linked ? ' tst__consent--linked' : '')}>
-          <Icon name={linked ? 'check' : 'alert'} size={14} strokeWidth={1.75} />
+        <p className={'tst__consent' + (linked && !unfinished ? ' tst__consent--linked' : '')}>
+          <Icon name={linked && !unfinished ? 'check' : 'alert'} size={14} strokeWidth={1.75} />
           <span>
-            {linked
-              ? 'They will be told it is on the wall and can take it down themselves.'
-              : 'Nobody can take this down but an admin, because there is no account to notify.'}
+            {!linked
+              ? 'Nobody can take this down but an admin, because there is no account to notify.'
+              : unfinished
+                // The notice is the consent, and consent from somebody who
+                // cannot reach their account is not consent.
+                ? `They have not finished setting up (${unfinished.toLowerCase()}), so they may not see the notice or find the control to take it down.`
+                : 'They will be told it is on the wall and can take it down themselves.'}
           </span>
         </p>
       </div>

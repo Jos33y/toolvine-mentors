@@ -847,13 +847,25 @@
 /* The whole row is the target, so it clears 44px on touch without a fixed
    height fighting the wrapped name. */
 .convene__pick {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  gap: var(--tv-space-3);
+  column-gap: var(--tv-space-3);
   flex: 1;
+  min-width: 0;
   min-height: 2.25rem;
   cursor: pointer;
 }
+
+/* The checkbox spans both rows so the name and the second line sit beside it
+   rather than the second line wrapping under it. */
+.convene__box {
+  grid-row: 1 / span 3;
+}
+
+.convene__name  { grid-column: 2; }
+.convene__title { grid-column: 2; }
+.convene__roles { grid-column: 2; }
 
 .convene__box {
   width: 1rem;
@@ -870,9 +882,66 @@
   color: var(--tv-text);
 }
 
+/* Second line under the name. It carries the display title when there is one
+   and the email when there is not, because two active accounts share a name
+   and the name alone cannot tell them apart. */
 .convene__title {
+  display: block;
   font-size: var(--tv-fs-xs);
+  line-height: var(--tv-lh-base);
   color: var(--tv-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.convene__you {
+  font-weight: var(--tv-fw-regular);
+  color: var(--tv-text-muted);
+}
+
+/* Which side of the table each person sits on. Sits under the name with the
+   title or email, so the row answers who and what in one glance. */
+.convene__roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tv-space-1);
+  margin-top: var(--tv-space-1);
+}
+
+.convene__role {
+  padding: 0 var(--tv-space-2);
+  font-family: var(--tv-font-body);
+  font-size: var(--tv-fs-xs);
+  font-weight: var(--tv-fw-medium);
+  line-height: 1.6;
+  color: var(--tv-text-2);
+  background: var(--tv-canvas-app);
+  border: var(--tv-border-width) solid var(--tv-border);
+  border-radius: var(--tv-radius-pill);
+}
+
+/* Mentor takes teal and mentee amber, the same pairing the mark uses: the
+   deep-teal leaf is the mentor and the light one the mentee. Admin stays
+   neutral so it does not compete with the two that matter here. */
+.convene__role--mentor {
+  color: var(--tv-primary);
+  background: var(--tv-primary-soft);
+  border-color: var(--tv-primary-soft);
+}
+
+.convene__role--mentee {
+  color: var(--tv-accent-text);
+  background: var(--tv-accent-soft);
+  border-color: var(--tv-accent-soft);
+}
+
+/* Unfinished accounts. Outlined rather than filled, so it reads as a caveat
+   on the row rather than a third role. */
+.convene__role--warn {
+  color: var(--tv-warning-text);
+  background: transparent;
+  border-color: var(--tv-warning);
 }
 
 .convene__notes {
@@ -913,4 +982,27 @@
 @media (max-width: 600px) {
   .convene__person { flex-wrap: wrap; }
   .convene__notes  { margin-left: auto; }
+}
+
+/* ============ Small screens ============ */
+
+/* AppShell already puts var(--tv-space-4) either side of the content. A panel
+   adding var(--tv-space-5) on top of that spends 36px a side, which is 18% of
+   a 393px screen before a single word. Each nested box gives some back. */
+@media (max-width: 600px) {
+  .meetings__panel {
+    padding: var(--tv-space-4) var(--tv-space-3);
+  }
+
+  .meetings__empty {
+    padding: var(--tv-space-8) var(--tv-space-4);
+  }
+
+  .convene__person {
+    padding: var(--tv-space-2);
+  }
+
+  .convene__people {
+    max-height: 60vh;
+  }
 }

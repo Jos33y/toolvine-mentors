@@ -145,20 +145,13 @@ export async function countPendingTestimonies() {
   return count ?? 0
 }
 
-// Who an admin can attach a relayed testimony to. Reads profiles directly
-// because only an admin reaches that form and RLS returns them every row.
-// Deactivated accounts are excluded: somebody who cannot sign in cannot read
-// the notification or withdraw what was written for them.
-export async function fetchTestimonyCandidates() {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('id, full_name, photo_url, is_active')
-    .eq('is_active', true)
-    .order('full_name', { ascending: true })
-
-  if (error) throw error
-  return data ?? []
-}
+// Who an admin can attach a relayed testimony to. Same list the convene picker
+// uses, and it now comes from the same place: this one selected a name and a
+// photo and nothing else, so two accounts sharing a name were indistinguishable
+// and linking the wrong one is not a small mistake. It publishes somebody's
+// words under another person's account and hands them the right to take it
+// down.
+export { fetchActivePeople as fetchTestimonyCandidates } from '@/lib/people'
 
 /* ============ Writes ============ */
 

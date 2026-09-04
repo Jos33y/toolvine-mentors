@@ -492,14 +492,31 @@
 /* ============ Small-screen ============ */
 
 @media (max-width: 760px) {
+  /* AppShell already puts var(--tv-space-4) either side of the content. This
+     page added var(--tv-space-6) on top, so a name sat 40px from the edge of a
+     393px screen and a tenth of the width went to nothing. */
+  .admin-users {
+    padding: var(--tv-space-5) 0 var(--tv-space-16);
+  }
+
+  .admin-users__empty {
+    padding: var(--tv-space-8) var(--tv-space-4);
+  }
+
   /* Two lines rather than five columns, still a fixed height. Name and email
-     above, pills and chip below, the action pinned right across both. */
+     above, pills and chip below, the action pinned right across both.
+
+     The chip gets a column of its own. Both it and the pills used to be
+     assigned grid-area: badges, and a named area does not flow: two children
+     in one area sit on top of each other. Three pills on a row and the chip
+     landed across the last of them. */
   .admin-users__line {
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
     grid-template-areas:
-      'avatar id     action'
-      'avatar badges action';
+      'avatar id     id   action'
+      'avatar badges chip action';
     row-gap: var(--tv-space-1);
+    column-gap: var(--tv-space-2);
     min-height: 68px;
   }
 
@@ -509,13 +526,13 @@
   .admin-users__pills {
     grid-area: badges;
     flex-wrap: wrap;
+    min-width: 0;
   }
 
-  /* The chip rides with the pills so the action keeps the right edge alone. */
   .admin-users__slot:not(.admin-users__slot--action) {
-    grid-area: badges;
-    justify-content: flex-start;
-    justify-self: end;
+    grid-area: chip;
+    align-self: center;
+    justify-content: flex-end;
     min-width: 0;
   }
 

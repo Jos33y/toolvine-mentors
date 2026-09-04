@@ -130,6 +130,12 @@ export function Meetings() {
   }
 
   const modes    = useMemo(() => availableModes(isOn(nativeCalls)), [nativeCalls])
+
+  // Every entry point disappears while any panel is open. Leaving Schedule
+  // visible under an open Convene form means one click swaps the panel and
+  // silently discards whatever was typed into it. The empty state carried its
+  // own copy of the button and gated only on panelOpen, so it stayed put.
+  const anyPanelOpen = panelOpen || requestOpen || conveneOpen
   const askModes = useMemo(() => requestableModes(), [])
 
   const canRequest = Boolean(ownPairing)
@@ -310,7 +316,7 @@ export function Meetings() {
           <p className="meetings__lede">{ledeFor({ canSchedule, canRequest })}</p>
         </div>
         <div className="meetings__head-actions">
-          {canSchedule && !panelOpen && (
+          {canSchedule && !anyPanelOpen && (
             <button
               type="button"
               className="meetings__new"
@@ -320,7 +326,7 @@ export function Meetings() {
               <span>Schedule meeting</span>
             </button>
           )}
-          {canRequest && !requestOpen && (
+          {canRequest && !anyPanelOpen && (
             <button
               type="button"
               className={canSchedule ? 'meetings__action' : 'meetings__new'}
@@ -332,7 +338,7 @@ export function Meetings() {
           )}
           {/* Admin only. meeting_attendees_admin_insert is what enforces it;
               this is the second layer. */}
-          {isAdmin && !conveneOpen && (
+          {isAdmin && !anyPanelOpen && (
             <button
               type="button"
               className="meetings__action"
@@ -360,6 +366,7 @@ export function Meetings() {
       {conveneOpen && (
         <ConvenePanel
           modes={modes}
+          currentUserId={profile?.id ?? null}
           onCancel={() => setConveneOpen(false)}
           onSubmit={onConvene}
         />
@@ -422,8 +429,8 @@ export function Meetings() {
           onClearKind={() => setKind(DEFAULT_KIND_FILTER)}
           canSchedule={canSchedule}
           canRequest={canRequest}
-          onSchedule={panelOpen ? null : () => setPanelOpen(true)}
-          onRequest={requestOpen ? null : () => setRequestOpen(true)}
+          onSchedule={anyPanelOpen ? null : () => setPanelOpen(true)}
+          onRequest={anyPanelOpen ? null : () => setRequestOpen(true)}
         />
       ) : onRequests ? (
         <ul className="meetings__list">

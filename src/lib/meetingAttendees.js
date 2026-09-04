@@ -67,19 +67,10 @@ export async function fetchMyAttendedMeetingIds(profileId) {
   return (data ?? []).map((r) => r.meeting_id)
 }
 
-// Who an admin can put in a room. Reads profiles directly because only an
-// admin reaches this surface and RLS returns them every row. Deactivated
-// accounts are excluded: they cannot sign in, so they cannot attend.
-export async function fetchAttendeeCandidates() {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('id, full_name, photo_url, display_title, is_active')
-    .eq('is_active', true)
-    .order('full_name', { ascending: true })
-
-  if (error) throw error
-  return data ?? []
-}
+// Who an admin can put in a room. Lives in people.js now, because the
+// testimony relay form needs the same list and the two had already begun to
+// diverge: this one grew a roles join and that one did not.
+export { fetchActivePeople as fetchAttendeeCandidates } from '@/lib/people'
 
 /* ============ Writes ============ */
 

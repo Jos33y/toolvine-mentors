@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Icon } from '@/components/shared/Icon/Icon'
-import { fetchAttendeeCandidates, friendlyAttendeeError } from '@/lib/meetingAttendees'
+import { friendlyAttendeeError } from '@/lib/meetingAttendees'
+import { fetchActivePeople, roleLabelsFor, incompleteLabelsFor } from '@/lib/people'
 import {
   modeNeedsLink,
   modeNeedsLocation,
@@ -21,11 +22,12 @@ import {
 //
 // Admin only. meeting_attendees_admin_insert is what enforces that; this panel
 // is not rendered for anyone else.
-export function ConvenePanel({ modes, onCancel, onSubmit }) {
+export function ConvenePanel({ modes, currentUserId, onCancel, onSubmit }) {
   const [people,  setPeople]  = useState([])
   const [loading, setLoading] = useState(true)
   const [saving,  setSaving]  = useState(false)
   const [err,     setErr]     = useState('')
+  const [search,  setSearch]  = useState('')
 
   const [form, setForm] = useState({
     title:           '',
@@ -42,7 +44,7 @@ export function ConvenePanel({ modes, onCancel, onSubmit }) {
 
   useEffect(() => {
     let cancelled = false
-    fetchAttendeeCandidates()
+    fetchActivePeople()
       .then((rows) => { if (!cancelled) { setPeople(rows); setLoading(false) } })
       .catch((e) => { if (!cancelled) { setErr(friendlyAttendeeError(e)); setLoading(false) } })
     return () => { cancelled = true }
@@ -79,6 +81,19 @@ export function ConvenePanel({ modes, onCancel, onSubmit }) {
     () => [...picked.entries()].map(([profileId, canWriteNotes]) => ({ profileId, canWriteNotes })),
     [picked]
   )
+
+  // Anybody already picked stays visible while the search narrows the rest.
+  // Filtering somebody out of view after they were chosen makes the count at
+  // the foot disagree with the list above it.
+  const shown = useMemo(() => {
+    const q = search.trim().toLowerCase()
+    if (!q) return people
+    return people.filter((p) =>
+      picked.has(p.id)
+      || (p.full_name || '').toLowerCase().includes(q)
+      || (p.email || '').toLowerCase().includes(q)
+    )
+  }, [people, picked, search])
 
   const keepers = attendees.filter((a) => a.canWriteNotes).length
 
@@ -216,13 +231,26 @@ export function ConvenePanel({ modes, onCancel, onSubmit }) {
             Anyone not marked cannot read them.
           </p>
 
+          {people.length > 8 && (
+            <input
+              type="search"
+              className="meetings__input"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by name or email"
+              autoComplete="off"
+            />
+          )}
+
           {loading ? (
             <div className="meetings__row meetings__row--skel" aria-busy="true" />
           ) : people.length === 0 ? (
             <p className="meetings__hint">No active accounts to add.</p>
+          ) : shown.length === 0 ? (
+            <p className="meetings__hint">Nobody matches that. Clear the search to see everyone.</p>
           ) : (
             <ul className="convene__people">
-              {people.map((p) => {
+              {shown.map((p) => {
                 const on = picked.has(p.id)
                 return (
                   <li className={'convene__person' + (on ? ' convene__person--on' : '')} key={p.id}>
@@ -233,10 +261,39 @@ export function ConvenePanel({ modes, onCancel, onSubmit }) {
                         checked={on}
                         onChange={() => toggle(p.id)}
                       />
-                      <span className="convene__name">{p.full_name}</span>
-                      {p.display_title && (
-                        <span className="convene__title">{p.display_title}</span>
-                      )}
+                      <span className="convene__name">
+                        {p.full_name}
+                        {/* You can attend a meeting you convene, so the row
+                            stays. Unmarked it reads as somebody else. */}
+                        {p.id === currentUserId && <span className="convene__you"> (you)</span>}
+                      </span>
+                      {/* Two active accounts share the name Adedoyin Olajumoke
+                          Jegede. Without a second line there is no way to pick
+                          the right one, and picking the wrong one is silent. */}
+                      <span className="convene__title">{p.display_title || p.email}</span>
+
+                      {/* Which side of the table they sit on. All of their
+                          roles, not just the highest: somebody who is both a
+                          mentor and a mentee is the person most likely to be
+                          placed in the wrong room. */}
+                      <span className="convene__roles">
+                        {roleLabelsFor(p.roles).map((label) => (
+                          <span
+                            key={label}
+                            className={`convene__role convene__role--${label.toLowerCase()}`}
+                          >
+                            {label}
+                          </span>
+                        ))}
+                        {/* Said rather than hidden. Somebody who has not
+                            finished is often the reason for the meeting, so
+                            they stay in the list and sort to the bottom. */}
+                        {incompleteLabelsFor(p).map((label) => (
+                          <span key={label} className="convene__role convene__role--warn">
+                            {label}
+                          </span>
+                        ))}
+                      </span>
                     </label>
 
                     {/* Only offered once somebody is in the room. A note
