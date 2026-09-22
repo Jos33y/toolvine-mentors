@@ -12,6 +12,7 @@ import oluwaseyiPhoto from '@/assets/portraits/oluwaseyi-oladepo.png'
 import adedoyinPhoto  from '@/assets/portraits/adedoyin-jegede.png'
 import olayinkaPhoto  from '@/assets/portraits/olayinka-ajayi.png'
 import adedayoPhoto   from '@/assets/portraits/adedayo-adewole.jpg'
+import emmanuelPhoto  from '@/assets/portraits/emmanuel-dania.png'
 
 /* ============ People ============ */
 
@@ -25,8 +26,7 @@ export const PEOPLE = {
   adedoyin: { id: 'adedoyin', name: 'Adedoyin Jegede',            photo: adedoyinPhoto },
   // Portrait not supplied yet. Falls back to initials.
   kikelomo: { id: 'kikelomo', name: 'Kikelomo Olabamiji',         photo: null },
-  // Portrait not supplied yet. Falls back to initials.
-  emmanuel: { id: 'emmanuel', name: 'Emmanuel Dania',             photo: null }
+  emmanuel: { id: 'emmanuel', name: 'Emmanuel Dania',             photo: emmanuelPhoto }
 }
 
 export function personFor(id) {

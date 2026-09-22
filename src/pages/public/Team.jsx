@@ -11,13 +11,18 @@ import {
   appearsMoreThanOnce,
   initialsFor
 } from '@/lib/team'
+import { countWord } from '@/lib/format'
 import './Team.css'
+
+// Counted from team.js so the copy moves when the roster does.
+const BOARD_COUNT = countWord(BOARD.length)
+const TEAM_COUNT  = countWord(TEAMS.length)
 
 /* ============ Component ============ */
 
 export function Team() {
-  // Which person is under the cursor. Four of the six team leads also sit on
-  // the board, so hovering one appearance marks the others.
+  // Which person is under the cursor. Several team leads also sit on the
+  // board, so hovering one appearance marks the others.
   const [activeId, setActiveId] = useState(null)
 
   const linkProps = useCallback((id) => {
@@ -46,7 +51,7 @@ export function Team() {
           <em className="team__title-italic">who carry it.</em>
         </h1>
         <p className="team__intro">
-          A board of five, seven teams, and the people who lead them.
+          A board of {BOARD_COUNT}, {TEAM_COUNT} teams, and the people who lead them.
           This is who we are today.
         </p>
       </header>
@@ -97,7 +102,7 @@ export function Team() {
             <p className="team__section-eyebrow">THE BOARD</p>
             <h2 className="team__section-title">Our stewards.</h2>
             <p className="team__section-note">
-              Five members steward the direction of the initiative.
+              {countWord(BOARD.length, { capitalise: true })} members steward the direction of the initiative.
             </p>
           </div>
 
@@ -131,7 +136,7 @@ export function Team() {
             <p className="team__section-eyebrow">THE TEAMS</p>
             <h2 className="team__section-title">Carried day to day.</h2>
             <p className="team__section-note">
-              Six teams keep the work moving, each one led by a mentor.
+              {countWord(TEAMS.length, { capitalise: true })} teams keep the work moving, each one led by a mentor.
             </p>
           </div>
 

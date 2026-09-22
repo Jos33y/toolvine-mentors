@@ -1,4 +1,4 @@
-// Display helpers for dates and times across the dashboard. Mentor-readable
+// Display helpers for dates, times and counts across the product. Mentor-readable
 // phrasing without weekdays-and-seconds clutter. Uses the browser timezone
 // so a mentor in Lagos sees Lagos times without us pretending the platform
 // is UTC-only.
@@ -99,6 +99,22 @@ export function pairingRangeLabel(startIso, endIso) {
 
   return `${pairedSinceLabel(startIso)} to ${pairedSinceLabel(endIso)}`
 }
+
+// ============ Counts ============
+
+// Counts set as words in running copy, so a page never states a number the
+// data behind it has moved past. Above twelve a numeral reads better.
+const COUNT_WORDS = [
+  'zero', 'one', 'two', 'three', 'four', 'five', 'six',
+  'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'
+]
+
+export function countWord(n, { capitalise = false } = {}) {
+  const word = COUNT_WORDS[n] ?? String(n)
+  return capitalise ? word.charAt(0).toUpperCase() + word.slice(1) : word
+}
+
+// ============ Internal ============
 
 function isSameDay(a, b) {
   return a.getFullYear() === b.getFullYear()

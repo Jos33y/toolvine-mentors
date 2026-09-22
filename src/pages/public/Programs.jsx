@@ -10,11 +10,10 @@ import {
   programmeWhenParts,
   programmeDayOnly
 } from '@/lib/programmes'
+import { countWord } from '@/lib/format'
 import './Programs.css'
 
 /* ============ Data ============ */
-
-const BADGES = ['Four programs', 'Monthly rhythm', 'Open to all', 'Free to join']
 
 const PROGRAMS = [
   {
@@ -28,7 +27,7 @@ const PROGRAMS = [
   {
     mark: 'B',
     slug: 'pray',
-    title: 'Toolvine Pray',
+    title: 'Toolvine Prays',
     body: 'Our monthly prayer meeting, led by a team drawn from across the community.',
     cadence: 'Monthly',
     audience: 'Prayer team-led'
@@ -47,8 +46,28 @@ const PROGRAMS = [
     title: 'Toolvine Equip',
     body: 'Training for mentors and mentees, present and incoming. Where the work of mentoring gets sharpened.',
     cadence: 'Ongoing',
-    audience: 'Mentors and mentees'
+    audience: 'Mentors and mentees',
+    manual: true
+  },
+  {
+    mark: 'E',
+    slug: 'others',
+    title: 'Others',
+    body: 'The Toolvine Working Teams Meeting, and any other gathering Toolvine calls as the work requires.',
+    cadence: 'As called',
+    audience: 'Working teams',
+    manual: true
   }
+]
+
+// Counted from the list so adding a programme never leaves the copy behind.
+const PROGRAM_COUNT = countWord(PROGRAMS.length)
+
+const BADGES = [
+  `${countWord(PROGRAMS.length, { capitalise: true })} programs`,
+  'Monthly rhythm',
+  'Open to all',
+  'Free to join'
 ]
 
 const CADENCE = [
@@ -89,13 +108,13 @@ const MENTOR_COMMITMENTS = [
 // The visual stack is hidden from assistive tech and the whole sentence is
 // exposed once instead. "SUN 20 SEPTEMBER" read out is worse than "Sunday 20
 // September, 7:00 PM WAT", and reading both is worst of all.
-function WhenPlate({ row, slug }) {
+function WhenPlate({ row, manual }) {
   const parts = programmeWhenParts(row)
 
   if (!parts) {
     return (
       <p className="prog__when prog__when--none">
-        {slug === 'equip' ? 'Announced when scheduled' : 'Date to be confirmed'}
+        {manual ? 'Announced when scheduled' : 'Date to be confirmed'}
       </p>
     )
   }
@@ -162,7 +181,7 @@ export function Programs() {
           The <em className="prog__title-italic">programs</em> we run.
         </h1>
         <p className="prog__subtitle">
-          Every month, our community meets. Four programs shape how we gather, pray, train, and stay connected.
+          Every month, our community meets. {countWord(PROGRAMS.length, { capitalise: true })} programs shape how we gather, pray, train, and stay connected.
         </p>
         <div className="prog__badges">
           {BADGES.map((b) => <span key={b} className="prog__badge">{b}</span>)}
@@ -173,7 +192,7 @@ export function Programs() {
       </header>
 
       {/* ============ Programs: dossier rows on atmospheric dark teal ============ */}
-      <section className="prog__programs" aria-label="The four programs">
+      <section className="prog__programs" aria-label={`The ${PROGRAM_COUNT} programs`}>
         <div className="prog__programs-glow" aria-hidden="true" />
         <div className="prog__programs-grid" aria-hidden="true" />
         <div className="prog__programs-grain" aria-hidden="true" />
@@ -208,7 +227,7 @@ export function Programs() {
 
                   {/* Q28. The next one only. The serif letter anchors the row
                       on the left; this is what answers it on the right. */}
-                  <WhenPlate row={next.get(p.slug)} slug={p.slug} />
+                  <WhenPlate row={next.get(p.slug)} manual={p.manual} />
                 </article>
               </RevealOnScroll>
             ))}
